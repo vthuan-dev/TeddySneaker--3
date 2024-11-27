@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{/layout/layout_admin :: main-fragment(
+                                                ~{:: title},
+                                                'header',
+                                                'sidebar',
+                                                ~{:: #css-resources},
+                                                ~{:: #js-resources},
+                                                ~{:: #main-content}
+                                               )}">
+<head>
+<meta charset="UTF-8">
+<title>Thêm tài khoản</title>
+</head>
+<body>
+	<section role="main" class="content-body" id="main-content">
+		<header class="page-header">
+			<!--        <h2>Editable Tables</h2>-->
+			<div class="right-wrapper text-right">
+				<ol class="breadcrumbs">
+					<li><a href="index.html"> <i class="bx bx-home-alt"></i>
+					</a></li>
+					<li><a href="/admin/users"><span>Danh sách tài
+								khoản</span></a></li>
+					<li><span>Tạo mới tài khoản</span></li>
+				</ol>
+				<a class="sidebar-right-toggle" data-open="sidebar-right"><i
+					class="fas fa-chevron-left"></i></a>
+			</div>
+		</header>
+		<section class="card">
+			<header class="card-header">
+				<div class="card-actions">
+					<a href="#" class="card-action card-action-toggle" data-card-toggle></a>
+					<a href="#" class="card-action card-action-dismiss"
+						data-card-dismiss></a>
+				</div>
+				<h2 class="card-title">Tạo tài khoản</h2>
+				<br>
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="mb-3">
+							<a href="/admin/users" class="btn btn-primary"><i
+								class="fas fa-chevron-left"></i> Trở về</a>
+							<button type="button" id="addToTable"
+								class="btn btn-primary btn-create-user">
+								Tạo tài khoản <i class="fas fa-plus"></i>
+							</button>
+
+						</div>
+					</div>
+				</div>
+			</header>
+			<div class="card-body ">
+				<!-- Main content -->
+				<div class="row">
+					<div class="col-lg-4 col-md-8 col-12">
+						<div class="card card-outline">
+							<div class="card-body pad promotion-box">
+								<div class="form-group">
+									<div>
+										<label class="required-label" for="email">Email</label> <span
+											class="invalid-feedback" id="invalid-feedback-email">Vui
+											lòng nhập email</span>
+									</div>
+									<input type="text" class="form-control" id="email">
+								</div>
+								<div class="form-group">
+									<div>
+										<label class="required-label" for="fullName">Họ tên</label> <span
+											class="invalid-feedback" id="invalid-feedback-fullName">Vui
+											lòng nhập đầy đủ họ tên</span>
+									</div>
+									<input type="text" class="form-control" id="fullName">
+								</div>
+								<div class="form-group">
+									<div>
+										<label class="required-label" for="phone">Số điện
+											thoại</label> <span class="invalid-feedback"
+											id="invalid-feedback-phone">Vui lòng nhập số điện
+											thoại</span>
+									</div>
+									<input type="text" class="form-control" id="phone">
+								</div>
+								<div class="form-group">
+									<label for="role" class="required-label">Chức vụ</label> <select
+										class="form-control" id="role">
+										<option value="USER">User</option>
+										<option value="ADMIN">Admin</option>
+									</select>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</section>
+
+	<th:block id="js-resources">
+		<script th:inline="javascript">
+        $('.btn-create-user').click(function () {
+            let fullName = $('#fullName').val();
+            let email = $('#email').val();
+            let phone = $('#phone').val();
+            let role = $('#role').val();
+            let regex = new RegExp("^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯưẠ-ỹ\\s]+$");
+            let phoneRegex = new RegExp("^[0-9]{10,11}$");
+            let emailRegex = new RegExp("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+            let isValid = true;
+            if (fullName.length === 0 || regex.test(fullName) === false) {
+                $('#invalid-feedback-fullName').show();
+                isValid = false;
+            }else {
+                $('#invalid-feedback-fullName').hide(); // Hide the error message if valid
+            }
+            if (phone.length === 0 || phone.length > 11 || phoneRegex.test(phone) === false ) {
+                $('#invalid-feedback-phone').show();
+                isValid = false;
+            } else {
+                $('#invalid-feedback-phone').hide(); // Hide the error message if valid
+            }
+			if (email.length === 0 || emailRegex.test(email) === false) {
+			    $('#invalid-feedback-email').show();
+			    isValid = false;
+			} else {
+			    $('#invalid-feedback-email').hide(); // Hide the error message if valid
+			}
+            if (isValid) {
+                req = {
+                	fullName: fullName.trim(),
+                    phone: phone.trim(),
+                    password: "123456",
+                    email: email.trim(),
+                    role: role
+                }
+                var myJSON = JSON.stringify(req);
+                $.ajax({
+                    url: '/api/admin/users/create',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: myJSON,
+                    success: function (data) {
+                        toastr.success("Tạo tài khoản thành công");
+                        setTimeout(function () {
+                            location.href = "/admin/users";
+                        }, 1000);
+                    },
+                    error: function (error) {
+                        toastr.warning(error.responseJSON.message);
+                    }
+                })
+            } 
+        })
+    </script>
+	</th:block>
+</body>
+</html>
