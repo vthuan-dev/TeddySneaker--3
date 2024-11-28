@@ -136,7 +136,7 @@
                                     name="user[]" id="user">
                                 <th:block th:each="user : ${listUser}">
                                     <option th:value="${user.id}"
-                                            th:text="${user.fullName}"></option>
+                                            th:text="${user.fullName} + ' - ' + ${user.email}"></option>
                                 </th:block>
                             </select>
                         </div>

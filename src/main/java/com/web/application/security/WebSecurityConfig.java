@@ -6,6 +6,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -35,18 +36,42 @@ public class WebSecurityConfig {
 	}
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-		httpSecurity.cors().and().csrf().disable().authorizeRequests()
-				.requestMatchers("/api/order", "/tai-khoan", "/tai-khoan/**", "/api/change-password",
-						"/api/update-profile")
-				.authenticated().requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN").anyRequest().permitAll()
-				.and().logout().logoutUrl("/api/logout").logoutSuccessUrl("/").deleteCookies("JWT_TOKEN").and()
-				.exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
-		httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
-
-		return httpSecurity.build();
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		return http.csrf(AbstractHttpConfigurer::disable)
+				.cors(AbstractHttpConfigurer::disable)
+				.authorizeHttpRequests(request -> {
+					request.requestMatchers("/api/order", "/tai-khoan", "/tai-khoan/**", "/api/change-password", "/api/update-profile")
+							.authenticated();
+					request.requestMatchers("/admin/**", "/api/admin/**")
+							.hasRole("ADMIN");
+					request.anyRequest().permitAll();
+				})
+				.logout(logout -> logout
+						.logoutUrl("/api/logout")
+						.logoutSuccessUrl("/")
+						.deleteCookies("JWT_TOKEN"))
+				.exceptionHandling(exception -> exception
+						.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+				.sessionManagement(session -> session
+						.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
+				.build();
 	}
+
+
+//	@Bean
+//	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+//		httpSecurity.cors().and().csrf().disable().authorizeRequests()
+//				.requestMatchers("/api/order", "/tai-khoan", "/tai-khoan/**", "/api/change-password",
+//						"/api/update-profile")
+//				.authenticated().requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN").anyRequest().permitAll()
+//				.and().logout().logoutUrl("/api/logout").logoutSuccessUrl("/").deleteCookies("JWT_TOKEN").and()
+//				.exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
+//				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+//
+//		httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+//
+//		return httpSecurity.build();
+//	}
 
 }

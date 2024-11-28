@@ -25,9 +25,7 @@ public class CustomUserDetails implements UserDetails {
 	 @Override
 	    public Collection<? extends GrantedAuthority> getAuthorities() {
 	        ArrayList<GrantedAuthority> roles = new ArrayList<>();
-	        System.out.println("số lượng: "+user.getRoles().size());
 	        for (String role : user.getRoles()) {
-	        	System.out.println("tên: "+role);
 	            roles.add(new SimpleGrantedAuthority("ROLE_" + role));
 	        }
 	        return roles;

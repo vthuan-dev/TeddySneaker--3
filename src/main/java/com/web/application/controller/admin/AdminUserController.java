@@ -28,11 +28,11 @@ public class AdminUserController {
 	private UserService userService;
 
 	@GetMapping("/admin/users")
-	public String homePages(Model model, @RequestParam(defaultValue = "", required = false) String fullName,
+	public String homePages(Model model,
+			@RequestParam(defaultValue = "", required = false) String fullName,
 			@RequestParam(defaultValue = "", required = false) String phone,
 			@RequestParam(defaultValue = "", required = false) String email,
 			@RequestParam(defaultValue = "", required = false) String role,
-			@RequestParam(defaultValue = "", required = false) String address,
 			@RequestParam(defaultValue = "1", required = false) Integer page) {
 		Page<User> users = userService.adminListUserPages(fullName, phone, email, role, page);
 		model.addAttribute("users", users.getContent());
@@ -42,11 +42,11 @@ public class AdminUserController {
 	}
 
 	@GetMapping("/api/admin/users/list")
-	public ResponseEntity<Object> getListUserPages(@RequestParam(defaultValue = "", required = false) String fullName,
+	public ResponseEntity<Object> getListUserPages(
+			@RequestParam(defaultValue = "", required = false) String fullName,
 			@RequestParam(defaultValue = "", required = false) String phone,
 			@RequestParam(defaultValue = "", required = false) String email,
 			@RequestParam(defaultValue = "", required = false) String role,
-			@RequestParam(defaultValue = "", required = false) String address,
 			@RequestParam(defaultValue = "1", required = false) Integer page) {
 		Page<User> users = userService.adminListUserPages(fullName, phone, email, role, page);
 		return ResponseEntity.ok(users);
