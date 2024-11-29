@@ -18,44 +18,23 @@
 <body>
 <main class="main" id="main-content">
     <div class="home-slider owl-carousel owl-theme owl-carousel-lazy show-nav-hover nav-big mb-2 text-uppercase" data-owl-options="{
+                'autoplay':true,
+                'autoplayTimeout':10000,
 				'loop': true
 			}">
         <div class="home-slide home-slide1 banner">
             <img class="owl-lazy slide-bg" th:src="@{/shop/images/slider/nike-just-do-it.jpg}" data-src="shop/images/slider/nike-just-do-it.jpg" alt="slider image">
-<!--            <div class="container">-->
-<!--                <div class="banner-layer banner-layer-middle">-->
-<!--                    <h4 class="text-transform-none m-b-3">Find the Boundaries. Push Through!</h4>-->
-<!--                    <h2 class="text-transform-none mb-0">Summer Sale</h2>-->
-<!--                    <h3 class="m-b-3">70% Off</h3>-->
-<!--                    <h5 class="d-inline-block mb-0">-->
-<!--                        Starting At-->
-<!--                        <b class="coupon-sale-text ml-4 mr-1 text-white bg-secondary align-middle">$<em class="align-text-top">199</em>99</b>-->
-<!--                    </h5>-->
-<!--                </div>&lt;!&ndash; End .banner-layer &ndash;&gt;-->
-<!--            </div>-->
         </div><!-- End .home-slide -->
 
         <div class="home-slide home-slide2 banner banner-md-vw">
             <img class="owl-lazy slide-bg" th:src="@{/shop/images/slider/nike-just-do-it (1).jpg}" data-src="shop/images/slider/nike-just-do-it (1).jpg" alt="slider image">
-<!--            <div class="container">-->
-<!--                <div class="banner-layer banner-layer-middle d-flex justify-content-center">-->
-<!--                    <div class="mx-auto">-->
-<!--                        <h4 class="m-b-1">Extra</h4>-->
-<!--                        <h3 class="m-b-2">20% off</h3>-->
-<!--                        <h3 class="mb-2 heading-border">Accessories</h3>-->
-<!--                        <h2 class="text-transform-none m-b-4">Summer Sale</h2>-->
-<!--                        <a href="category.html" class="btn btn-block btn-dark">Shop All Sale</a>-->
-<!--                    </div>-->
-<!--                </div>&lt;!&ndash; End .banner-layer &ndash;&gt;-->
-<!--            </div>-->
         </div><!-- End .home-slide -->
     </div><!-- End .home-slider -->
 
     <div class="container">
         <div class="info-boxes-slider owl-carousel owl-theme mb-2" data-owl-options="{
 					'dots': false,
-
-					'loop': true,
+					'loop': false,
 					'responsive': {
 						'576': {
 							'items': 2

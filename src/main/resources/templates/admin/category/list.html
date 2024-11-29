@@ -27,8 +27,7 @@
                         <i class="bx bx-home-alt"></i>
                     </a>
                 </li>
-                <li><span>Tables</span></li>
-                <li><span>Editable</span></li>
+                <li><span>Quản lý danh mục</span></li>
             </ol>
             <a class="sidebar-right-toggle" data-open="sidebar-right"><i
                     class="fas fa-chevron-left"></i></a>
@@ -61,7 +60,6 @@
                     <th>ID</th>
                     <th>Tên danh mục</th>
                     <th>Trạng thái danh mục</th>
-                    <th>Thứ tự danh mục</th>
                     <th>Ngày tạo danh mục</th>
                     <th>Ngày sửa danh mục</th>
                     <th>Thao tác</th>
@@ -81,8 +79,7 @@
                                 <option value="1">Hiển thị</option>
                             </select>
                         </th>
-                        <th></th>
-                        <th></th>
+                        <th><input type="text" name="createAt" id="createAt" class="form-control search-input"></th>
                         <th></th>
                         <th></th>
                         <input type="hidden" name="page" id="page">
@@ -95,7 +92,6 @@
                         <td th:text="${category.id}"></td>
                         <td class="category-name" th:data-id="${category.id}" th:text="${category.name}"></td>
                         <td class="category-status" th:text="${category.status?'Hiện':'Ẩn'}"></td>
-                        <td th:text="${category.order}"></td>
                         <td th:text="${#dates.format(category.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
                         <td th:text="${#dates.format(category.modifiedAt, 'dd-MM-yyyy HH:mm')}"></td>
                         <td class="actions">

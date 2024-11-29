@@ -26,13 +26,13 @@ public class CategoryServiceImpl implements CategoryService {
     private CategoryRepository categoryRepository;
 
     @Override
-    public Page<Category> adminGetListCategory(String id, String name, String status, int page) {
+    public Page<Category> adminGetListCategory(String id, String name, String status, String createAt, int page) {
         page--;
         if (page <= 0) {
             page = 0;
         }
         Pageable pageable = PageRequest.of(page, Contant.LIMIT_CATEGORY, Sort.by("created_at").descending());
-        return categoryRepository.adminGetListCategory(id, name, status, pageable);
+        return categoryRepository.adminGetListCategory(id, name, status, createAt, pageable);
     }
 
     @Override
@@ -40,7 +40,6 @@ public class CategoryServiceImpl implements CategoryService {
 
         for (int id: ids){
             Optional<Category> category = categoryRepository.findById((long) id);
-            category.get().setOrder(0);
             categoryRepository.save(category.get());
         }
     }

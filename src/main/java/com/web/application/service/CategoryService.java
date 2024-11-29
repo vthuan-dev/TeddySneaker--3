@@ -20,7 +20,7 @@ public interface CategoryService {
 
     void deleteCategory(long id);
 
-    Page<Category> adminGetListCategory(String id, String name, String status, int page);
+    Page<Category> adminGetListCategory(String id, String name, String status, String createAt, int page);
 
     void updateOrderCategory(int[] ids);
 

@@ -27,8 +27,7 @@
                         <i class="bx bx-home-alt"></i>
                     </a>
                 </li>
-                <li><a href="/admin/orders"><span>Danh sách đơn hàng</span></a></li>
-                <li><span>Tạo đơn hàng</span></li>
+                <li><span>Bán hàng tại quầy</span></li>
             </ol>
             <a class="sidebar-right-toggle" data-open="sidebar-right"><i
                     class="fas fa-chevron-left"></i></a>
@@ -291,7 +290,7 @@
                                                 <label for="promotion-${tabIndex}">Khuyến mãi</label>
                                                 <select class="form-control" id="promotion-${tabIndex}">
                                                     <option value="">Chọn khuyến mãi</option>
-                                                    ${promotions.map(promotion => `
+                                                    ${promotions.filter(promotion => promotion.public).map(promotion => `
                                                     <option value="${promotion.couponCode}" ${promotion.couponCode == promotionCode ? 'selected' : ''}>
                                                         ${promotion.couponCode} - ${promotion.discountType === 1 
                                                             ? promotion.discountValue + '%' 
@@ -347,6 +346,8 @@
                                                            id="receiver-phone-${tabIndex}" value="${phone || ''}">
                                                     <span class="invalid-feedback"
                                                           id="invalid-feedback-phone-${tabIndex}">Số điện thoại trống</span>
+                                                    <span class="invalid-feedback"
+                                                          id="invalid-feedback-form-phone-${tabIndex}">Số điện thoại không hợp lệ</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -410,6 +411,11 @@
                 $(`#invalid-feedback-phone-${tabIndex}`).show();
                 isValid = false;
             }
+            if (!/((09|03|07|08|05)+([0-9]{8})\b)/g.test(receiverPhone)) {
+                $(`#invalid-feedback-form-phone-${tabIndex}`).show();
+                isValid = false;
+            }
+
             if (receiverAddress.length === 0) {
                 $(`#invalid-feedback-address-${tabIndex}`).show();
                 isValid = false;
@@ -452,6 +458,7 @@
                 removeTabs(tabIndex);
             }
         }
+
         $(document).ready(function () {
             // Khởi tạo tabs từ localStorage
             loadTabsFromLocalStorage();

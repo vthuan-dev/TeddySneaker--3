@@ -216,7 +216,7 @@ public class HomeController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/api/tim-kiem")
+    @GetMapping("/tim-kiem")
     public String searchProduct(Model model, @RequestParam(required = false) String keyword, @RequestParam(required = false) Integer page) {
 
         PageableDTO result = productService.searchProductByKeyword(keyword, page);

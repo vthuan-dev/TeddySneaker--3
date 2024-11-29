@@ -28,7 +28,7 @@
                         <i class="bx bx-home-alt"></i>
                     </a>
                 </li>
-                <li><a href="/admin/orders"><span>Thông tin đơn hàng</span></a></li>
+                <li><a href="/admin/orders"><span>Quản lý đơn hàng</span></a></li>
                 <li><span th:text="'Đơn hàng ' + ${order.id}"></span></li>
             </ol>
             <a class="sidebar-right-toggle" data-open="sidebar-right"><i
@@ -518,7 +518,7 @@
                     success: function(data) {
                         toastr.success("Cập nhật thành công");
                         setTimeout(function() {
-                            location.href = "/admin/orders/update/"+[[${order.id}]];
+                            location.href = "/admin/orders";
                         }, 1000)
                     },
                     error: function(error) {

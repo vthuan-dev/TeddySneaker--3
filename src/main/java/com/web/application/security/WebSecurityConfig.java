@@ -58,7 +58,7 @@ public class WebSecurityConfig {
 				.build();
 	}
 
-
+//	Để lại làm tài liệu tham khảo
 //	@Bean
 //	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 //		httpSecurity.cors().and().csrf().disable().authorizeRequests()

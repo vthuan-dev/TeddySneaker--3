@@ -16,6 +16,5 @@ public class CreateCategoryRequest {
     @NotBlank(message = "Tên danh mục trống")
     @Size(max = 50,message = "Tên danh mục có độ dài tối đa 50 ký tự!")
     private String name;
-
     private boolean status;
 }

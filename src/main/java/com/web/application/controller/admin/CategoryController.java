@@ -24,9 +24,10 @@ public class CategoryController {
                            @RequestParam(defaultValue = "",required = false) String id,
                            @RequestParam(defaultValue = "",required = false) String name,
                            @RequestParam(defaultValue = "",required = false) String status,
+                           @RequestParam(defaultValue = "",required = false) String createAt,
                            @RequestParam(defaultValue = "1",required = false) Integer page){
 
-        Page<Category> categories = categoryService.adminGetListCategory(id,name,status,page);
+        Page<Category> categories = categoryService.adminGetListCategory(id,name,status,createAt,page);
         model.addAttribute("categories",categories.getContent());
         model.addAttribute("totalPages",categories.getTotalPages());
         model.addAttribute("currentPage", categories.getPageable().getPageNumber() + 1);
@@ -39,8 +40,9 @@ public class CategoryController {
     public ResponseEntity<Object> adminGetListCategories(@RequestParam(defaultValue = "",required = false) String id,
                                                          @RequestParam(defaultValue = "",required = false) String name,
                                                          @RequestParam(defaultValue = "",required = false) String status,
+                                                         @RequestParam(defaultValue = "",required = false) String createAt,
                                                          @RequestParam(defaultValue = "0",required = false) Integer page){
-        Page<Category> categories = categoryService.adminGetListCategory(id,name,status,page);
+        Page<Category> categories = categoryService.adminGetListCategory(id,name,status,createAt,page);
         return ResponseEntity.ok(categories);
 
     }

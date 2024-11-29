@@ -116,7 +116,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             "ON product.id = product_category.product_id " +
             "INNER JOIN category " +
             "ON category.id = product_category.category_id " +
-            "WHERE product.status = true AND (product.name LIKE CONCAT('%',:keyword,'%') OR category.name LIKE CONCAT('%',:keyword,'%')) ")
+            "WHERE product.status = 1 AND (product.name LIKE CONCAT('%',:keyword,'%') OR category.name LIKE CONCAT('%',:keyword,'%')) ")
     int countProductByKeyword(@Param("keyword") String keyword);
 
     @Query(name = "getProductOrders",nativeQuery = true)

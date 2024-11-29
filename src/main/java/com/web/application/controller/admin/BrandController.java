@@ -32,7 +32,7 @@ public class BrandController {
 	@GetMapping("/admin/brands")
 	public String homePage(Model model, @RequestParam(defaultValue = "", required = false) String keyword,
 			@RequestParam(defaultValue = "1", required = false) Integer page) {
-		// Lấy tất cả các anh của user upload
+		// Lấy tất cả các ảnh của user upload
 		User user = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
 				.getUser();
 		List<String> images = imageService.getListImageOfUser(user.getId());
