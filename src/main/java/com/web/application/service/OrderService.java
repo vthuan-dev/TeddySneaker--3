@@ -14,7 +14,7 @@ import java.util.List;
 
 @Service
 public interface OrderService {
-    Page<Order> adminGetListOrders(String id, String name, String phone, String status, String product, int page);
+    Page<Order> adminGetListOrders(String id, String name, String phone, String status, String product, String createdAt, String modifiedAt, int page);
 
     Order createOrder(CreateOrderRequest createOrderRequest, long userId);
 

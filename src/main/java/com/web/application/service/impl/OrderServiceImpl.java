@@ -52,14 +52,14 @@ public class OrderServiceImpl implements OrderService {
     private StatisticRepository statisticRepository;
 
     @Override
-    public Page<Order> adminGetListOrders(String id, String name, String phone, String status, String product, int page) {
+    public Page<Order> adminGetListOrders(String id, String name, String phone, String status, String product, String createdAt, String modifiedAt, int page) {
         page--;
         if (page < 0) {
             page = 0;
         }
         int limit = 10;
-        Pageable pageable = PageRequest.of(page, limit, Sort.by("created_at").descending());
-        return orderRepository.adminGetListOrder(id, name, phone, status, product, pageable);
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("id").ascending());
+        return orderRepository.adminGetListOrder(id, name, phone, status, product, createdAt, modifiedAt, pageable);
     }
 
     @Override

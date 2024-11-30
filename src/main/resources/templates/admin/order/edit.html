@@ -121,6 +121,7 @@
                                                         </div>
                                                         <input id="receiver-phone" type="text" class="form-control" th:value="${order.receiverPhone}" th:readonly="${order.status} != 1">
                                                         <span class="invalid-feedback" id="invalid-feedback-phone">Điện thoại trống</span>
+                                                        <span class="invalid-feedback" id="invalid-feedback-form-phone">Số điện thoại không hợp lệ</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -496,11 +497,14 @@
                 $('#invalid-feedback-phone').show();
                 isValid = false;
             }
+            if (!/((09|03|07|08|05)+([0-9]{8})\b)/g.test(receiverPhone)) {
+                $('#invalid-feedback-form-phone').show();
+                isValid = false;
+            }
             if (receiverAddress.length == 0) {
                 $('#invalid-feedback-address').show();
                 isValid = false;
             }
-
             if (isValid) {
                 req = {
                     receiver_name: receiverName,

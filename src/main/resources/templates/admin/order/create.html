@@ -399,8 +399,6 @@
             let productPriceText = $(`#product-price-${tabIndex}`).text();
             let totalPriceNow = parseInt(totalPriceText.replace(/\./g, '')) || 0;
             let productPriceNow = parseInt(productPriceText.replace(/\./g, '')) || 0;
-            console.log("Total Price Text: ", totalPriceText);
-            console.log("Product Price Text: ", productPriceText);
             let isValid = true;
 
             if (receiverName.length === 0) {
@@ -415,7 +413,6 @@
                 $(`#invalid-feedback-form-phone-${tabIndex}`).show();
                 isValid = false;
             }
-
             if (receiverAddress.length === 0) {
                 $(`#invalid-feedback-address-${tabIndex}`).show();
                 isValid = false;
@@ -454,7 +451,6 @@
                         toastr.warning(data.responseJSON.message);
                     },
                 });
-                console.log("thah toán đơn "+tabIndex)
                 removeTabs(tabIndex);
             }
         }

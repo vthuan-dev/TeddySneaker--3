@@ -41,20 +41,21 @@ public class OrderController {
 
     @GetMapping("/admin/orders")
     public String getListOrderPage(Model model,
-                                   @RequestParam(defaultValue = "1") Integer page,
                                    @RequestParam(defaultValue = "", required = false) String id,
                                    @RequestParam(defaultValue = "", required = false) String name,
                                    @RequestParam(defaultValue = "", required = false) String phone,
                                    @RequestParam(defaultValue = "", required = false) String status,
-                                   @RequestParam(defaultValue = "", required = false) String product) {
+                                   @RequestParam(defaultValue = "", required = false) String product,
+                                   @RequestParam(defaultValue = "", required = false) String createdAt,
+                                   @RequestParam(defaultValue = "", required = false) String modifiedAt,
+                                   @RequestParam(defaultValue = "1") Integer page) {
 
         //Lấy danh sách sản phẩm
         List<ShortProductInfoDTO> productList = productService.getListProduct();
         model.addAttribute("productList", productList);
 
-
         //Lấy danh sách đơn hàng
-        Page<Order> orderPage = orderService.adminGetListOrders(id, name, phone, status, product, page);
+        Page<Order> orderPage = orderService.adminGetListOrders(id, name, phone, status, product, createdAt, modifiedAt, page);
         model.addAttribute("orderPage", orderPage.getContent());
         model.addAttribute("totalPages", orderPage.getTotalPages());
         model.addAttribute("currentPage", orderPage.getPageable().getPageNumber() + 1);
@@ -80,7 +81,6 @@ public class OrderController {
 
     @PostMapping("/api/admin/orders")
     public ResponseEntity<Object> createOrder(@Valid @RequestBody CreateOrderRequest createOrderRequest) {
-    	System.out.println(createOrderRequest);
         User user = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
         Order order = orderService.createOrder(createOrderRequest, user.getId());
         return ResponseEntity.ok(order);

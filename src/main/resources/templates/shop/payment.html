@@ -56,7 +56,7 @@
                         <div class="pricing childs">
                             <h6 class="not-found-size" style="margin-top: 5px; color: #dc3545;"  th:styleappend="${notFoundSize} == true ? '' : 'display:none'">Size giày này đã hết. Vui lòng chọn size khác.</h6>
                             <div class="size-btn" data-toggle="modal" data-target="#modal-size-Choose">
-                                <button class="btn btn-primary size trans-btn"><span class="size-text">Size</span><span th:data-size="${size}" class="size-details">42.5</span><i class="fas dropdown-arrow"></i></button>
+                                <button class="btn btn-primary size trans-btn"><span class="size-text">Size</span><span th:data-size="${size}" class="size-details"></span><i class="fas dropdown-arrow"></i></button>
                             </div>
                             <div class="input-group" style="margin-top:30px">
                                 <input type="text" class="form-control" placeholder="Nhập mã khuyến mãi" id="in-coupon" th:value="${product.couponCode}">
@@ -98,7 +98,7 @@
 
                             <div class="form-group required-field">
                                 <label>Số điện thoại </label>
-                                <input type="text" class="form-control" th:value="${user_phone}" name="receiver_phone" id="receiver_phone">
+                                <input type="text" class="form-control" th:value="${user_phone}" name="receiver_phone" id="receiver_phone" required>
                                 <div class="invalid-feedback"></div>
                             </div><!-- End .form-group -->
 
@@ -245,10 +245,8 @@
                 phoneInvalid.css('display', 'block');
                 phoneInvalid.html('Vui lòng nhập số điện thoại người nhận hàng');
                 isValid = false;
-            }
-            let phoneFormat = new RegExp(/((09|03|07|08|05)+([0-9]{8})\b)/g);
-            if (!phoneFormat.test(receiverPhone)) {
-                phoneInvalid = $('#in-user-phone').next();
+            } else if (!/((09|03|07|08|05)+([0-9]{8})\b)/g.test(receiverPhone)) {
+                phoneInvalid = $('#receiver_phone').next();
                 phoneInvalid.css('display', 'block');
                 phoneInvalid.html('Số điện thoại không hợp lệ');
                 isValid = false;

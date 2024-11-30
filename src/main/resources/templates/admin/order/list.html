@@ -64,7 +64,7 @@
                     <th width="20%">Sản phẩm</th>
                     <th>Ngày tạo</th>
                     <th>Ngày sửa</th>
-                      <th>Thao tác</th>
+                    <th>Thao tác</th>
                 </tr>
                 <tr>
                 <tr class="heading-search">
@@ -96,7 +96,12 @@
                                 </th:block>
                             </select>
                         </th>
-                        <th></th>
+                        <th>
+                            <input type="text" name="createdAt" id="createdAt" class="form-control search-input">
+                        </th>
+                        <th>
+                            <input type="text" name="modifiedAt" id="modifiedAt" class="form-control search-input">
+                        </th>
                         <input type="hidden" name="page" id="page">
                     </form>
                 </tr>
@@ -145,7 +150,7 @@
     <script type="text/javascript" th:src="@{/adminlte/pagination/jquery.simplePagination.js}"></script>
     <script type="text/javascript" th:src="@{/adminlte/js/table.js}"></script>
     <script th:inline="javascript">
-        let id, name, phone, status, product, page;
+        let id, name, phone, status, product, createdAt, modifiedAt, page;
         $(function () {
             let vars = parseUrl();
             id = vars["id"] || ""
@@ -153,13 +158,41 @@
             phone = vars["phone"] || ""
             status = vars["status"] || ""
             product = vars["product"] || ""
+            createdAt = vars["createdAt"] || ""
+            modifiedAt = vars["modifiedAt"] || ""
             page = vars["page"] || "0"
 
+            if(id.length > 255) {
+                alert("Chỉ được nhập tối đa 255 ký tự");
+                location.replace("http://localhost:8080/admin/orders");
+            }
+            if(name.length > 255) {
+                alert("Chỉ được nhập tối đa 255 ký tự");
+                location.replace("http://localhost:8080/admin/orders");
+            }
+            if(phone.length > 255) {
+                alert("Chỉ được nhập tối đa 255 ký tự");
+                location.replace("http://localhost:8080/admin/orders");
+            }
+            if(/[a-zA-Z]/.test(phone)) {
+                alert("Số điên thoại nhập vào không hợp lệ");
+                location.replace("http://localhost:8080/admin/orders");
+            }
+            if(createdAt.length > 255) {
+                alert("Chỉ được nhập tối đa 255 ký tự");
+                location.replace("http://localhost:8080/admin/orders");
+            }
+            if(/[a-zA-Z]/.test(createdAt)) {
+                alert("Ngày nhập vào không hợp lệ");
+                location.replace("http://localhost:8080/admin/orders");
+            }
             $('#id').val(id)
             $('#name').val(name)
             $('#phone').val(phone)
             $('#status').val(status)
             $('#product').val(product)
+            $('#createAt').val(createdAt)
+            $('#modifiedAt').val(modifiedAt)
             $('#page').val(page)
 
             pagination([[${totalPages}]],[[${currentPage}]])
