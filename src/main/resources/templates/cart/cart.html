@@ -14,12 +14,31 @@
     <th:block id="css-resources">
         <style>
             .quantity-input {
-                width: 60px;
+                width: 80px;
                 text-align: center;
+                padding: 5px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                display: inline-block;
+                height: 38px;
             }
             .cart-summary {
                 margin-top: 20px;
                 text-align: right;
+            }
+            .product-item {
+                display: flex;
+                align-items: center;
+            }
+            .product-item img {
+                width: 50px;
+                height: 50px;
+                margin-right: 10px;
+                object-fit: cover;
+            }
+            .quantity-column {
+                min-width: 120px;
+                text-align: center;
             }
         </style>
     </th:block>
@@ -82,12 +101,13 @@
                                 </div>
                             </td>
                             <td>${formatPrice(item.price)} ₫</td>
-                            <td>
+                            <td class="quantity-column">
                                 <input type="number" 
                                        value="${item.quantity}" 
                                        min="1" 
                                        class="form-control quantity-input"
-                                       onchange="updateQuantity('${item.productId}', this.value)">
+                                       onchange="updateQuantity('${item.productId}', this.value)"
+                                       style="display: inline-block;">
                             </td>
                             <td>${formatPrice(item.price * item.quantity)} ₫</td>
                             <td>

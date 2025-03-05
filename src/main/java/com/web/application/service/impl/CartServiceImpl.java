@@ -2,6 +2,7 @@ package com.web.application.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.web.application.entity.Cart;
 import com.web.application.entity.CartItem;
 import com.web.application.entity.Product;
@@ -15,8 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.Objects;
 
 @Service
+@Transactional
 public class CartServiceImpl implements CartService {
 
     @Autowired
@@ -28,7 +31,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Cart addProductToCart(Long userId, Product product, int quantity) {
+    public Cart addProductToCart(Long userId, Product product, int quantity, Integer size) {
         Cart cart = cartRepository.findByUserId(userId);
         if (cart == null) {
             cart = new Cart();
@@ -36,25 +39,34 @@ public class CartServiceImpl implements CartService {
             user.setId(userId);
             cart.setUser(user);
             cart.setItems(new ArrayList<>());
+            cart.setTotalPrice(0.0);
         }
         
         Optional<CartItem> existingItem = cart.getItems().stream()
-            .filter(item -> item.getProduct().getId().equals(product.getId()))
+            .filter(item -> item.getProduct().getId().equals(product.getId()) 
+                       && Objects.equals(item.getSize(), size))
             .findFirst();
 
         if (existingItem.isPresent()) {
-            existingItem.get().setQuantity(existingItem.get().getQuantity() + quantity);
+            CartItem item = existingItem.get();
+            item.setQuantity(item.getQuantity() + quantity);
+            item.setPrice(Double.valueOf(product.getPrice()));
         } else {
             CartItem newItem = new CartItem();
             newItem.setProduct(product);
             newItem.setQuantity(quantity);
             newItem.setCart(cart);
+            newItem.setPrice(Double.valueOf(product.getPrice()));
+            newItem.setSize(size);
             cart.getItems().add(newItem);
         }
 
-        // Tính toán total_price
+        // Tính toán total_price sử dụng giá từ CartItem
         double totalPrice = cart.getItems().stream()
-            .mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity())
+            .mapToDouble(item -> {
+                Double itemPrice = item.getPrice();
+                return (itemPrice != null ? itemPrice : 0.0) * item.getQuantity();
+            })
             .sum();
         cart.setTotalPrice(totalPrice);
 
@@ -108,6 +120,7 @@ public class CartServiceImpl implements CartService {
                 itemDTO.setPrice(Double.valueOf(item.getProduct().getPrice()));
                 itemDTO.setProductImage(item.getProduct().getImages().get(0));
                 itemDTO.setQuantity(item.getQuantity());
+                itemDTO.setSize(item.getSize());
                 return itemDTO;
             })
             .collect(Collectors.toList());

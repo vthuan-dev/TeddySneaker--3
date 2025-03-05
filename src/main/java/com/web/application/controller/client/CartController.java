@@ -54,31 +54,45 @@ public class CartController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<CartResponseDTO> addProductToCart(@RequestParam String productId, @RequestParam int quantity) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
-            throw new RuntimeException("User not authenticated properly");
+    public ResponseEntity<CartResponseDTO> addProductToCart(
+            @RequestParam String productId, 
+            @RequestParam int quantity,
+            @RequestParam(required = false) Integer size) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
+                throw new RuntimeException("User not authenticated properly");
+            }
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            Long userId = userDetails.getUser().getId();
+            
+            Product product = productService.getProductById(productId);
+            Cart cart = cartService.addProductToCart(userId, product, quantity, size);
+
+            // Chuyển đổi Cart thành CartResponseDTO
+            CartResponseDTO response = new CartResponseDTO();
+            response.setId(cart.getId());
+            response.setUserId(cart.getUser().getId());
+            response.setTotalPrice(cart.getTotalPrice());
+            response.setItems(cart.getItems().stream().map(item -> {
+                CartResponseDTO.CartItemDTO itemDTO = new CartResponseDTO.CartItemDTO();
+                itemDTO.setId(item.getId());
+                itemDTO.setProductId(item.getProduct().getId());
+                itemDTO.setProductName(item.getProduct().getName());
+                itemDTO.setPrice(item.getPrice());
+                itemDTO.setQuantity(item.getQuantity());
+                itemDTO.setSize(item.getSize());
+                if (!item.getProduct().getImages().isEmpty()) {
+                    itemDTO.setProductImage(item.getProduct().getImages().get(0));
+                }
+                return itemDTO;
+            }).collect(Collectors.toList()));
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Long userId = userDetails.getUser().getId();
-        
-        Product product = productService.getProductById(productId);
-        Cart cart = cartService.addProductToCart(userId, product, quantity);
-
-        // Chuyển đổi Cart thành CartResponseDTO
-        CartResponseDTO response = new CartResponseDTO();
-        response.setId(cart.getId());
-        response.setUserId(cart.getUser().getId());
-        response.setTotalPrice(cart.getTotalPrice());
-        response.setItems(cart.getItems().stream().map(item -> {
-            CartResponseDTO.CartItemDTO itemDTO = new CartResponseDTO.CartItemDTO();
-            itemDTO.setId(item.getId());
-            itemDTO.setProductId(item.getProduct().getId());
-            itemDTO.setQuantity(item.getQuantity());
-            return itemDTO;
-        }).collect(Collectors.toList()));
-
-        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/clear")
@@ -152,7 +166,7 @@ public class CartController {
             Long userId = userDetails.getUser().getId();
             
             Product product = productService.getProductById(request.getProductId());
-            Cart cart = cartService.addProductToCart(userId, product, request.getQuantity());
+            Cart cart = cartService.addProductToCart(userId, product, request.getQuantity(), request.getSize());
             
             // Convert to DTO and return
             CartSummaryDTO summary = cartService.getCartSummary(userId);
@@ -168,6 +182,7 @@ public class CartController {
     public static class AddToCartRequest {
         private String productId;
         private int quantity;
+        private Integer size;
 
         // Getters and setters
         public String getProductId() {
@@ -184,6 +199,14 @@ public class CartController {
 
         public void setQuantity(int quantity) {
             this.quantity = quantity;
+        }
+
+        public Integer getSize() {
+            return size;
+        }
+
+        public void setSize(Integer size) {
+            this.size = size;
         }
     }
 } 

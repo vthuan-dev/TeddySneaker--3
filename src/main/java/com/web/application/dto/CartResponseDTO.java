@@ -48,6 +48,7 @@ public class CartResponseDTO {
         private Double price;
         private String productImage;
         private int quantity;
+        private Integer size;
 
         // Getters and setters
         public Long getId() {
@@ -96,6 +97,14 @@ public class CartResponseDTO {
 
         public void setQuantity(int quantity) {
             this.quantity = quantity;
+        }
+
+        public Integer getSize() {
+            return size;
+        }
+
+        public void setSize(Integer size) {
+            this.size = size;
         }
     }
 }

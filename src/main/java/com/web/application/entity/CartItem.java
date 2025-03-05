@@ -22,6 +22,10 @@ public class CartItem {
     private Product product;
 
     private int quantity;
+    
+    private Integer size;
+    
+    private Double price;
 
     // Getters and setters
     public Long getId() {
@@ -54,5 +58,21 @@ public class CartItem {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public Integer getSize() {
+        return size;
+    }
+
+    public void setSize(Integer size) {
+        this.size = size;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
     }
 } 

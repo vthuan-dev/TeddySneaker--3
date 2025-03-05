@@ -414,7 +414,8 @@
 
         function addToCart(button) {
             const productId = button.getAttribute('data-id');
-            const quantity = 1; // Mặc định số lượng là 1
+            const quantity = 1;
+            const size = $('.size-choose').data('id');
 
             fetch('/api/cart/add', {
                 method: 'POST',
@@ -424,7 +425,8 @@
                 },
                 body: JSON.stringify({
                     productId: productId,
-                    quantity: quantity
+                    quantity: quantity,
+                    size: size
                 })
             })
             .then(response => {
@@ -439,7 +441,6 @@
             })
             .then(data => {
                 toastr.success('Đã thêm sản phẩm vào giỏ hàng');
-                // Trigger event để cập nhật số lượng giỏ hàng trên header
                 document.dispatchEvent(new CustomEvent('cartUpdated'));
             })
             .catch(error => {
