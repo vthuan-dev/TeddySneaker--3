@@ -212,4 +212,36 @@ public class OrderController {
 		return ResponseEntity.ok("Hủy đơn hàng thành công");
 	}
 
+	@GetMapping("/dat-hang") 
+	public String getCheckoutPage(Model model, 
+			@RequestParam String id,
+			@RequestParam int size) {
+		
+		// Kiểm tra sản phẩm và size
+		try {
+			DetailProductInfoDTO product = productService.getDetailProductById(id);
+			model.addAttribute("product", product);
+		} catch (NotFoundExp ex) {
+			return "error/404";
+		}
+
+		// Validate size
+		if (size < 35 || size > 42) {
+			return "error/404";
+		}
+
+		// Kiểm tra size có sẵn
+		List<Integer> availableSizes = productService.getListAvailableSize(id);
+		model.addAttribute("availableSizes", availableSizes);
+		
+		// Thêm thông tin user
+		User user = ((CustomUserDetails) SecurityContextHolder.getContext()
+			.getAuthentication().getPrincipal()).getUser();
+		model.addAttribute("user_fullname", user.getFullName());
+		model.addAttribute("user_phone", user.getPhone());
+		model.addAttribute("size", size);
+
+		return "shop/payment";
+	}
+
 }
