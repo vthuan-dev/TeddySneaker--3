@@ -51,6 +51,7 @@
             <thead>
                 <tr>
                     <th>Sản phẩm</th>
+                    <th>Size</th>
                     <th>Giá</th>
                     <th>Số lượng</th>
                     <th>Tổng</th>
@@ -99,10 +100,10 @@
                                     <img src="${item.productImage || ''}" alt="${item.productName || ''}" style="width: 50px; height: 50px; margin-right: 10px;">
                                     <div>
                                         <div>${item.productName || ''}</div>
-                                        <div style="color: #666; font-size: 0.9em;">Size: ${item.size || 'N/A'}</div>
                                     </div>
                                 </div>
                             </td>
+                            <td class="text-center">${item.size || 'N/A'}</td>
                             <td>${formatPrice(item.price)} ₫</td>
                             <td class="quantity-column">
                                 <input type="number" 
@@ -124,14 +125,14 @@
 
                     document.getElementById('cartTotal').textContent = `${formatPrice(data.totalPrice)} ₫`;
                 } else {
-                    cartItemsContainer.innerHTML = '<tr><td colspan="5" class="text-center">Giỏ hàng trống</td></tr>';
+                    cartItemsContainer.innerHTML = '<tr><td colspan="6" class="text-center">Giỏ hàng trống</td></tr>';
                     document.getElementById('cartTotal').textContent = '0 ₫';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 const cartItemsContainer = document.getElementById('cartItems');
-                cartItemsContainer.innerHTML = '<tr><td colspan="5" class="text-center">Có lỗi xảy ra khi tải giỏ hàng</td></tr>';
+                cartItemsContainer.innerHTML = '<tr><td colspan="6" class="text-center">Có lỗi xảy ra khi tải giỏ hàng</td></tr>';
             });
         }
 
