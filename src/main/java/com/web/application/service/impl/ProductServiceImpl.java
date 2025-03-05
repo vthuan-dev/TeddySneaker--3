@@ -1,5 +1,9 @@
 package com.web.application.service.impl;
 
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.Optional;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,10 +36,6 @@ import com.web.application.repository.PromotionRepository;
 import com.web.application.service.ProductService;
 import com.web.application.service.PromotionService;
 import com.web.application.utils.PageUtil;
-
-import java.sql.Timestamp;
-import java.util.List;
-import java.util.Optional;
 
 @Component
 public class ProductServiceImpl implements ProductService {

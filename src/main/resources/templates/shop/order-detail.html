@@ -67,6 +67,7 @@
                             <div class="total-price-wrapper price">Thành tiền<span class="total-price"><span class="text-price" th:text="${order.totalPrice}"></span> &#x20AB;</span></div>
                         </div>
                     </div>
+                    <button th:if="${canCompleted} == true" class="btn btn-danger red-btn completed-btn" data-toggle="modal" data-target="#returnProduct">Trả Hàng</button>
                     <button th:if="${canCancel} == true" class="btn btn-primary red-btn cancel-btn" th:data-order="${order.id}">Hủy đơn hàng</button>
                 </div>
                 <div class="item-small">
@@ -91,8 +92,31 @@
                                 <div class="total-price-wrapper price">Thành tiền<span class="total-price"><span class="text-price" th:text="${order.totalPrice}"></span> &#x20AB;</span></div>
                             </div>
                         </div>
+                        <button th:if="${canCompleted} == true" class="btn btn-danger red-btn completed-btn" data-toggle="modal" data-target="#returnProduct">Trả Hàng</button>
                         <button th:if="${canCancel} == true" class="btn btn-primary red-btn cancel-btn" th:data-order="${order.id}">Hủy đơn hàng</button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="returnProduct" tabindex="-1">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changePasswordLabel">Bạn có chắc chắn muốn Hủy Tài Khoản không?</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="new-password-confirm item-row">
+                        <div class="text required-label">Lý do hủy đơn</div>
+                        <div class="password-wrapper-in">
+                            <input class="form-control" type="text" id="note"/>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn" type="button" data-dismiss="modal">Huỷ bỏ</button>
+                    <button class="btn btn-primary red-btn btn-confirm-return-product" th:data-order="${order.id}" type="button">Đồng ý</button>
                 </div>
             </div>
         </div>
@@ -118,6 +142,40 @@
                     toastr.warning(data.responseJSON.message);
                 }
             });
+        })
+        
+        $('.btn-confirm-return-product').click(function() {
+        	let isValid = true;
+        	let noteValue = $("#note").val();
+            let orderId = $(this).data("order");
+            if (noteValue == "") {
+                noteInvalid = $("#note").next();
+                noteInvalid.css('display', 'block');
+                noteInvalid.html('Vui lòng nhập lý do');
+                isValid = false;
+            } 
+            if(isValid){
+            	req = {
+                    note: noteValue,
+                }
+            	var myJSON = JSON.stringify(req);
+            	$.ajax({
+                    url: '/api/return-order/'+orderId,
+                    type: 'POST',
+                    data: myJSON,
+                    contentType: "application/json; charset=utf-8",
+                    success: function(data) {
+                        toastr.success("Trả đơn hàng thành công");
+                        $('.status').html("Đã trả hàng");
+                        $('.modal').modal('hide');
+                        $('.completed-btn').remove();
+                    },
+                    error: function(data) {
+                        toastr.warning(data.responseJSON.message);
+                    }
+                }); 
+            }
+              
         })
     </script>
 </th:block>

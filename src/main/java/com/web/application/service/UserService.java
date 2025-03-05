@@ -26,4 +26,6 @@ public interface UserService {
 	void changePassword(User user, ChangePasswordRequest changePasswordRequest);
 
 	User updateProfile(User user, UpdateProfileRequest updateProfileRequest);
+
+	void deleteAccount(User user);
 }

@@ -87,6 +87,12 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	public void deleteAccount(User user) {
+		user.setStatus(false);
+		userRepository.save(user);
+	}
+
+	@Override
 	public User createAdmin(CreateUserRequest createUserRequest) {
 		User user = userRepository.findByEmail(createUserRequest.getEmail());
 		if (user != null) {
@@ -96,4 +102,5 @@ public class UserServiceImpl implements UserService {
 		userRepository.save(user);
 		return user;
 	}
+
 }

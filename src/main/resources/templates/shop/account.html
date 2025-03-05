@@ -72,8 +72,9 @@
                                     <textarea class="form-control" rows="5" th:text="${user_address}" id="in-user-address"></textarea>
                                 </div>
                             </div>
-                            <div class="update-btn-wrapper item-row col-md-10">
-                                <div class="btn btn-primary red-btn update-btn">Cập nhật</div>
+                            <div class="update-btn-wrapper item-row col-md-10 d-flex">
+                                <div class="btn btn-primary red-btn update-btn mx-2">Cập nhật</div>
+                                <a href="" data-toggle="modal" data-target="#deleteAccount" class="btn btn-danger red-btn delete-btn mx-2">Hủy tài khoản</a>
                             </div>
                         </form>
                     </div>
@@ -115,6 +116,20 @@
                 <div class="modal-footer">
                     <button class="btn" type="button" data-dismiss="modal">Huỷ bỏ</button>
                     <button class="btn btn-primary red-btn btn-confirm-change-password" type="button">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="deleteAccount" tabindex="-1" role="dialog" aria-labelledby="deleteAccountLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changePasswordLabel">Bạn có chắc chắn muốn Hủy Tài Khoản không?</h5>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn" type="button" data-dismiss="modal">Huỷ bỏ</button>
+                    <button class="btn btn-primary red-btn btn-confirm-delete-account" type="button">Đồng ý</button>
                 </div>
             </div>
         </div>
@@ -177,6 +192,25 @@
                     },
                 });
             }
+        })
+        
+        $('.btn-confirm-delete-account').click(function() {
+                $.ajax({
+                    url: '/api/delete-account',
+                    type: 'PUT',
+                    contentType: "application/json; charset=utf-8",
+                    success: function(data) {
+                        toastr.success("Hủy tài khoản thành công");
+                        setTimeout(function() {
+                            window.location.href = '/api/logout';
+                        }, 1000); // Chờ 1 giây (1000ms) trước khi chuyển hướng
+                    },
+                    error: function(data) {
+                        toastr.warning(data.responseJSON.message);
+                    },
+                    complete: function() {
+                    }
+                });
         })
 
         function clearInputChangePassword() {

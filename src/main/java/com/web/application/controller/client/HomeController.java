@@ -255,6 +255,10 @@ public class HomeController {
     public String contact(){
         return "shop/lien-he";
     }
+    @GetMapping("gio-hang")
+    public String cart(){
+        return "shop/gio-hang";
+    }
     @GetMapping("huong-dan")
     public String buyGuide(){
         return "shop/buy-guide";

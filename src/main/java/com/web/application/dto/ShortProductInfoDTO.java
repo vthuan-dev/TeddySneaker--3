@@ -23,13 +23,15 @@ public class ShortProductInfoDTO {
 	private long price;
 
 	List<Integer> availableSizes;
+	
+	List<Integer> quantitySizes;
 
 	public ShortProductInfoDTO(String id, String name) {
 		this.id = id;
 		this.name = name;
 	}
 
-	public ShortProductInfoDTO(String id, String name, long price, Object availableSizes) {
+	public ShortProductInfoDTO(String id, String name, long price, Object availableSizes, Object quantitySizes) {
 		this.id = id;
 		this.name = name;
 		this.price = price;
@@ -40,6 +42,15 @@ public class ShortProductInfoDTO {
 						.collect(Collectors.toList());
 			} catch (Exception e) {
 				this.availableSizes = null;
+			}
+		}
+		if (quantitySizes != null) {
+			try {
+				String sizesStr = (String) quantitySizes;
+				this.quantitySizes = Arrays.stream(sizesStr.split(",")).map(String::trim).map(Integer::parseInt)
+						.collect(Collectors.toList());
+			} catch (Exception e) {
+				this.quantitySizes = null;
 			}
 		}
 	}

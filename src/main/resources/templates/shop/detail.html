@@ -82,7 +82,7 @@
                     <div class="prod-thumbnail owl-dots" id='carousel-custom-dots'>
                         <th:block th:each="img :${product.productImages}">
                             <div class="owl-dot">
-                                <img th:src="@{${img}}"/>
+                                <img style="height: 150px" th:src="@{${img}}"/>
                             </div>
                         </th:block>
                     </div>

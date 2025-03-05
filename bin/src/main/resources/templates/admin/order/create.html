@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/layout/layout_admin :: main-fragment(
+                                                ~{:: title},
+                                                'header',
+                                                'sidebar',
+                                                ~{:: #css-resources},
+                                                ~{:: #js-resources},
+                                                ~{:: #main-content}
+                                               )}">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm mới đơn hàng</title>
+    <th:block id="css-resources">
+        <link rel="stylesheet" th:href="@{/adminlte/pagination/simplePagination.css}">
+        <link rel="stylesheet" th:href="@{/adminlte/css/order.css}">
+    </th:block>
+</head>
+<body>
+<section role="main" class="content-body" id="main-content">
+    <header class="page-header">
+        <!--        <h2>Editable Tables</h2>-->
+        <div class="right-wrapper text-right">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="index.html">
+                        <i class="bx bx-home-alt"></i>
+                    </a>
+                </li>
+                <li><span>Bán hàng tại quầy</span></li>
+            </ol>
+            <a class="sidebar-right-toggle" data-open="sidebar-right"><i
+                    class="fas fa-chevron-left"></i></a>
+        </div>
+    </header>
+    <form action="" id="formPost">
+        <section class="card">
+            <header class="card-header">
+                <div class="card-actions">
+                    <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
+                    <a href="#" class="card-action card-action-dismiss" data-card-dismiss></a>
+                </div>
+                <h2 class="card-title">Tạo đơn hàng</h2>
+                <br>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="mb-3">
+                            <a href="/admin/orders" class="btn btn-primary"><i
+                                    class="fas fa-chevron-left"></i> Trở về</a>
+                            <button type="button" id="addToTable" class="btn btn-primary btn-create-order">Tạo đơn hàng <i
+                                    class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <ul class="nav nav-tabs" id="main-tabs" role="tablist">
+
+            </ul>
+            <div class="card-body tab-content" id="main-content">
+                <!-- Main content -->
+
+            </div>
+        </section>
+    </form>
+
+</section>
+
+<th:block id="js-resources">
+    <script type="text/javascript" th:src="@{/adminlte/js/list.min.js}"></script>
+    <script type="text/javascript" th:src="@{/adminlte/js/modal_image.js}"></script>
+    <script th:inline="javascript">
+        var products = [[${products}]]
+        var promotions = [[${promotions}]]
+        var listOrder = JSON.parse(localStorage.getItem('listorder')) || [];
+        var size = [[${sizeVn}]]
+        
+        function initTabEvents(tabIndex) {  
+           
+            // Sự kiện thay đổi sản phẩm
+            $(`#product-${tabIndex}`).change(function () {
+                eventChangeProduct(tabIndex);
+                updateListOrder(tabIndex);
+            });
+
+            // Sự kiện thay đổi khuyến mãi
+            $(`#promotion-${tabIndex}`).change(function () {
+                eventChangeProduct(tabIndex);
+                updateListOrder(tabIndex);
+            });
+
+            // Sự kiện thay đổi kích cỡ
+            $(`#size-${tabIndex}`).change(function () {
+                updateListOrder(tabIndex);
+            });  
+            
+            $(`#receiver-name-${tabIndex}`).on('blur', function () {
+                updateListOrder(tabIndex);
+            });
+            $(`#receiver-phone-${tabIndex}`).on('blur', function () {
+                updateListOrder(tabIndex);
+            });
+            $(`#receiver-address-${tabIndex}`).on('blur', function () {
+                updateListOrder(tabIndex);
+            });
+            $(`#receiver-note-${tabIndex}`).on('blur', function () {
+                updateListOrder(tabIndex);
+            });
+
+            $('.btn-remove-order').click(function () {
+                var tabIndex = $(this).data('tab');
+                removeTabs(tabIndex);
+            })
+
+            $('.btn-payment-order').click(function () {
+                var tabIndex = $(this).data('tab');
+                paymentOrder(tabIndex);
+            })
+        }
+
+        function updateListOrder(tabIndex) {
+            // Lấy thông tin hiện tại từ các trường trong tab
+            const selectedProduct = $(`#product-${tabIndex}`).val();
+            const selectedSize = $(`#size-${tabIndex}`).val() || "";
+            const selectedPromotion = $(`#promotion-${tabIndex}`).val() || "";
+            const inputName = $(`#receiver-name-${tabIndex}`).val() || "";
+            const inputPhone = $(`#receiver-phone-${tabIndex}`).val() || "";
+            const inputAddress = $(`#receiver-address-${tabIndex}`).val() || "";
+            const inputNotes = $(`#receiver-note-${tabIndex}`).val() || "";
+
+            // Tìm và cập nhật thông tin trong listOrder
+            let order = listOrder.find(order => order.tabIndex === tabIndex);
+            if (order) {
+                order.productId = selectedProduct;
+                order.size = selectedSize;
+                order.promotionCode = selectedPromotion;
+                order.name = inputName;
+                order.phone = inputPhone;
+                order.addAdress = inputAddress;
+                order.notes = inputNotes;
+            } else {
+                // Nếu chưa tồn tại, thêm mới
+                listOrder.push({
+                    tabIndex: tabIndex,
+                    productId: selectedProduct,
+                    size: selectedSize,
+                    promotionCode: selectedPromotion,
+                    name: inputName,
+                    phone: inputPhone,
+                    addAdress: inputAddress,
+                    notes: inputNotes,
+                });
+            }
+
+            // Lưu lại listOrder vào localStorage
+            localStorage.setItem('listorder', JSON.stringify(listOrder));
+        }
+
+        function eventChangeProduct(tabIndex) {
+            let idProduct = $(`#product-${tabIndex}`).val();
+            let sizes = [];
+            for (product of products) {
+                if (product.id == idProduct) {
+                    if (product.availableSizes != null) {
+                        sizes = product.availableSizes;
+                    }
+                    $(`#product-price-${tabIndex}`).text(product.price+"");
+                    $(`#total-price-${tabIndex}`).text(product.price+"");
+                    break;
+                }
+            }
+            // Cập nhật danh sách size
+            $(`#size-${tabIndex}`).empty();
+            for (size of sizes) {
+                $(`#size-${tabIndex}`).append(new Option(size, size));
+            }
+            calculatePrice(tabIndex);
+        } 
+        
+        function calculatePrice(tabIndex) {
+            let productPrice =  parseInt($(`#product-price-${tabIndex}`).text());
+            let promotionPrice = parseInt($(`#promotion-price-${tabIndex}`).text());
+            let totalPrice = parseInt($(`#total-price-${tabIndex}`));
+            let codePromotion = $(`#promotion-${tabIndex}`).val();
+            if (codePromotion.length > 0) {
+                for (promotion of promotions) {
+                    if (promotion.couponCode === codePromotion) {
+                        if (promotion.discountType === 1) {
+                            promotionPrice = productPrice * promotion.discountValue / 100;
+                            if (promotionPrice > promotion.maximumDiscountValue) {
+                                promotionPrice = promotion.maximumDiscountValue;
+                            }
+                        } else if(promotion.discountType === 2) {
+                            promotionPrice = promotion.discountValue;
+                        }
+                        totalPrice = productPrice - promotionPrice;
+                        if (totalPrice < 0) {
+                            totalPrice = 0;
+                        }
+                        break;
+                    }
+                }
+            } else {
+                totalPrice = productPrice;
+            }
+
+            // Cập nhật giá hiển thị trong tab
+            $(`#product-price-${tabIndex}`).text(productPrice);
+            $(`#promotion-price-${tabIndex}`).text(promotionPrice);
+            $(`#total-price-${tabIndex}`).text(totalPrice);
+            formatMoney();
+        }
+
+        function formatMoney() {
+            $('.text-price').each(function (index, element) {
+                let moneyText = $(element).text().replace(/\./g, ''); // Xóa dấu chấm
+                let money = parseInt(moneyText) || 0; // Chuyển đổi thành số, nếu không hợp lệ thì gán 0
+                $(element).text(convertPrice(money));
+            });
+
+            $('.text-price-input').each(function (index, element) {
+                let moneyText = $(element).val().replace(/\./g, ''); // Xóa dấu chấm
+                let money = parseInt(moneyText) || 0; // Chuyển đổi thành số, nếu không hợp lệ thì gán 0
+                $(element).val(convertPrice(money));
+            });
+        }
+
+        function convertPrice(currency) {
+            return new Intl.NumberFormat('vn-VN', {
+                minimumFractionDigits: 0
+            }).format(currency);
+        }
+
+
+        function createNewTab(){
+            const tabIndex = listOrder.length + 1;
+            if(tabIndex > 10) {
+                alert("Chỉ tạo tối đa 10 đơn hàng tạm");
+                return;
+            }
+            createTabWithState(tabIndex, products[0].id, size[0], "", "", "", "", "");
+
+            listOrder.push({
+                tabIndex: tabIndex,
+                productId: products[0].id,
+                size: "",
+                promotionCode: "",
+                name: "",
+                phone: "",
+                addAdress: "",
+                notes: "",
+            });
+
+            localStorage.setItem('listorder', JSON.stringify(listOrder));
+        }
+
+        function createTabWithState(tabIndex, productId, size, promotionCode, name, phone, address, note){
+            $("#main-tabs .nav-link").removeClass("active");
+            let contentHeader = `<li class="nav-item position-relative" id="tabs-li-${tabIndex}">
+                                    <a class="nav-link active" data-toggle="tab" href="#tabs-${tabIndex}" role="tab">Đơn tạm ${tabIndex}</a>
+                                    <span data-tab="${tabIndex}" class="btn-remove-order position-absolute z-1 top-0 end-100 translate-middle rounded-circle border badge border-dark bg-light text-dark">X</span>
+                                </li>`;
+            $("#main-tabs").append(contentHeader);
+            $(".tab-content").append(`
+                 <div class="tab-pane active" id="tabs-${tabIndex}">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-8">
+                            <div class="card card-outline">
+                                <div class="card-body pad">
+                                    <h3>Chi tiết đơn hàng</h3>
+                                    <div class="row">
+                                        <div class="col-md-9">
+                                            <div class="form-group">
+                                                <label for="product-${tabIndex}">Sản phẩm</label>
+                                                <select name="product" class="form-control thuy-search-select" id="product-${tabIndex}">
+                                                    ${products.map(product => `<option value="${product.id}" ${product.id == productId ? 'selected' : ''}>${product.name}</option>`).join('')}
+                                                </select>
+                                                <span class="invalid-feedback" id="invalid-feedback-product-${tabIndex}">Sản phẩm đã hết size</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="size-${tabIndex}">Kích cỡ</label>
+                                                <select class="form-control" id="size-${tabIndex}">
+                                                    
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="promotion-${tabIndex}">Khuyến mãi</label>
+                                                <select class="form-control" id="promotion-${tabIndex}">
+                                                    <option value="">Chọn khuyến mãi</option>
+                                                    ${promotions.filter(promotion => promotion.public).map(promotion => `
+                                                    <option value="${promotion.couponCode}" ${promotion.couponCode == promotionCode ? 'selected' : ''}>
+                                                        ${promotion.couponCode} - ${promotion.discountType === 1 
+                                                            ? promotion.discountValue + '%' 
+                                                            : promotion.discountValue + ' đ'}
+                                                    </option>`).join('')}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="info-price-div">
+                                                <div class="display-info-price">
+                                                    <span>Giá tiền</span>
+                                                    <span class="text-price badge badge-primary" id="product-price-${tabIndex}">0</span>
+                                                </div>
+                                                <div class="display-info-price">
+                                                    <span>Khuyến mãi</span>
+                                                    <span class="text-price badge badge-warning" id="promotion-price-${tabIndex}">0</span>
+                                                </div>
+                                                <div class="display-info-price">
+                                                    <span>Thành tiền</span>
+                                                    <span class="text-price badge badge-success" id="total-price-${tabIndex}">0</span>
+                                                </div>
+                                            </div>
+                                            <div class="btn btn-success btn-payment-order" data-tab="${tabIndex}">Thanh toán</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-8">
+                            <div class="card card-outline">
+                                <div class="card-body pad">
+                                    <h3>Thông tin người nhận</h3>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                                    </div>
+                                                    <input type="text" class="form-control" placeholder="Họ tên *" id="receiver-name-${tabIndex}" value="${name|| ''}">
+                                                    <span class="invalid-feedback" id="invalid-feedback-name-${tabIndex}">Họ tên trống</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text"><i class="fas fa-phone-alt"></i></span>
+                                                    </div>
+                                                    <input type="text" class="form-control" placeholder="Số điện thoại *"
+                                                           id="receiver-phone-${tabIndex}" value="${phone || ''}">
+                                                    <span class="invalid-feedback"
+                                                          id="invalid-feedback-phone-${tabIndex}">Số điện thoại trống</span>
+                                                    <span class="invalid-feedback"
+                                                          id="invalid-feedback-form-phone-${tabIndex}">Số điện thoại không hợp lệ</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <textarea id="receiver-address-${tabIndex}" rows="5" placeholder="Địa chỉ *">${address || ''}</textarea>
+                                                <span class="invalid-feedback" id="invalid-feedback-address-${tabIndex}">Địa chỉ trống</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <textarea rows="5" placeholder="Ghi chú" id="receiver-note-${tabIndex}">${note || ''}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+            `);
+
+            // Loại bỏ lớp 'active' khỏi các nội dung tab cũ
+            $(".tab-content .tab-pane").not(`#tabs-${tabIndex}`).removeClass("show active");
+            initTabEvents(tabIndex);
+            eventChangeProduct(tabIndex);
+            $(`#product-${tabIndex}`).val(productId);
+            if (size) {
+                $(`#size-${tabIndex}`).val(size);
+            } else {
+                $(`#size-${tabIndex}`).prop('selectedIndex', 0);
+            }
+        }
+
+        $('.btn-create-order').click(function () {
+            createNewTab();
+        })
+
+        function paymentOrder(tabIndex){
+            $(`.invalid-feedback-${tabIndex}`).hide();
+            let receiverName = $(`#receiver-name-${tabIndex}`).val();
+            let receiverPhone = $(`#receiver-phone-${tabIndex}`).val();
+            let receiverAddress = $(`#receiver-address-${tabIndex}`).val();
+            let note = $(`#receiver-note-${tabIndex}`).val();
+            let product = $(`#product-${tabIndex}`).val();
+            let size = $(`#size-${tabIndex}`).val();
+            let promotion = $(`#promotion-${tabIndex}`).val();
+            let totalPriceText = $(`#total-price-${tabIndex}`).text();
+            let productPriceText = $(`#product-price-${tabIndex}`).text();
+            let totalPriceNow = parseInt(totalPriceText.replace(/\./g, '')) || 0;
+            let productPriceNow = parseInt(productPriceText.replace(/\./g, '')) || 0;
+            let isValid = true;
+
+            if (receiverName.length === 0) {
+                $(`#invalid-feedback-name-${tabIndex}`).show();
+                isValid = false;
+            }
+            if (receiverPhone.length === 0) {
+                $(`#invalid-feedback-phone-${tabIndex}`).show();
+                isValid = false;
+            }
+            if (!/((09|03|07|08|05)+([0-9]{8})\b)/g.test(receiverPhone)) {
+                $(`#invalid-feedback-form-phone-${tabIndex}`).show();
+                isValid = false;
+            }
+            if (receiverAddress.length === 0) {
+                $(`#invalid-feedback-address-${tabIndex}`).show();
+                isValid = false;
+            }
+            if (size == null) {
+                $(`#invalid-feedback-product-${tabIndex}`).show();
+                isValid = false;
+            }
+
+            if (isValid) {
+                req = {
+                    product_id: product,
+                    size: parseInt(size),
+                    receiver_name: receiverName,
+                    receiver_phone: receiverPhone,
+                    receiver_address: receiverAddress,
+                    coupon_code: promotion,
+                    total_price: totalPriceNow,
+                    product_price: productPriceNow,
+                    note: note,
+                }
+                let myJSON = JSON.stringify(req);
+                console.log(myJSON);
+                $.ajax({
+                    url: '/api/admin/orders',
+                    type: 'POST',
+                    data: myJSON,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        toastr.success("Tạo đơn hàng thành công");
+                        setTimeout(function () {
+                            location.href = "/admin/orders";
+                        }, 1000)
+                    },
+                    error: function (data) {
+                        toastr.warning(data.responseJSON.message);
+                    },
+                });
+                removeTabs(tabIndex);
+            }
+        }
+
+        $(document).ready(function () {
+            // Khởi tạo tabs từ localStorage
+            loadTabsFromLocalStorage();
+        });
+
+        function loadTabsFromLocalStorage() {
+            // Duyệt qua từng đơn hàng và tạo tab tương ứng
+            listOrder.forEach(order => {
+                createTabWithState(order.tabIndex, order.productId, order.size, order.promotionCode, order.name, order.phone, order.addAdress, order.notes);
+            });
+        }
+
+        function removeTabs(tabIndex){
+            // Lọc bỏ phần tử có tabIndex tương ứng
+            listOrder = listOrder.filter(order => order.tabIndex !== tabIndex);
+
+            // Cập nhật lại listOrder vào localStorage
+            localStorage.setItem('listorder', JSON.stringify(listOrder));
+            $(`#tabs-${tabIndex}`).remove();
+            $(`#tabs-li-${tabIndex}`).remove();
+        }
+    </script>
+</th:block>
+</body>
+</html>

@@ -134,6 +134,17 @@
     grid-template-columns: 1fr 1fr 1fr 1fr;
     grid-gap: 1.25rem;
 }
+@media (max-width: 1200px) {
+    #choose-img-modal .modal-dialog {
+        width: 80%;
+        max-width: none !important;
+        margin: 0.75rem auto;
+    }
+
+    #list-user-img .list{
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
 #modal-size-Choose .size .select-filter .item,
 #sizeGuideModal .size .select-filter .item {
     width: 100%;

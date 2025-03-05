@@ -44,6 +44,7 @@ public class Contant {
     public static final int COMPLETED_STATUS = 3;
     public static final int RETURNED_STATUS = 4;
     public static final int CANCELED_STATUS = 5;
+    public static final int COUNTER_STATUS = 6;
     public static final List<Integer> LIST_ORDER_STATUS = new ArrayList<>(Arrays.asList(ORDER_STATUS,DELIVERY_STATUS, COMPLETED_STATUS, RETURNED_STATUS, CANCELED_STATUS));
 
     //Loại khuyến mại

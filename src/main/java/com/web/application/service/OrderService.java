@@ -14,23 +14,27 @@ import java.util.List;
 
 @Service
 public interface OrderService {
-    Page<Order> adminGetListOrders(String id, String name, String phone, String status, String product, String createdAt, String modifiedAt, int page);
+	Page<Order> adminGetListOrders(String id, String name, String phone, String status, String product,
+			String createdAt, String modifiedAt, int page);
 
-    Order createOrder(CreateOrderRequest createOrderRequest, long userId);
+	Order createOrder(CreateOrderRequest createOrderRequest, long userId);
+	Order createOrderAdmin(CreateOrderRequest createOrderRequest, long userId);
 
-    void updateDetailOrder(UpdateDetailOrder updateDetailOrder, long id, long userId);
+	void updateDetailOrder(UpdateDetailOrder updateDetailOrder, long id, long userId);
 
-    Order findOrderById(long id);
+	Order findOrderById(long id);
 
-    void updateStatusOrder(UpdateStatusOrderRequest updateStatusOrderRequest, long orderId, long userId);
+	void updateStatusOrder(UpdateStatusOrderRequest updateStatusOrderRequest, long orderId, long userId);
 
-    List<OrderInfoDTO> getListOrderOfPersonByStatus(int status, long userId);
+	List<OrderInfoDTO> getListOrderOfPersonByStatus(int status, long userId);
 
-    OrderDetailDTO userGetDetailById(long id, long userId);
+	OrderDetailDTO userGetDetailById(long id, long userId);
 
-    void userCancelOrder(long id, long userId);
+	void userCancelOrder(long id, long userId);
 
-    //Đếm số lượng đơn hàng
-    long getCountOrder();
+	void userReturnOrder(long id, long userId, UpdateStatusOrderRequest updateStatusOrderRequest);
+
+	// Đếm số lượng đơn hàng
+	long getCountOrder();
 
 }

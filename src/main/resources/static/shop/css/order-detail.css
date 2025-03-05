@@ -12,6 +12,9 @@
 .main-content .cancel-btn {
     width: 60%;
 }
+.main-content .completed-btn {
+    width: 60%;
+}
 
 .shipping-and-price-wrapper {
     grid-column: 1/3;
@@ -100,6 +103,11 @@
     /*width: 50%;*/
     justify-self: flex-end;
 }
+.main-content .completed-btn {
+    grid-column: 2/2;
+    /*width: 50%;*/
+    justify-self: flex-end;
+}
 .main-content .btns {
     grid-column: 2/2;
     display: grid;
@@ -107,6 +115,11 @@
     margin-top: 1.25rem;
 }
 .main-content .btns .cancel-btn {
+    grid-column: 0;
+    width: auto;
+    justify-self: normal;
+}
+.main-content .btns .completed-btn {
     grid-column: 0;
     width: auto;
     justify-self: normal;
@@ -166,6 +179,9 @@
         padding: 1rem 1.25rem;
     }
     .main-content .cancel-btn {
+        margin-top: 0.625rem;
+    }
+    .main-content .completed-btn {
         margin-top: 0.625rem;
     }
 }

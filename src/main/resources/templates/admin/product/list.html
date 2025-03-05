@@ -66,6 +66,7 @@
                     <th>Giá bán</th>
                     <th>Ngày tạo</th>
                     <th>Ngày sửa</th>
+                    <th>Tổng số lượng</th>
                     <th>Đã bán</th>
                     <th>Thao tác</th>
                 </tr>
@@ -123,6 +124,7 @@
                         <td class="money" th:text="${product.salePrice}"></td>
                         <td th:text="${#dates.format(product.createdAt, 'dd-MM-yyyy')}"></td>
                         <td th:text="${#dates.format(product.modifiedAt, 'dd-MM-yyyy')}"></td>
+                        <td th:text="${product.totalQuantity}"></td>
                         <td th:text="${product.totalSold}"></td>
                         <td class="actions">
                             <a th:href="@{/admin/products/{slug}/{id}(id=${product.id}, slug=${product.slug})}" class="on-default edit-row"><i class="fas fa-pencil-alt"></i></a>

@@ -64,6 +64,7 @@
                     <th width="20%">Sản phẩm</th>
                     <th>Ngày tạo</th>
                     <th>Ngày sửa</th>
+                    <th>Tổng tiền</th>
                     <th>Thao tác</th>
                 </tr>
                 <tr>
@@ -121,6 +122,7 @@
                             <span th:if="${order.status} == 3" class="badge badge-success">Đã giao hàng</span>
                             <span th:if="${order.status} == 4" class="badge badge-danger">Đơn hàng bị trả lại</span>
                             <span th:if="${order.status} == 5" class="badge badge-light">Đơn hàng bị hủy</span>
+                            <span th:if="${order.status} == 6" class="badge badge-success">Bán hàng tại quầy</span>
                         </td>
                         <td th:text="${order.product.name}"></td>
                         <td>
@@ -128,6 +130,9 @@
                         </td>
                         <td>
                             <span th:text="${#dates.format(order.modifiedAt, 'dd-MM-yyyy HH:mm')}"></span>
+                        </td>
+                        <td>
+                            <span th:text="${order.totalPrice}"></span>
                         </td>
                        <td class="actions">
                             <a th:href="@{/admin/orders/update/{id}(id=${order.id})}" class="on-default edit-row"><i class="fas fa-pencil-alt"></i></a>

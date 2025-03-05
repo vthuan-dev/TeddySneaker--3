@@ -22,15 +22,27 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     //Lấy sản phẩm theo tên
     Product findByName(String name);
 
-    //Lấy tất cả sản phẩm
-    @Query(value = "SELECT pro.* FROM product pro right join (SELECT DISTINCT p.* FROM product p " +
-            "INNER JOIN product_category pc ON p.id = pc.product_id " +
-            "INNER JOIN category c ON c.id = pc.category_id " +
-            "WHERE p.id LIKE CONCAT('%',?1,'%') " +
-            "AND p.name LIKE CONCAT('%',?2,'%') " +
-            "AND c.id LIKE CONCAT('%',?3,'%') " +
-            "AND p.brand_id LIKE CONCAT('%',?4,'%')) as tb1 on pro.id=tb1.id", nativeQuery = true)
-    Page<Product> adminGetListProducts(String id, String name, String category, String brand, Pageable pageable);
+    @Query(value = """
+    	    SELECT pro.*, 
+    	           COALESCE(SUM(ps.quantity), 0) AS total_quantity
+    	    FROM product pro
+    	    RIGHT JOIN (
+    	        SELECT DISTINCT p.*
+    	        FROM product p
+    	        INNER JOIN product_category pc ON p.id = pc.product_id
+    	        INNER JOIN category c ON c.id = pc.category_id
+    	        WHERE p.id LIKE CONCAT('%',?1,'%')
+    	          AND p.name LIKE CONCAT('%',?2,'%')
+    	          AND c.id LIKE CONCAT('%',?3,'%')
+    	          AND p.brand_id LIKE CONCAT('%',?4,'%')
+    	    ) AS tb1 ON pro.id = tb1.id
+    	    LEFT JOIN product_size ps ON ps.product_id = pro.id
+    	    GROUP BY pro.id, pro.name, pro.description, pro.price, pro.sale_price, 
+             pro.slug, pro.images, pro.image_feedback, pro.product_view, 
+             pro.total_sold, pro.status, pro.created_at, pro.modified_at, 
+             pro.brand_id""", nativeQuery = true)
+    	Page<Product> adminGetListProducts(String id, String name, String category, String brand, Pageable pageable);
+
 
 //    @Query(value = "SELECT NEW dto.model.com.nhutkhuong1.application.ProductInfoDTO(p.id, p.name, p.slug, p.price ,p.images ->> '$[0]', p.total_sold) " +
 //            "FROM product p " +

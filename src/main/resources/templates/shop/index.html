@@ -85,7 +85,7 @@
                     <div class="product-default">
                     <figure>
                         <a th:href="@{/{slug}/{id}(id=${newProduct.id},slug=${newProduct.slug})}">
-                            <img th:src="@{${newProduct.images}}" alt="product">
+                            <img style="height: 160px" th:src="@{${newProduct.images}}" alt="product">
                         </a>
                     </figure>
                     <div class="product-details">
@@ -133,7 +133,7 @@
                     <div class="product-default">
                     <figure>
                         <a th:href="@{/{slug}/{id}(id=${sell.id},slug=${sell.slug})}">
-                            <img th:src="@{${sell.images}}" alt="product">
+                            <img style="height: 160px" th:src="@{${sell.images}}" alt="product">
                         </a>
                         <div class="label-group">
                             <div class="product-label label-hot">HOT</div>
@@ -179,7 +179,7 @@
                     <div class="product-default">
                     <figure>
                         <a th:href="@{/{slug}/{id}(id=${view.id},slug=${view.slug})}">
-                            <img th:src="@{${view.images}}" alt="product">
+                            <img style="height: 160px" th:src="@{${view.images}}" alt="product">
                         </a>
                     </figure>
                     <div class="product-details">

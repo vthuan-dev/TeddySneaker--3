@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
@@ -85,9 +86,14 @@ public class UserController {
 
 			Authentication authentication = authenticationManager.authenticate(
 					new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-
+			CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+			User user = userDetails.getUser();
+			System.out.println(user.isStatus());
+			if (!user.isStatus()) {
+				throw new BadRequestExp("Tài khoản này đã xóa!");
+			}
 			String token = jwtTokenUtil.generateToken((CustomUserDetails) authentication.getPrincipal());
-			
+
 			Cookie cookie = new Cookie("JWT_TOKEN", token);
 			cookie.setMaxAge(Contant.MAX_AGE_COOKIE);
 			cookie.setPath("/");
@@ -95,8 +101,10 @@ public class UserController {
 
 			return ResponseEntity
 					.ok(UserMapper.toUserDTO(((CustomUserDetails) authentication.getPrincipal()).getUser()));
-		} catch (Exception ex) {
+		} catch (BadCredentialsException ex) {
 			throw new BadRequestExp("Email hoặc mật khẩu không chính xác!");
+		} catch (Exception e) {
+			throw new BadRequestExp("Tài khoản này đã xóa!");
 		}
 	}
 
@@ -125,5 +133,14 @@ public class UserController {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		return ResponseEntity.ok("Cập nhật thành công");
+	}
+
+	@PutMapping("/api/delete-account")
+	public ResponseEntity<Object> deleteAccount() {
+		User user = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+				.getUser();
+		System.out.println(user.getFullName());
+		userService.deleteAccount(user);
+		return ResponseEntity.ok("Hủy tài khoản thành công");
 	}
 }

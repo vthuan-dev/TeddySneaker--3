@@ -69,11 +69,10 @@
     <script type="text/javascript" th:src="@{/adminlte/js/list.min.js}"></script>
     <script type="text/javascript" th:src="@{/adminlte/js/modal_image.js}"></script>
     <script th:inline="javascript">
-        var products = [[${products}]]
-        var promotions = [[${promotions}]]
+        var products = /*[[${products}]]*/;
+        var promotions = /*[[${promotions}]]*/;
         var listOrder = JSON.parse(localStorage.getItem('listorder')) || [];
-        var size = [[${sizeVn}]]
-        
+        var size = /*[[${sizeVn}]]*/;
         function initTabEvents(tabIndex) {  
            
             // Sự kiện thay đổi sản phẩm
@@ -158,10 +157,13 @@
         function eventChangeProduct(tabIndex) {
             let idProduct = $(`#product-${tabIndex}`).val();
             let sizes = [];
+            let quantities = [];
             for (product of products) {
+                console.log(product)
                 if (product.id == idProduct) {
                     if (product.availableSizes != null) {
                         sizes = product.availableSizes;
+                        quantities = product.quantitySizes;
                     }
                     $(`#product-price-${tabIndex}`).text(product.price+"");
                     $(`#total-price-${tabIndex}`).text(product.price+"");
@@ -170,8 +172,10 @@
             }
             // Cập nhật danh sách size
             $(`#size-${tabIndex}`).empty();
-            for (size of sizes) {
-                $(`#size-${tabIndex}`).append(new Option(size, size));
+            for (let i = 0; i < sizes.length; i++)  {
+            	let size = sizes[i];
+                let quantity = quantities[i];
+                $(`#size-${tabIndex}`).append(new Option(`${size} (SL: ${quantity})`, size));
             }
             calculatePrice(tabIndex);
         } 
@@ -237,7 +241,7 @@
                 alert("Chỉ tạo tối đa 10 đơn hàng tạm");
                 return;
             }
-            createTabWithState(tabIndex, products[0].id, size[0], "", "", "", "", "");
+            createTabWithState(tabIndex, products[0].id, "", "", "", "", "", "");
 
             listOrder.push({
                 tabIndex: tabIndex,
@@ -268,7 +272,7 @@
                                 <div class="card-body pad">
                                     <h3>Chi tiết đơn hàng</h3>
                                     <div class="row">
-                                        <div class="col-md-9">
+                                        <div class="col-md-8">
                                             <div class="form-group">
                                                 <label for="product-${tabIndex}">Sản phẩm</label>
                                                 <select name="product" class="form-control thuy-search-select" id="product-${tabIndex}">
@@ -277,7 +281,7 @@
                                                 <span class="invalid-feedback" id="invalid-feedback-product-${tabIndex}">Sản phẩm đã hết size</span>
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="size-${tabIndex}">Kích cỡ</label>
                                                 <select class="form-control" id="size-${tabIndex}">
