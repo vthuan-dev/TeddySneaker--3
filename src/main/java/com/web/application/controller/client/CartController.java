@@ -178,6 +178,30 @@ public class CartController {
         }
     }
 
+    @PostMapping("/api/cart/update")
+    @ResponseBody
+    public ResponseEntity<?> updateCartItem(@RequestBody UpdateCartRequest request) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+            }
+            
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            Long userId = userDetails.getUser().getId();
+            
+            Cart cart = cartService.updateCartItemQuantity(userId, request.getProductId(), 
+                                                         request.getSize(), request.getQuantity());
+            
+            CartSummaryDTO summary = cartService.getCartSummary(userId);
+            return ResponseEntity.ok(summary);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                               .body("Error updating cart: " + e.getMessage());
+        }
+    }
+
     // Add this class inside CartController or as a separate file
     public static class AddToCartRequest {
         private String productId;
@@ -208,5 +232,20 @@ public class CartController {
         public void setSize(Integer size) {
             this.size = size;
         }
+    }
+
+    // Add this class inside CartController
+    public static class UpdateCartRequest {
+        private String productId;
+        private Integer size;
+        private int quantity;
+
+        // Getters and setters
+        public String getProductId() { return productId; }
+        public void setProductId(String productId) { this.productId = productId; }
+        public Integer getSize() { return size; }
+        public void setSize(Integer size) { this.size = size; }
+        public int getQuantity() { return quantity; }
+        public void setQuantity(int quantity) { this.quantity = quantity; }
     }
 } 

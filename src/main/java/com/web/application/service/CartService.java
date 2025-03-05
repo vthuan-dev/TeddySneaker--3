@@ -15,4 +15,6 @@ public interface CartService {
     CartResponseDTO getCartDetails(Long userId);
     
     CartSummaryDTO getCartSummary(Long userId);
+
+    Cart updateCartItemQuantity(Long userId, String productId, Integer size, int quantity);
 } 

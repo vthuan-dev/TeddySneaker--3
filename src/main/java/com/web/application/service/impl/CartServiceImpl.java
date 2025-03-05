@@ -147,4 +147,29 @@ public class CartServiceImpl implements CartService {
         
         return new CartSummaryDTO(totalItems, totalPrice);
     }
+
+    @Override
+    public Cart updateCartItemQuantity(Long userId, String productId, Integer size, int quantity) {
+        Cart cart = cartRepository.findByUserId(userId);
+        if (cart != null) {
+            Optional<CartItem> itemToUpdate = cart.getItems().stream()
+                .filter(item -> item.getProduct().getId().equals(productId) 
+                           && Objects.equals(item.getSize(), size))
+                .findFirst();
+                
+            if (itemToUpdate.isPresent()) {
+                CartItem item = itemToUpdate.get();
+                item.setQuantity(quantity);
+                
+                // Cập nhật lại tổng giá
+                double totalPrice = cart.getItems().stream()
+                    .mapToDouble(i -> i.getPrice() * i.getQuantity())
+                    .sum();
+                cart.setTotalPrice(totalPrice);
+                
+                return cartRepository.save(cart);
+            }
+        }
+        return cart;
+    }
 } 
