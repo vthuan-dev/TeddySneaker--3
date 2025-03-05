@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import com.web.application.entity.Cart;
 import com.web.application.entity.Product;
@@ -14,9 +13,11 @@ import com.web.application.service.CartService;
 import com.web.application.service.ProductService;
 import com.web.application.dto.CartResponseDTO;
 import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
+import com.web.application.dto.CartSummaryDTO;
+import org.springframework.ui.Model;
 
 @Controller
-@RequestMapping("/cart")
 public class CartController {
 
     @Autowired
@@ -25,37 +26,28 @@ public class CartController {
     @Autowired
     private ProductService productService;
 
-    @GetMapping("")
+    @GetMapping("/cart")
     public String viewCart(Model model) {
-        // Lấy thông tin user đang đăng nhập
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
-            throw new RuntimeException("User not authenticated properly");
-        }
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Long userId = userDetails.getUser().getId();
-
-        // Lấy thông tin giỏ hàng
-        CartResponseDTO cartDetails = cartService.getCartDetails(userId);
-        
-        // Thêm thông tin vào model để hiển thị trong view
-        model.addAttribute("cart", cartDetails);
-        
-        return "cart/cart"; // Trả về template cart.html
+        return "cart/cart";
     }
 
     @GetMapping("/api/cart")
     @ResponseBody
     public ResponseEntity<CartResponseDTO> getCartApi() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
-            throw new RuntimeException("User not authenticated properly");
-        }
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Long userId = userDetails.getUser().getId();
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            }
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            Long userId = userDetails.getUser().getId();
 
-        CartResponseDTO cartDetails = cartService.getCartDetails(userId);
-        return ResponseEntity.ok(cartDetails);
+            CartResponseDTO cartDetails = cartService.getCartDetails(userId);
+            return ResponseEntity.ok(cartDetails);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @PostMapping("/add")
@@ -110,5 +102,50 @@ public class CartController {
         
         cartService.clearCart(userId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/api/cart/summary")
+    @ResponseBody
+    public ResponseEntity<CartSummaryDTO> getCartSummary() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            }
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            Long userId = userDetails.getUser().getId();
+
+            CartSummaryDTO summary = cartService.getCartSummary(userId);
+            return ResponseEntity.ok(summary);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @DeleteMapping("/api/cart/remove/{productId}")
+    @ResponseBody
+    public ResponseEntity<?> removeProductFromCart(@PathVariable String productId) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+            }
+            
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            Long userId = userDetails.getUser().getId();
+            
+            // Xóa sản phẩm khỏi giỏ hàng
+            cartService.removeProductFromCart(userId, Long.parseLong(productId));
+            
+            // Lấy thông tin giỏ hàng mới sau khi xóa
+            CartSummaryDTO summary = cartService.getCartSummary(userId);
+            
+            return ResponseEntity.ok(summary);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                               .body("Error removing product from cart: " + e.getMessage());
+        }
     }
 } 

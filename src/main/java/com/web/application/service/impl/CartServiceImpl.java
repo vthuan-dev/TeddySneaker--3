@@ -9,6 +9,7 @@ import com.web.application.entity.User;
 import com.web.application.repository.CartRepository;
 import com.web.application.service.CartService;
 import com.web.application.dto.CartResponseDTO;
+import com.web.application.dto.CartSummaryDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +84,7 @@ public class CartServiceImpl implements CartService {
     public CartResponseDTO getCartDetails(Long userId) {
         Cart cart = cartRepository.findByUserId(userId);
         if (cart == null) {
-            return new CartResponseDTO(); // Trả về giỏ hàng trống
+            return new CartResponseDTO();
         }
 
         CartResponseDTO cartResponse = new CartResponseDTO();
@@ -91,12 +92,14 @@ public class CartServiceImpl implements CartService {
         cartResponse.setUserId(cart.getUser().getId());
         cartResponse.setTotalPrice(cart.getTotalPrice());
         
-        // Chuyển đổi các CartItem thành CartItemDTO
         List<CartResponseDTO.CartItemDTO> itemDTOs = cart.getItems().stream()
             .map(item -> {
                 CartResponseDTO.CartItemDTO itemDTO = new CartResponseDTO.CartItemDTO();
                 itemDTO.setId(item.getId());
                 itemDTO.setProductId(item.getProduct().getId());
+                itemDTO.setProductName(item.getProduct().getName());
+                itemDTO.setPrice(Double.valueOf(item.getProduct().getPrice()));
+                itemDTO.setProductImage(item.getProduct().getImages().get(0));
                 itemDTO.setQuantity(item.getQuantity());
                 return itemDTO;
             })
@@ -105,5 +108,23 @@ public class CartServiceImpl implements CartService {
         cartResponse.setItems(itemDTOs);
         
         return cartResponse;
+    }
+
+    @Override
+    public CartSummaryDTO getCartSummary(Long userId) {
+        Cart cart = cartRepository.findByUserId(userId);
+        if (cart == null) {
+            return new CartSummaryDTO(0, 0.0);
+        }
+        
+        int totalItems = cart.getItems().stream()
+            .mapToInt(CartItem::getQuantity)
+            .sum();
+        
+        Double totalPrice = cart.getItems().stream()
+            .mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity())
+            .sum();
+        
+        return new CartSummaryDTO(totalItems, totalPrice);
     }
 } 

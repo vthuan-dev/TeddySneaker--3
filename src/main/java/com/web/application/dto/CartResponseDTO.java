@@ -44,6 +44,9 @@ public class CartResponseDTO {
     public static class CartItemDTO {
         private Long id;
         private String productId;
+        private String productName;
+        private Double price;
+        private String productImage;
         private int quantity;
 
         // Getters and setters
@@ -61,6 +64,30 @@ public class CartResponseDTO {
 
         public void setProductId(String productId) {
             this.productId = productId;
+        }
+
+        public String getProductName() {
+            return productName;
+        }
+
+        public void setProductName(String productName) {
+            this.productName = productName;
+        }
+
+        public Double getPrice() {
+            return price;
+        }
+
+        public void setPrice(Double price) {
+            this.price = price;
+        }
+
+        public String getProductImage() {
+            return productImage;
+        }
+
+        public void setProductImage(String productImage) {
+            this.productImage = productImage;
         }
 
         public int getQuantity() {

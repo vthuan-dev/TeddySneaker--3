@@ -12,7 +12,16 @@
     <meta charset="UTF-8">
     <title>Giỏ hàng của bạn</title>
     <th:block id="css-resources">
-        <!-- Add your CSS resources here -->
+        <style>
+            .quantity-input {
+                width: 60px;
+                text-align: center;
+            }
+            .cart-summary {
+                margin-top: 20px;
+                text-align: right;
+            }
+        </style>
     </th:block>
 </head>
 <body>
@@ -29,28 +38,116 @@
                     <th>Thao tác</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr th:each="item : ${cartItems}">
-                    <td th:text="${item.productName}"></td>
-                    <td th:text="${item.price}"></td>
-                    <td>
-                        <input type="number" th:value="${item.quantity}" min="1" class="form-control">
-                    </td>
-                    <td th:text="${item.total}"></td>
-                    <td>
-                        <button class="btn btn-danger">Xóa</button>
-                    </td>
-                </tr>
+            <tbody id="cartItems">
+                <!-- Dữ liệu giỏ hàng sẽ được thêm vào đây bằng JavaScript -->
             </tbody>
         </table>
         <div class="cart-summary">
-            <h3>Tổng cộng: <span th:text="${cartTotal}"></span></h3>
-            <button class="btn btn-primary">Thanh toán</button>
+            <h3>Tổng cộng: <span id="cartTotal">0 ₫</span></h3>
+            <button class="btn btn-primary" onclick="checkout()">Thanh toán</button>
         </div>
     </div>
 </main>
+
 <th:block id="js-resources">
-    <!-- Add your JavaScript resources here -->
+    <script th:inline="javascript">
+        function loadCart() {
+            fetch('/api/cart', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const cartItemsContainer = document.getElementById('cartItems');
+                cartItemsContainer.innerHTML = '';
+                
+                if (data.items && data.items.length > 0) {
+                    data.items.forEach(item => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>
+                                <div class="product-item">
+                                    <img src="${item.productImage || ''}" alt="${item.productName || ''}" style="width: 50px; height: 50px; margin-right: 10px;">
+                                    <span>${item.productName || ''}</span>
+                                </div>
+                            </td>
+                            <td>${formatPrice(item.price)} ₫</td>
+                            <td>
+                                <input type="number" 
+                                       value="${item.quantity}" 
+                                       min="1" 
+                                       class="form-control quantity-input"
+                                       onchange="updateQuantity('${item.productId}', this.value)">
+                            </td>
+                            <td>${formatPrice(item.price * item.quantity)} ₫</td>
+                            <td>
+                                <button class="btn btn-danger" onclick="removeItem('${item.productId}')">
+                                    Xóa
+                                </button>
+                            </td>
+                        `;
+                        cartItemsContainer.appendChild(row);
+                    });
+
+                    // Cập nhật tổng tiền
+                    document.getElementById('cartTotal').textContent = `${formatPrice(data.totalPrice)} ₫`;
+                } else {
+                    cartItemsContainer.innerHTML = '<tr><td colspan="5" class="text-center">Giỏ hàng trống</td></tr>';
+                    document.getElementById('cartTotal').textContent = '0 ₫';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const cartItemsContainer = document.getElementById('cartItems');
+                cartItemsContainer.innerHTML = '<tr><td colspan="5" class="text-center">Có lỗi xảy ra khi tải giỏ hàng</td></tr>';
+            });
+        }
+
+        // Hàm format giá tiền
+        function formatPrice(price) {
+            return new Intl.NumberFormat('vi-VN').format(price || 0);
+        }
+
+        // Hàm xóa sản phẩm khỏi giỏ hàng
+        function removeItem(productId) {
+            fetch(`/cart/remove/${productId}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    loadCart(); // Tải lại giỏ hàng
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Hàm cập nhật số lượng
+        function updateQuantity(productId, quantity) {
+            // Thêm logic cập nhật số lượng ở đây
+            console.log(`Update quantity for product ${productId} to ${quantity}`);
+        }
+
+        // Hàm thanh toán
+        function checkout() {
+            // Thêm logic thanh toán ở đây
+            console.log('Proceed to checkout');
+        }
+
+        // Thêm event listener để load giỏ hàng khi trang được tải
+        document.addEventListener('DOMContentLoaded', loadCart);
+
+        // Cập nhật giỏ hàng khi có thay đổi
+        document.addEventListener('cartUpdated', loadCart);
+    </script>
 </th:block>
 </body>
 </html> 
