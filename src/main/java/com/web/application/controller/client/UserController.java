@@ -1,6 +1,8 @@
 package com.web.application.controller.client;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.validation.Valid;
 
@@ -86,21 +88,30 @@ public class UserController {
 
 			Authentication authentication = authenticationManager.authenticate(
 					new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+			
 			CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 			User user = userDetails.getUser();
-			System.out.println(user.isStatus());
+			
 			if (!user.isStatus()) {
 				throw new BadRequestExp("Tài khoản này đã xóa!");
 			}
-			String token = jwtTokenUtil.generateToken((CustomUserDetails) authentication.getPrincipal());
+			
+			// Generate JWT token
+			String token = jwtTokenUtil.generateToken(userDetails);
 
+			// Add token to cookie
 			Cookie cookie = new Cookie("JWT_TOKEN", token);
 			cookie.setMaxAge(Contant.MAX_AGE_COOKIE);
 			cookie.setPath("/");
 			response.addCookie(cookie);
 
-			return ResponseEntity
-					.ok(UserMapper.toUserDTO(((CustomUserDetails) authentication.getPrincipal()).getUser()));
+			// Create response object with user info and token
+			Map<String, Object> responseData = new HashMap<>();
+			responseData.put("user", UserMapper.toUserDTO(user));
+			responseData.put("token", token);
+
+			return ResponseEntity.ok(responseData);
+			
 		} catch (BadCredentialsException ex) {
 			throw new BadRequestExp("Email hoặc mật khẩu không chính xác!");
 		} catch (Exception e) {

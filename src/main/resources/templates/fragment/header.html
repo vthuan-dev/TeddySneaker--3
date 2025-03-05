@@ -30,7 +30,54 @@
                     <h6>Hotline <a href="tel:#" class="text-dark font1">034xxxxx51</a></h6>
                 </div>
 
-                <a href="#" data-toggle="modal" data-target="#exampleModal" class="header-icon account-setting"><i class="icon-user-2"></i></a>
+                <div class="dropdown cart-dropdown">
+                    <a href="/cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
+                        <i class="icon-shopping-cart"></i>
+                        <span class="cart-count badge-circle" th:text="${cartItemCount ?: 0}">0</span>
+                    </a>
+
+                    <div class="dropdown-menu">
+                        <div class="dropdownmenu-wrapper">
+                            <div class="dropdown-cart-header">
+                                <span th:text="${cartItemCount ?: 0} + ' Sản phẩm'">0 Sản phẩm</span>
+                                <a href="/cart" class="float-right">Xem giỏ hàng</a>
+                            </div>
+
+                            <div class="dropdown-cart-products">
+                                <div th:if="${cartItems != null}" th:each="item : ${cartItems}" class="product">
+                                    <div class="product-details">
+                                        <h4 class="product-title">
+                                            <a th:href="@{'/san-pham/' + ${item.productId}}" th:text="${item.productName}">Product Name</a>
+                                        </h4>
+                                        <span class="cart-product-info">
+                                            <span th:text="${item.quantity}">1</span> x 
+                                            <span th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
+                                        </span>
+                                    </div>
+                                    <figure class="product-image-container">
+                                        <a th:href="@{'/san-pham/' + ${item.productId}}" class="product-image">
+                                            <img th:src="${item.productImage}" alt="product">
+                                        </a>
+                                        <a href="#" class="btn-remove" title="Remove Product"><i class="icon-cancel"></i></a>
+                                    </figure>
+                                </div>
+                            </div>
+
+                            <div class="dropdown-cart-total">
+                                <span>Tổng cộng:</span>
+                                <span class="cart-total-price float-right" th:text="${#numbers.formatDecimal(cartTotal ?: 0, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
+                            </div>
+
+                            <div class="dropdown-cart-action">
+                                <a href="/cart" class="btn btn-primary btn-block">Thanh toán</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="#" data-toggle="modal" data-target="#exampleModal" class="header-icon account-setting">
+                    <i class="icon-user-2"></i>
+                </a>
             </div><!-- End .header-right -->
         </div><!-- End .container -->
     </div><!-- End .header-middle -->
