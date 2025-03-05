@@ -43,6 +43,9 @@ public class CartController {
             Long userId = userDetails.getUser().getId();
 
             CartResponseDTO cartDetails = cartService.getCartDetails(userId);
+            if (cartDetails == null) {
+                cartDetails = new CartResponseDTO(); // Return empty cart instead of null
+            }
             return ResponseEntity.ok(cartDetails);
         } catch (Exception e) {
             e.printStackTrace();
@@ -76,19 +79,6 @@ public class CartController {
         }).collect(Collectors.toList()));
 
         return ResponseEntity.ok(response);
-    }
-
-    @DeleteMapping("/remove/{productId}")
-    public ResponseEntity<Cart> removeProductFromCart(@PathVariable String productId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
-            throw new RuntimeException("User not authenticated properly");
-        }
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Long userId = userDetails.getUser().getId();
-        
-        Cart cart = cartService.removeProductFromCart(userId, Long.parseLong(productId));
-        return ResponseEntity.ok(cart);
     }
 
     @DeleteMapping("/clear")
@@ -135,8 +125,8 @@ public class CartController {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             Long userId = userDetails.getUser().getId();
             
-            // Xóa sản phẩm khỏi giỏ hàng
-            cartService.removeProductFromCart(userId, Long.parseLong(productId));
+            // Xóa sản phẩm khỏi giỏ hàng - passing productId as String directly
+            cartService.removeProductFromCart(userId, productId);
             
             // Lấy thông tin giỏ hàng mới sau khi xóa
             CartSummaryDTO summary = cartService.getCartSummary(userId);
@@ -146,6 +136,54 @@ public class CartController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                .body("Error removing product from cart: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/api/cart/add")
+    @ResponseBody
+    public ResponseEntity<?> addToCart(@RequestBody AddToCartRequest request) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+            }
+            
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            Long userId = userDetails.getUser().getId();
+            
+            Product product = productService.getProductById(request.getProductId());
+            Cart cart = cartService.addProductToCart(userId, product, request.getQuantity());
+            
+            // Convert to DTO and return
+            CartSummaryDTO summary = cartService.getCartSummary(userId);
+            return ResponseEntity.ok(summary);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                               .body("Error adding product to cart: " + e.getMessage());
+        }
+    }
+
+    // Add this class inside CartController or as a separate file
+    public static class AddToCartRequest {
+        private String productId;
+        private int quantity;
+
+        // Getters and setters
+        public String getProductId() {
+            return productId;
+        }
+
+        public void setProductId(String productId) {
+            this.productId = productId;
+        }
+
+        public int getQuantity() {
+            return quantity;
+        }
+
+        public void setQuantity(int quantity) {
+            this.quantity = quantity;
         }
     }
 } 

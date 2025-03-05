@@ -62,10 +62,17 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Cart removeProductFromCart(Long userId, Long productId) {
-        Cart cart = cartRepository.findByUserId(userId);
+    public Cart removeProductFromCart(Long userId, String productId) {
+        Cart cart = getCartByUserId(userId);
         if (cart != null) {
             cart.getItems().removeIf(item -> item.getProduct().getId().equals(productId));
+            
+            // Cập nhật lại tổng giá sau khi xóa sản phẩm
+            double totalPrice = cart.getItems().stream()
+                .mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity())
+                .sum();
+            cart.setTotalPrice(totalPrice);
+            
             return cartRepository.save(cart);
         }
         return null;

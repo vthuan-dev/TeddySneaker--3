@@ -125,19 +125,25 @@
                             </button>
                         </div>
                         <div class="buy-btn">
+                            <button class="btn btn-primary add-to-cart" 
+                                    th:if="${canBuy}"
+                                    th:data-id="${product.id}"
+                                    onclick="addToCart(this)">
+                                <i class="fas fa-shopping-cart"></i> Thêm vào giỏ
+                            </button>
                             <button class="btn btn-primary buy red-btn" th:classappend="${canBuy} == true ? '' : 'not-buy'">
                                 <div class="ask-text left-content">
                                     <th:block th:if="${product.promotionPrice}">
                                         <div class="ask-desc sub-content old-price"><span class="text-price" th:text="${product.price}"></span> &#x20AB;</div>
-                                        <div class="ask-price "><span class="text-price" th:text="${product.promotionPrice}"></span> &#x20AB;</div>
+                                        <div class="ask-price"><span class="text-price" th:text="${product.promotionPrice}"></span> &#x20AB;</div>
                                     </th:block>
                                     <th:block th:unless="${product.promotionPrice}">
                                         <div class="ask-desc sub-content">Giá bán ưu đãi</div>
-                                        <div class="ask-price "><span class="text-price" th:text="${product.price}"></span> &#x20AB;</div>
+                                        <div class="ask-price"><span class="text-price" th:text="${product.price}"></span> &#x20AB;</div>
                                     </th:block>
                                 </div>
                                 <div class="buy-text right-content">
-                                    <div class="buy-now ">Mua ngay</div>
+                                    <div class="buy-now">Mua ngay</div>
                                 </div>
                             </button>
                         </div>
@@ -405,6 +411,61 @@
         // $('.btn-rating input').on('change', function() {
         //     alert($('input[name=rating]:checked').val());
         // });
+
+        function addToCart(button) {
+            const productId = button.getAttribute('data-id');
+            const quantity = 1; // Mặc định số lượng là 1
+
+            fetch('/api/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    productId: productId,
+                    quantity: quantity
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/auth/dang-nhap';
+                        return;
+                    }
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                toastr.success('Đã thêm sản phẩm vào giỏ hàng');
+                // Trigger event để cập nhật số lượng giỏ hàng trên header
+                document.dispatchEvent(new CustomEvent('cartUpdated'));
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                toastr.error('Có lỗi xảy ra khi thêm vào giỏ hàng');
+            });
+        }
+
+        // Cấu hình toastr
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
     </script>
 </th:block>
 </body>
