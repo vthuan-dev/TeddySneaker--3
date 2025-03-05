@@ -548,6 +548,9 @@
                     document.getElementById('cartSubtotal').textContent = '0 ₫';
                     document.getElementById('cartTotal').textContent = '0 ₫';
                 }
+                
+                // Thêm dòng này sau khi render xong cart items
+                attachCheckoutEvents();
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -651,7 +654,19 @@
             window.location.href = `/dat-hang?id=${productId}&size=${size}`;
         }
 
-        // Thêm event listener để load giỏ hàng khi trang được tải
+        // Thêm hàm này để xử lý sự kiện click cho các nút mua ngay được tạo động
+        function attachCheckoutEvents() {
+            const checkoutButtons = document.querySelectorAll('.checkout-item');
+            checkoutButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const productId = this.getAttribute('data-product-id');
+                    const size = this.getAttribute('data-size');
+                    window.location.href = `/dat-hang?id=${productId}&size=${size}`;
+                });
+            });
+        }
+
+        // Load cart khi trang được tải
         document.addEventListener('DOMContentLoaded', () => {
             loadCart();
         });
@@ -677,25 +692,6 @@
             "showMethod": "fadeIn",
             "hideMethod": "fadeOut"
         };
-
-        // Thêm onclick cho nút thanh toán trong giỏ hàng
-        $('.checkout-item').click(function() {
-            const productId = $(this).data('product-id');
-            const size = $(this).data('size');
-            checkout(productId, size);
-        });
-
-        // Thêm vào phần script
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkoutButtons = document.querySelectorAll('.checkout-item');
-            checkoutButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const productId = this.getAttribute('data-product-id');
-                    const size = this.getAttribute('data-size');
-                    window.location.href = `/dat-hang?id=${productId}&size=${size}`;
-                });
-            });
-        });
     </script>
 </th:block>
 </body>

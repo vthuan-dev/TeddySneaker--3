@@ -12,10 +12,12 @@ import com.web.application.config.Contant;
 import com.web.application.dto.OrderDetailDTO;
 import com.web.application.dto.OrderInfoDTO;
 import com.web.application.dto.ShortProductInfoDTO;
+import com.web.application.dto.DetailProductInfoDTO;
 import com.web.application.entity.Order;
 import com.web.application.entity.Promotion;
 import com.web.application.entity.User;
 import com.web.application.exception.BadRequestExp;
+import com.web.application.exception.NotFoundExp;
 import com.web.application.model.request.CreateOrderRequest;
 import com.web.application.model.request.UpdateDetailOrder;
 import com.web.application.model.request.UpdateStatusOrderRequest;
@@ -212,7 +214,7 @@ public class OrderController {
 		return ResponseEntity.ok("Hủy đơn hàng thành công");
 	}
 
-	@GetMapping("/dat-hang") 
+	@GetMapping("/admin/checkout") 
 	public String getCheckoutPage(Model model, 
 			@RequestParam String id,
 			@RequestParam int size) {
@@ -234,6 +236,15 @@ public class OrderController {
 		List<Integer> availableSizes = productService.getListAvailableSize(id);
 		model.addAttribute("availableSizes", availableSizes);
 		
+		boolean notFoundSize = true;
+		for (Integer availableSize : availableSizes) {
+			if (availableSize == size) {
+				notFoundSize = false;
+				break;
+			}
+		}
+		model.addAttribute("notFoundSize", notFoundSize);
+
 		// Thêm thông tin user
 		User user = ((CustomUserDetails) SecurityContextHolder.getContext()
 			.getAuthentication().getPrincipal()).getUser();
