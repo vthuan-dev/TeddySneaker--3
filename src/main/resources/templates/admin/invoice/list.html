@@ -1,43 +1,142 @@
-<div class="container-fluid">
-    <h1 class="h3 mb-2 text-gray-800">Quản lý hóa đơn</h1>
-    
-    <!-- Bộ lọc -->
-    <div class="card shadow mb-4">
-        <div class="card-header">
-            <h6 class="m-0 font-weight-bold text-primary">Bộ lọc</h6>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-3">
-                    <label>Từ ngày:</label>
-                    <input type="date" class="form-control" id="fromDate">
-                </div>
-                <div class="col-md-3">
-                    <label>Đến ngày:</label>
-                    <input type="date" class="form-control" id="toDate">
-                </div>
-                <div class="col-md-3">
-                    <label>Trạng thái:</label>
-                    <select class="form-control" id="status">
-                        <option value="">Tất cả</option>
-                        <option value="1">Đã thanh toán</option>
-                        <option value="0">Chưa thanh toán</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <button class="btn btn-primary mt-4" onclick="filterInvoices()">
-                        <i class="fas fa-search"></i> Tìm kiếm
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/layout/layout_admin :: main-fragment(
+                                                ~{:: title},
+                                                'header',
+                                                'sidebar',
+                                                ~{:: #css-resources},
+                                                ~{:: #js-resources},
+                                                ~{:: #main-content}
+                                               )}">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý hóa đơn</title>
+    <th:block id="css-resources">
+        <link rel="stylesheet" th:href="@{/adminlte/pagination/simplePagination.css}">
+        <style>
+            .actions {
+                white-space: nowrap;
+                text-align: center;
+            }
+            
+            .action-btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 3px;
+                padding: 6px 12px;
+                border-radius: 4px;
+                transition: all 0.3s ease;
+            }
+            
+            .view-btn {
+                background-color: #17a2b8;
+                color: #fff;
+                border: none;
+            }
+            
+            .view-btn:hover {
+                background-color: #138496;
+                color: #fff;
+                transform: translateY(-2px);
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            }
+            
+            .print-btn {
+                background-color: #28a745;
+                color: #fff;
+                border: none;
+            }
+            
+            .print-btn:hover {
+                background-color: #218838;
+                color: #fff;
+                transform: translateY(-2px);
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            }
 
-    <!-- Bảng danh sách -->
-    <div class="card shadow mb-4">
+            .btn i {
+                margin-right: 5px;
+            }
+
+            .filter-section {
+                background-color: #f8f9fa;
+                padding: 20px;
+                border-radius: 5px;
+                margin-bottom: 20px;
+            }
+
+            .filter-section .form-group {
+                margin-bottom: 15px;
+            }
+
+            .table th {
+                background-color: #f4f6f9;
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+<section role="main" class="content-body" id="main-content">
+    <header class="page-header">
+        <div class="right-wrapper text-right">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="/admin">
+                        <i class="bx bx-home-alt"></i>
+                    </a>
+                </li>
+                <li><span>Quản lý hóa đơn</span></li>
+            </ol>
+        </div>
+    </header>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Quản lý hóa đơn</h2>
+        </div>
         <div class="card-body">
+            <!-- Phần lọc -->
+            <div class="filter-section mb-4">
+                <form id="filter-form">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Từ ngày:</label>
+                                <input type="date" class="form-control" id="fromDate" name="fromDate">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Đến ngày:</label>
+                                <input type="date" class="form-control" id="toDate" name="toDate">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Trạng thái thanh toán:</label>
+                                <select class="form-control" id="paymentStatus" name="paymentStatus">
+                                    <option value="">Tất cả</option>
+                                    <option value="1">Đã thanh toán</option>
+                                    <option value="0">Chưa thanh toán</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <button type="button" class="btn btn-primary btn-block" onclick="filterInvoices()">
+                                    <i class="fas fa-search"></i> Tìm kiếm
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Bảng hiển thị -->
             <div class="table-responsive">
-                <table class="table table-bordered" id="invoiceTable">
+                <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
                             <th>Mã HĐ</th>
@@ -60,11 +159,11 @@
                                       th:text="${invoice.paymentStatus == 1 ? 'Đã thanh toán' : 'Chưa thanh toán'}">
                                 </span>
                             </td>
-                            <td>
-                                <button class="btn btn-sm btn-info" th:onclick="'viewInvoice(' + ${invoice.id} + ')'">
+                            <td class="actions">
+                                <button class="action-btn view-btn" th:onclick="'viewInvoice(' + ${invoice.id} + ')'">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button class="btn btn-sm btn-primary" th:onclick="'printInvoice(' + ${invoice.id} + ')'">
+                                <button class="action-btn print-btn" th:onclick="'printInvoice(' + ${invoice.id} + ')'">
                                     <i class="fas fa-print"></i>
                                 </button>
                             </td>
@@ -72,9 +171,14 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Phân trang -->
+            <nav aria-label="Page navigation" class="mt-3">
+                <ul class="pagination" id="pagination"></ul>
+            </nav>
         </div>
     </div>
-</div>
+</section>
 
 <!-- Modal xem chi tiết -->
 <div class="modal fade" id="invoiceModal">
@@ -85,8 +189,71 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body" id="invoiceDetail">
-                <!-- Nội dung chi tiết hóa đơn -->
+                <!-- Nội dung chi tiết hóa đơn sẽ được load động -->
             </div>
         </div>
     </div>
-</div> 
+</div>
+
+<th:block id="js-resources">
+    <script type="text/javascript" th:src="@{/adminlte/plugins/jquery/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/adminlte/pagination/jquery.simplePagination.js}"></script>
+    <script type="text/javascript" th:src="@{/adminlte/plugins/toastr/toastr.min.js}"></script>
+    
+    <script th:inline="javascript">
+        function filterInvoices() {
+            // Lấy giá trị từ form
+            const fromDate = $('#fromDate').val();
+            const toDate = $('#toDate').val();
+            const status = $('#paymentStatus').val();
+            
+            // Tạo URL với các tham số
+            let url = '/admin/invoices?';
+            if(fromDate) url += `fromDate=${fromDate}&`;
+            if(toDate) url += `toDate=${toDate}&`;
+            if(status) url += `status=${status}`;
+            
+            // Chuyển hướng đến URL mới
+            window.location.href = url;
+        }
+
+        function viewInvoice(id) {
+            $.get(`/api/admin/invoices/${id}`, function(data) {
+                $('#invoiceDetail').html(data);
+                $('#invoiceModal').modal('show');
+            }).fail(function() {
+                toastr.error('Không thể tải thông tin hóa đơn');
+            });
+        }
+
+        function printInvoice(id) {
+            $.ajax({
+                url: '/api/admin/invoices/export/' + id,
+                type: 'GET',
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function(response) {
+                    const blob = new Blob([response], { type: 'application/pdf' });
+                    const url = window.URL.createObjectURL(blob);
+                    const printWindow = window.open(url);
+                    printWindow.onload = function() {
+                        printWindow.print();
+                    };
+                },
+                error: function() {
+                    toastr.error('Có lỗi xảy ra khi in hóa đơn');
+                }
+            });
+        }
+
+        $(function() {
+            // Khởi tạo phân trang
+            if([[${totalPages}]] > 0) {
+                pagination([[${totalPages}]], [[${currentPage}]]);
+            }
+        });
+    </script>
+</th:block>
+</body>
+</html> 

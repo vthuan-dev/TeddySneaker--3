@@ -35,6 +35,8 @@ import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.layout.element.Image;
+import com.itextpdf.layout.property.VerticalAlignment;
+import com.itextpdf.layout.borders.SolidBorder;
 
 @Service
 public class InvoiceServiceImpl implements InvoiceService {
@@ -152,34 +154,55 @@ public class InvoiceServiceImpl implements InvoiceService {
         document.setFont(font);
 
         // Thêm logo
-        String logoPath = "static/images/logo.jpg"; // Đặt logo trong resources/static/images/
+        String logoPath = "static/images/logo.jpg";
         ImageData imageData = ImageDataFactory.create(getClass().getClassLoader().getResource(logoPath));
         Image logo = new Image(imageData);
-        logo.setWidth(100); // Điều chỉnh kích thước logo
-        logo.setHeight(100);
+        logo.setWidth(80);  // Giảm kích thước logo xuống một chút
+        logo.setHeight(80);
         
-        // Tạo bảng để căn chỉnh logo và tiêu đề
-        Table headerTable = new Table(2);
+        // Tạo bảng header 3 cột với tỷ lệ 1:2:1
+        Table headerTable = new Table(UnitValue.createPercentArray(new float[]{25, 50, 25}));
         headerTable.setWidth(UnitValue.createPercentValue(100));
         
-        // Cột 1: Logo
-        Cell logoCell = new Cell().add(logo).setBorder(null);
+        // Cột 1: Logo (căn giữa theo chiều dọc)
+        Cell logoCell = new Cell()
+                .add(logo)
+                .setBorder(null)
+                .setPadding(10)
+                .setVerticalAlignment(VerticalAlignment.MIDDLE);
         headerTable.addCell(logoCell);
         
-        // Cột 2: Tiêu đề
-        Cell titleCell = new Cell().setBorder(null);
-        titleCell.add(new Paragraph("TEDDY SNEAKER")
-                .setFontSize(20)
+        // Cột 2: Thông tin công ty (căn giữa)
+        Cell companyCell = new Cell().setBorder(null);
+        companyCell.add(new Paragraph("TEDDY SNEAKER")
+                .setFontSize(24)
                 .setTextAlignment(TextAlignment.CENTER)
                 .setBold());
-        titleCell.add(new Paragraph("HÓA ĐƠN BÁN HÀNG")
-                .setFontSize(16)
+        companyCell.add(new Paragraph("Địa chỉ: 123 Đường ABC, Quận XYZ, TP.HCM")
+                .setFontSize(10)
                 .setTextAlignment(TextAlignment.CENTER));
-        headerTable.addCell(titleCell);
+        companyCell.add(new Paragraph("Điện thoại: 0123.456.789")
+                .setFontSize(10)
+                .setTextAlignment(TextAlignment.CENTER));
+        companyCell.add(new Paragraph("Email: contact@teddysneaker.com")
+                .setFontSize(10)
+                .setTextAlignment(TextAlignment.CENTER));
+        headerTable.addCell(companyCell);
+        
+        // Cột 3: Để trống cho cân đối (hoặc có thể thêm QR code sau này)
+        Cell emptyCell = new Cell().setBorder(null);
+        headerTable.addCell(emptyCell);
         
         document.add(headerTable);
-
-        // Thông tin hóa đơn
+        
+        // Thêm tiêu đề hóa đơn
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("HÓA ĐƠN BÁN HÀNG")
+                .setFontSize(18)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setBold());
+        
+        // Thông tin hóa đơn (bỏ phần lineTable)
         document.add(new Paragraph("\n"));
         document.add(new Paragraph(String.format("Số hóa đơn: %s", invoice.getInvoiceNumber())));
         document.add(new Paragraph(String.format("Ngày tạo: %s", 

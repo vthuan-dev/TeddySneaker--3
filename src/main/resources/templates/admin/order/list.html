@@ -13,6 +13,50 @@
     <title>Danh sách đơn hàng</title>
     <th:block id="css-resources">
         <link rel="stylesheet" th:href="@{/adminlte/pagination/simplePagination.css}">
+        <style>
+            .actions {
+                white-space: nowrap;
+                text-align: center;
+            }
+            
+            .action-btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 3px;
+                padding: 6px 12px;
+                border-radius: 4px;
+                transition: all 0.3s ease;
+            }
+            
+            .edit-btn {
+                background-color: #ffc107;
+                color: #fff;
+                border: none;
+            }
+            
+            .edit-btn:hover {
+                background-color: #e0a800;
+                color: #fff;
+                text-decoration: none;
+            }
+            
+            .export-btn {
+                background-color: #17a2b8;
+                color: #fff;
+                border: none;
+            }
+            
+            .export-btn:hover {
+                background-color: #138496;
+                transform: translateY(-2px);
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            }
+            
+            .btn i {
+                margin-right: 5px;
+            }
+        </style>
     </th:block>
 </head>
 <body>
@@ -135,13 +179,17 @@
                             <span th:text="${order.totalPrice}"></span>
                         </td>
                         <td class="actions">
-                            <a th:href="@{/admin/orders/update/{id}(id=${order.id})}" class="on-default edit-row">
+                            <a th:href="@{/admin/orders/update/{id}(id=${order.id})}" 
+                               class="action-btn edit-btn" 
+                               title="Chỉnh sửa">
                                 <i class="fas fa-pencil-alt"></i>
                             </a>
-                            <button class="btn btn-info btn-sm" 
+                            <button class="action-btn export-btn" 
                                     th:onclick="'window.exportInvoice(' + ${order.id} + ')'"
-                                    th:id="'export-invoice-' + ${order.id}">
-                                <i class="fas fa-file-invoice"></i> Xuất hóa đơn
+                                    th:id="'export-invoice-' + ${order.id}"
+                                    title="Xuất hóa đơn">
+                                <i class="fas fa-file-invoice"></i>
+                                <span>Xuất HĐ</span>
                             </button>
                         </td>
                     </tr>
