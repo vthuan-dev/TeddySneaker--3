@@ -309,7 +309,7 @@ public class OrderServiceImpl implements OrderService {
 			orderRepository.save(order);
 			
 			// Cập nhật trạng thái thanh toán trong hóa đơn nếu đơn hàng đã hoàn thành
-			if (updateStatusOrderRequest.getStatus() == Contant.ORDER_STATUS_DONE) {
+			if (updateStatusOrderRequest.getStatus() == Contant.COMPLETED_STATUS) {
 				Invoice invoice = invoiceService.findByOrderId(orderId);
 				if (invoice != null) {
 					CreateInvoiceRequest updateInvoice = new CreateInvoiceRequest();

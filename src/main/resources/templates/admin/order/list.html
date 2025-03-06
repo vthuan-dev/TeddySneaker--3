@@ -135,8 +135,12 @@
                             <span th:text="${order.totalPrice}"></span>
                         </td>
                         <td class="actions">
-                            <a th:href="@{/admin/orders/update/{id}(id=${order.id})}" class="on-default edit-row"><i class="fas fa-pencil-alt"></i></a>
-                            <button class="btn btn-info btn-sm" onclick="exportInvoice(${order.id})">
+                            <a th:href="@{/admin/orders/update/{id}(id=${order.id})}" class="on-default edit-row">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                            <button class="btn btn-info btn-sm" 
+                                    th:onclick="'window.exportInvoice(' + ${order.id} + ')'"
+                                    th:id="'export-invoice-' + ${order.id}">
                                 <i class="fas fa-file-invoice"></i> Xuất hóa đơn
                             </button>
                         </td>
@@ -155,8 +159,13 @@
 </section>
 
 <th:block id="js-resources">
+    <!-- Đảm bảo jQuery được load trước -->
+    <script type="text/javascript" th:src="@{/adminlte/plugins/jquery/jquery.min.js}"></script>
     <script type="text/javascript" th:src="@{/adminlte/pagination/jquery.simplePagination.js}"></script>
     <script type="text/javascript" th:src="@{/adminlte/js/table.js}"></script>
+    <!-- Thêm toastr -->
+    <script type="text/javascript" th:src="@{/adminlte/plugins/toastr/toastr.min.js}"></script>
+    
     <script th:inline="javascript">
         let id, name, phone, status, product, createdAt, modifiedAt, page;
         $(function () {
@@ -205,6 +214,35 @@
 
             pagination([[${totalPages}]],[[${currentPage}]])
         });
+
+        // Thêm hàm exportInvoice vào đây
+        window.exportInvoice = function(orderId) {
+            $.ajax({
+                url: '/api/admin/invoices/export/' + orderId,
+                type: 'GET',
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function(response) {
+                    const blob = new Blob([response], { type: 'application/pdf' });
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = downloadUrl;
+                    a.download = "invoice-" + orderId + ".pdf";
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(downloadUrl);
+                    a.remove();
+                },
+                error: function(xhr) {
+                    if (xhr.status === 404) {
+                        toastr.error('Không tìm thấy hóa đơn cho đơn hàng này');
+                    } else {
+                        toastr.error('Có lỗi xảy ra khi xuất hóa đơn');
+                    }
+                }
+            });
+        };
     </script>
 </th:block>
 </body>

@@ -28,6 +28,13 @@ import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
+import java.math.BigDecimal;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.io.font.PdfEncodings;
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.layout.element.Image;
 
 @Service
 public class InvoiceServiceImpl implements InvoiceService {
@@ -117,8 +124,22 @@ public class InvoiceServiceImpl implements InvoiceService {
     public byte[] generateInvoicePdf(Long orderId) throws Exception {
         // Tìm hóa đơn theo orderId
         Invoice invoice = findByOrderId(orderId);
+        
+        // Nếu chưa có hóa đơn, tạo mới
         if (invoice == null) {
-            throw new NotFoundExp("Không tìm thấy hóa đơn cho đơn hàng này");
+            Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new NotFoundExp("Không tìm thấy đơn hàng"));
+                
+            CreateInvoiceRequest request = new CreateInvoiceRequest();
+            request.setOrderId(orderId);
+            request.setSubtotal(BigDecimal.valueOf(order.getTotalPrice()));
+            request.setDiscount(BigDecimal.ZERO);
+            request.setTax(BigDecimal.ZERO);
+            request.setTotal(BigDecimal.valueOf(order.getTotalPrice()));
+            request.setPaymentMethod("Tiền mặt");
+            request.setPaymentStatus(1); // Chưa thanh toán
+            
+            invoice = createInvoice(request);
         }
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -126,15 +147,37 @@ public class InvoiceServiceImpl implements InvoiceService {
         PdfDocument pdf = new PdfDocument(writer);
         Document document = new Document(pdf);
 
-        // Header
-        document.add(new Paragraph("TEDDY SNEAKER")
+        // Thêm font Arial
+        PdfFont font = PdfFontFactory.createFont("fonts/arial.ttf", PdfEncodings.IDENTITY_H, true);
+        document.setFont(font);
+
+        // Thêm logo
+        String logoPath = "static/images/logo.jpg"; // Đặt logo trong resources/static/images/
+        ImageData imageData = ImageDataFactory.create(getClass().getClassLoader().getResource(logoPath));
+        Image logo = new Image(imageData);
+        logo.setWidth(100); // Điều chỉnh kích thước logo
+        logo.setHeight(100);
+        
+        // Tạo bảng để căn chỉnh logo và tiêu đề
+        Table headerTable = new Table(2);
+        headerTable.setWidth(UnitValue.createPercentValue(100));
+        
+        // Cột 1: Logo
+        Cell logoCell = new Cell().add(logo).setBorder(null);
+        headerTable.addCell(logoCell);
+        
+        // Cột 2: Tiêu đề
+        Cell titleCell = new Cell().setBorder(null);
+        titleCell.add(new Paragraph("TEDDY SNEAKER")
                 .setFontSize(20)
                 .setTextAlignment(TextAlignment.CENTER)
                 .setBold());
-        
-        document.add(new Paragraph("HÓA ĐƠN BÁN HÀNG")
+        titleCell.add(new Paragraph("HÓA ĐƠN BÁN HÀNG")
                 .setFontSize(16)
                 .setTextAlignment(TextAlignment.CENTER));
+        headerTable.addCell(titleCell);
+        
+        document.add(headerTable);
 
         // Thông tin hóa đơn
         document.add(new Paragraph("\n"));
@@ -164,9 +207,9 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         // Thêm sản phẩm vào bảng
         table.addCell(new Cell().add(new Paragraph(order.getProduct().getName())));
-        table.addCell(new Cell().add(new Paragraph(String.format("%,d đ", order.getPrice()))));
+        table.addCell(new Cell().add(new Paragraph(String.format("%,.0f đ", (double)order.getPrice()))));
         table.addCell(new Cell().add(new Paragraph("1")));
-        table.addCell(new Cell().add(new Paragraph(String.format("%,d đ", order.getTotalPrice()))));
+        table.addCell(new Cell().add(new Paragraph(String.format("%,.0f đ", (double)order.getTotalPrice()))));
 
         document.add(table);
 
@@ -177,19 +220,19 @@ public class InvoiceServiceImpl implements InvoiceService {
         summaryTable.setWidth(UnitValue.createPercentValue(100));
 
         summaryTable.addCell(new Cell().add(new Paragraph("Tổng tiền hàng:")).setBorder(null));
-        summaryTable.addCell(new Cell().add(new Paragraph(String.format("%,d đ", invoice.getSubtotal())))
+        summaryTable.addCell(new Cell().add(new Paragraph(String.format("%,.0f đ", invoice.getSubtotal().doubleValue())))
                 .setTextAlignment(TextAlignment.RIGHT).setBorder(null));
 
         summaryTable.addCell(new Cell().add(new Paragraph("Giảm giá:")).setBorder(null));
-        summaryTable.addCell(new Cell().add(new Paragraph(String.format("%,d đ", invoice.getDiscount())))
+        summaryTable.addCell(new Cell().add(new Paragraph(String.format("%,.0f đ", invoice.getDiscount().doubleValue())))
                 .setTextAlignment(TextAlignment.RIGHT).setBorder(null));
 
         summaryTable.addCell(new Cell().add(new Paragraph("Thuế:")).setBorder(null));
-        summaryTable.addCell(new Cell().add(new Paragraph(String.format("%,d đ", invoice.getTax())))
+        summaryTable.addCell(new Cell().add(new Paragraph(String.format("%,.0f đ", invoice.getTax().doubleValue())))
                 .setTextAlignment(TextAlignment.RIGHT).setBorder(null));
 
         summaryTable.addCell(new Cell().add(new Paragraph("Tổng cộng:").setBold()).setBorder(null));
-        summaryTable.addCell(new Cell().add(new Paragraph(String.format("%,d đ", invoice.getTotal())).setBold())
+        summaryTable.addCell(new Cell().add(new Paragraph(String.format("%,.0f đ", invoice.getTotal().doubleValue())).setBold())
                 .setTextAlignment(TextAlignment.RIGHT).setBorder(null));
 
         document.add(summaryTable);

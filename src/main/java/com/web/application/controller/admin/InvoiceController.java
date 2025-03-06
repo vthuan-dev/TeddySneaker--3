@@ -18,11 +18,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.web.application.dto.InvoiceDTO;
 import com.web.application.entity.Invoice;
 import com.web.application.model.request.CreateInvoiceRequest;
 import com.web.application.service.InvoiceService;
+import com.web.application.exception.NotFoundExp;
 
 @Controller
 public class InvoiceController {
@@ -69,6 +71,7 @@ public class InvoiceController {
     }
 
     @GetMapping("/api/admin/invoices/export/{orderId}")
+    @CrossOrigin
     public ResponseEntity<byte[]> exportInvoice(@PathVariable Long orderId) {
         try {
             byte[] pdfBytes = invoiceService.generateInvoicePdf(orderId);
@@ -80,6 +83,8 @@ public class InvoiceController {
                     .build());
             
             return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+        } catch (NotFoundExp e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
