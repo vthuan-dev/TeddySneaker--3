@@ -73,6 +73,22 @@
             .table th {
                 background-color: #f4f6f9;
             }
+
+            .invoice-row {
+                transition: opacity 0.3s ease;
+            }
+            
+            .invoice-row.viewed {
+                opacity: 0;
+            }
+            
+            .view-btn.viewed {
+                background-color: #6c757d;
+            }
+            
+            .view-btn.viewed:hover {
+                background-color: #5a6268;
+            }
         </style>
     </th:block>
 </head>
@@ -98,7 +114,7 @@
         <div class="card-body">
             <!-- Phần lọc -->
             <div class="filter-section mb-4">
-                <form id="filter-form">
+                <form id="filter-form" onsubmit="return false;">
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
@@ -136,7 +152,7 @@
 
             <!-- Bảng hiển thị -->
             <div class="table-responsive">
-                <table class="table table-bordered table-striped">
+                <table class="table table-bordered table-striped" id="invoiceTable">
                     <thead>
                         <tr>
                             <th>Mã HĐ</th>
@@ -148,7 +164,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="invoice : ${invoices}">
+                        <tr th:each="invoice : ${invoices}" th:id="'invoice-row-' + ${invoice.id}" class="invoice-row">
                             <td th:text="${invoice.id}"></td>
                             <td th:text="${#dates.format(invoice.createdAt, 'dd/MM/yyyy')}"></td>
                             <td th:text="${invoice.order.buyer.fullName}"></td>
@@ -160,7 +176,10 @@
                                 </span>
                             </td>
                             <td class="actions">
-                                <button class="action-btn view-btn" th:onclick="'viewInvoice(' + ${invoice.id} + ')'">
+                                <button class="action-btn view-btn" 
+                                        th:id="'view-btn-' + ${invoice.id}"
+                                        th:onclick="'viewInvoice(' + ${invoice.id} + ')'"
+                                        th:data-viewed="false">
                                     <i class="fas fa-eye"></i>
                                 </button>
                                 <button class="action-btn print-btn" th:onclick="'printInvoice(' + ${invoice.id} + ')'">
@@ -202,28 +221,103 @@
     
     <script th:inline="javascript">
         function filterInvoices() {
-            // Lấy giá trị từ form
             const fromDate = $('#fromDate').val();
             const toDate = $('#toDate').val();
             const status = $('#paymentStatus').val();
             
-            // Tạo URL với các tham số
-            let url = '/admin/invoices?';
-            if(fromDate) url += `fromDate=${fromDate}&`;
-            if(toDate) url += `toDate=${toDate}&`;
-            if(status) url += `status=${status}`;
-            
-            // Chuyển hướng đến URL mới
-            window.location.href = url;
+            // Validate dates
+            if (fromDate && toDate && fromDate > toDate) {
+                toastr.error('Ngày bắt đầu không thể lớn hơn ngày kết thúc');
+                return;
+            }
+
+            // Lọc trên từng hàng của bảng
+            $('#invoiceTable tbody tr').each(function() {
+                const row = $(this);
+                let showRow = true;
+
+                // Lấy ngày từ cột ngày tạo (cột thứ 2)
+                const dateStr = row.find('td:eq(1)').text().trim();
+                const dateParts = dateStr.split('/');
+                const rowDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]); // Convert dd/MM/yyyy to Date
+
+                // Lấy trạng thái từ cột trạng thái (cột thứ 5)
+                const rowStatus = row.find('td:eq(4) .badge').text().trim() === 'Đã thanh toán' ? '1' : '0';
+
+                // Kiểm tra điều kiện từ ngày
+                if (fromDate) {
+                    const fromDateObj = new Date(fromDate);
+                    if (rowDate < fromDateObj) {
+                        showRow = false;
+                    }
+                }
+
+                // Kiểm tra điều kiện đến ngày
+                if (toDate) {
+                    const toDateObj = new Date(toDate);
+                    if (rowDate > toDateObj) {
+                        showRow = false;
+                    }
+                }
+
+                // Kiểm tra điều kiện trạng thái
+                if (status && status !== '') {
+                    if (rowStatus !== status) {
+                        showRow = false;
+                    }
+                }
+
+                // Hiển thị hoặc ẩn hàng
+                row.toggle(showRow);
+            });
         }
 
-        function viewInvoice(id) {
-            $.get(`/api/admin/invoices/${id}`, function(data) {
-                $('#invoiceDetail').html(data);
-                $('#invoiceModal').modal('show');
-            }).fail(function() {
-                toastr.error('Không thể tải thông tin hóa đơn');
+        // Thêm sự kiện cho các input
+        $(document).ready(function() {
+            // Sự kiện khi thay đổi giá trị của các trường lọc
+            $('#fromDate, #toDate, #paymentStatus').on('change', function() {
+                filterInvoices();
             });
+
+            // Sự kiện Enter trong form
+            $('#filter-form input, #filter-form select').keypress(function(e) {
+                if(e.which == 13) { // Enter key
+                    filterInvoices();
+                    e.preventDefault();
+                }
+            });
+
+            // Reset form
+            $('.btn-refresh').click(function() {
+                $('#filter-form')[0].reset();
+                $('#invoiceTable tbody tr').show(); // Hiện tất cả các hàng
+            });
+        });
+
+        function viewInvoice(id) {
+            const row = document.getElementById('invoice-row-' + id);
+            const viewBtn = document.getElementById('view-btn-' + id);
+            const isViewed = viewBtn.getAttribute('data-viewed') === 'true';
+            
+            if (!isViewed) {
+                // Thêm class để làm mờ
+                row.classList.add('viewed');
+                viewBtn.classList.add('viewed');
+                viewBtn.setAttribute('data-viewed', 'true');
+                
+                // Gọi API để xem chi tiết
+                $.get(`/api/admin/invoices/${id}`, function(data) {
+                    $('#invoiceDetail').html(data);
+                    $('#invoiceModal').modal('show');
+                }).fail(function() {
+                    toastr.error('Không thể tải thông tin hóa đơn');
+                });
+            } else {
+                // Bỏ làm mờ nếu đã xem
+                row.classList.remove('viewed');
+                viewBtn.classList.remove('viewed');
+                viewBtn.setAttribute('data-viewed', 'false');
+            }
         }
 
         function printInvoice(id) {
@@ -253,7 +347,18 @@
                 pagination([[${totalPages}]], [[${currentPage}]]);
             }
         });
+
+        // Thêm sự kiện đóng modal
+        $('#invoiceModal').on('hidden.bs.modal', function () {
+            // Không reset trạng thái viewed khi đóng modal
+            $('#invoiceDetail').html('');
+        });
     </script>
 </th:block>
+
+<!-- Thêm nút refresh -->
+<button class="btn btn-secondary btn-refresh">
+    <i class="fas fa-sync-alt"></i> Làm mới
+</button>
 </body>
 </html> 
