@@ -14,6 +14,11 @@ public interface CartService {
     // Thêm phương thức mới
     CartResponseDTO getCartDetails(Long userId);
     
+    /**
+     * Lấy thông tin tổng quan về giỏ hàng của người dùng
+     * @param userId ID của người dùng
+     * @return CartSummaryDTO chứa tổng số lượng sản phẩm và tổng tiền
+     */
     CartSummaryDTO getCartSummary(Long userId);
 
     Cart updateCartItemQuantity(Long userId, String productId, Integer size, int quantity);

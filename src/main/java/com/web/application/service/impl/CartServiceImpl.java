@@ -133,16 +133,18 @@ public class CartServiceImpl implements CartService {
     @Override
     public CartSummaryDTO getCartSummary(Long userId) {
         Cart cart = cartRepository.findByUserId(userId);
-        if (cart == null) {
+        if (cart == null || cart.getItems().isEmpty()) {
             return new CartSummaryDTO(0, 0.0);
         }
         
+        // Tính tổng số lượng sản phẩm
         int totalItems = cart.getItems().stream()
             .mapToInt(CartItem::getQuantity)
             .sum();
         
-        Double totalPrice = cart.getItems().stream()
-            .mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity())
+        // Tính tổng tiền (sử dụng giá từ CartItem thay vì Product)
+        double totalPrice = cart.getItems().stream()
+            .mapToDouble(item -> item.getPrice() * item.getQuantity())
             .sum();
         
         return new CartSummaryDTO(totalItems, totalPrice);
