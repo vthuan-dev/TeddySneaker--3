@@ -102,17 +102,66 @@
             
             .action-buttons {
                 display: flex;
-                gap: 0.5rem;
+                gap: 8px;
+                align-items: center;
             }
             
-            .btn-buy-now {
-                background-color: #007bff;
+            .btn-checkout {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 16px;
+                background: linear-gradient(45deg, #2196F3, #1976D2);
+                border: none;
+                border-radius: 8px;
                 color: white;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+            }
+            
+            .btn-checkout:hover {
+                background: linear-gradient(45deg, #1976D2, #1565C0);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+            }
+            
+            .btn-checkout:active {
+                transform: translateY(0);
+                box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
             }
             
             .btn-remove {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 36px;
+                height: 36px;
+                border: none;
+                border-radius: 50%;
+                background-color: #fff;
+                color: #dc3545;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .btn-remove:hover {
                 background-color: #dc3545;
-                color: white;
+                color: #fff;
+                transform: rotate(90deg);
+            }
+            
+            .btn-icon {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .btn-text {
+                font-size: 14px;
+                font-weight: 500;
             }
             
             .cart-summary {
@@ -409,6 +458,40 @@
                 position: sticky;
                 top: 20px;
             }
+
+            /* Animation khi xóa item */
+            .cart-item.removing {
+                animation: slideOut 0.3s ease forwards;
+            }
+
+            @keyframes slideOut {
+                0% {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateX(-100%);
+                    opacity: 0;
+                }
+            }
+
+            /* Responsive */
+            @media (max-width: 768px) {
+                .action-buttons {
+                    flex-direction: column;
+                    gap: 8px;
+                }
+                
+                .btn-checkout {
+                    width: 100%;
+                    justify-content: center;
+                }
+                
+                .btn-remove {
+                    width: 100%;
+                    border-radius: 8px;
+                }
+            }
         </style>
     </th:block>
 </head>
@@ -516,14 +599,15 @@
                                 <td class="total-col">${formatPrice(item.price * item.quantity)} ₫</td>
                                 <td class="action-col">
                                     <div class="action-buttons">
-                                        <button class="btn btn-sm btn-primary checkout-item" 
+                                        <button class="btn-checkout checkout-item" 
                                             data-product-id="${item.productId}"
                                             data-size="${item.size}">
-                                            <i class="fas fa-shopping-cart"></i> Mua ngay
+                                            <span class="btn-icon"><i class="fas fa-shopping-cart"></i></span>
+                                            <span class="btn-text">Mua ngay</span>
                                         </button>
-                                        <button class="btn btn-sm btn-danger" 
+                                        <button class="btn-remove" 
                                             onclick="removeItem('${item.productId}', ${item.size})">
-                                            <i class="fas fa-trash"></i>
+                                            <span class="btn-icon"><i class="fas fa-trash"></i></span>
                                         </button>
                                     </div>
                                 </td>
