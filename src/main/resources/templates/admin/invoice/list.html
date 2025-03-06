@@ -1,0 +1,92 @@
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Quản lý hóa đơn</h1>
+    
+    <!-- Bộ lọc -->
+    <div class="card shadow mb-4">
+        <div class="card-header">
+            <h6 class="m-0 font-weight-bold text-primary">Bộ lọc</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <label>Từ ngày:</label>
+                    <input type="date" class="form-control" id="fromDate">
+                </div>
+                <div class="col-md-3">
+                    <label>Đến ngày:</label>
+                    <input type="date" class="form-control" id="toDate">
+                </div>
+                <div class="col-md-3">
+                    <label>Trạng thái:</label>
+                    <select class="form-control" id="status">
+                        <option value="">Tất cả</option>
+                        <option value="1">Đã thanh toán</option>
+                        <option value="0">Chưa thanh toán</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-primary mt-4" onclick="filterInvoices()">
+                        <i class="fas fa-search"></i> Tìm kiếm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bảng danh sách -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="invoiceTable">
+                    <thead>
+                        <tr>
+                            <th>Mã HĐ</th>
+                            <th>Ngày tạo</th>
+                            <th>Khách hàng</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="invoice : ${invoices}">
+                            <td th:text="${invoice.id}"></td>
+                            <td th:text="${#dates.format(invoice.createdAt, 'dd/MM/yyyy')}"></td>
+                            <td th:text="${invoice.order.buyer.fullName}"></td>
+                            <td th:text="${#numbers.formatDecimal(invoice.total, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                            <td>
+                                <span class="badge" 
+                                      th:classappend="${invoice.paymentStatus == 1 ? 'badge-success' : 'badge-warning'}"
+                                      th:text="${invoice.paymentStatus == 1 ? 'Đã thanh toán' : 'Chưa thanh toán'}">
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-info" th:onclick="'viewInvoice(' + ${invoice.id} + ')'">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-primary" th:onclick="'printInvoice(' + ${invoice.id} + ')'">
+                                    <i class="fas fa-print"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xem chi tiết -->
+<div class="modal fade" id="invoiceModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chi tiết hóa đơn</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="invoiceDetail">
+                <!-- Nội dung chi tiết hóa đơn -->
+            </div>
+        </div>
+    </div>
+</div> 

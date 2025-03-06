@@ -30,34 +30,12 @@
                     <h6>Hotline <a href="tel:#" class="text-dark font1">034xxxxx51</a></h6>
                 </div>
 
-                <div class="dropdown cart-dropdown">
-                    <a href="/cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
+                <!-- <div class="cart-wrapper">
+                    <a href="/cart" class="cart-link" title="Giỏ hàng của bạn">
                         <i class="icon-shopping-cart"></i>
                         <span class="cart-count badge-circle" id="headerCartCount">0</span>
                     </a>
-
-                    <div class="dropdown-menu">
-                        <div class="dropdownmenu-wrapper">
-                            <div class="dropdown-cart-header">
-                                <span id="headerCartItemCount">0 SẢN PHẨM</span>
-                                <a href="/cart" class="float-right">Xem giỏ hàng</a>
-                            </div>
-
-                            <div class="dropdown-cart-products" id="headerCartItems">
-                                <!-- Cart items will be inserted here -->
-                            </div>
-
-                            <div class="dropdown-cart-total">
-                                <span>Tổng cộng:</span>
-                                <span class="cart-total-price float-right" id="headerCartTotal">0 ₫</span>
-                            </div>
-
-                            <div class="dropdown-cart-action">
-                                <a href="/cart" class="btn btn-primary btn-block">Thanh toán</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                </div> -->
 
                 <a href="#" data-toggle="modal" data-target="#exampleModal" class="header-icon account-setting">
                     <i class="icon-user-2"></i>
@@ -77,6 +55,7 @@
                     <li class="float-right"><a href="/doi-hang">Chính sách</a></li>
                     <li class="float-right"><a href="/tin-tuc">Tin tức</a></li>
                     <li class="float-right"><a href="/san-pham">Sản phẩm</a></li>
+                    <li class="float-right"><a href="/cart" class="float-right">Xem giỏ hàng</a></li>
                     <li class="float-right"><a id="nav-link-admin" href="/admin">Admin</a></li>
                 </ul>
             </nav>
@@ -84,108 +63,57 @@
     </div><!-- End .header-bottom -->
 </header><!-- End .header -->
 
-<!-- Thêm script để cập nhật giỏ hàng -->
-<script>
-function updateCartSummary() {
-    fetch('/api/cart/summary', {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok: ' + response.status);
-        }
-        return response.json();
-    })
-    .then(data => {
-        // Cập nhật số lượng sản phẩm
-        document.getElementById('headerCartCount').textContent = data.totalItems;
-        document.getElementById('headerCartItemCount').textContent = `${data.totalItems} SẢN PHẨM`;
-        
-        // Cập nhật tổng tiền
-        document.getElementById('headerCartTotal').textContent = `${formatPrice(data.totalPrice)} ₫`;
-    })
-    .catch(error => {
-        console.error('Error fetching cart summary:', error);
-        // Hiển thị giá trị mặc định khi có lỗi
-        document.getElementById('headerCartCount').textContent = '0';
-        document.getElementById('headerCartItemCount').textContent = '0 SẢN PHẨM';
-        document.getElementById('headerCartTotal').textContent = '0 ₫';
-    });
-}
-
-function formatPrice(price) {
-    return new Intl.NumberFormat('vi-VN').format(price || 0);
-}
-
-// Cập nhật khi trang được tải
-document.addEventListener('DOMContentLoaded', updateCartSummary);
-
-// Cập nhật khi có thay đổi trong giỏ hàng
-document.addEventListener('cartUpdated', updateCartSummary);
-</script>
-
 <style>
-.cart-dropdown {
+.cart-wrapper {
     position: relative;
     display: inline-block;
+    margin-left: 20px;
 }
 
-.cart-count {
+.cart-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.cart-link i {
+    font-size: 24px;
+}
+
+.cart-count.badge-circle {
     position: absolute;
     top: -8px;
     right: -8px;
-    background-color: #ff0000;
-    color: white;
+    min-width: 1.6em;
+    height: 1.6em;
+    padding: 0 .4em;
+    line-height: 1.6em;
     border-radius: 50%;
-    padding: 2px 6px;
-    font-size: 12px;
-}
-
-.dropdown-cart-products {
-    max-height: 300px;
-    overflow-y: auto;
-}
-
-.empty-cart {
-    padding: 15px;
+    background-color: #ff0000;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
     text-align: center;
-    color: #999;
-}
-
-.product {
-    display: flex;
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-}
-
-.product-details {
-    flex: 1;
-}
-
-.product-title {
-    margin: 0;
-    font-size: 14px;
-}
-
-.cart-product-info {
-    color: #999;
-    font-size: 13px;
-}
-
-.product-image-container {
-    width: 80px;
-    margin-left: 10px;
-}
-
-.product-image img {
-    max-width: 100%;
-    height: auto;
 }
 </style>
+
+<script>
+function updateCartCount() {
+    fetch('/api/cart/summary')
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('headerCartCount').textContent = data.totalItems || 0;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('headerCartCount').textContent = '0';
+    });
+}
+
+// Cập nhật khi trang được tải
+document.addEventListener('DOMContentLoaded', updateCartCount);
+
+// Cập nhật khi có thay đổi trong giỏ hàng
+document.addEventListener('cartUpdated', updateCartCount);
+</script>
 </body>
 </html>

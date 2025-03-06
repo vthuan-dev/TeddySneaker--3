@@ -221,7 +221,7 @@ public class OrderController {
 		
 		// Kiểm tra sản phẩm và size
 		try {
-			DetailProductInfoDTO product = productService.getDetailProductById(id);
+			DetailProductInfoDTO product = 	productService.getDetailProductById(id);
 			model.addAttribute("product", product);
 		} catch (NotFoundExp ex) {
 			return "error/404";
