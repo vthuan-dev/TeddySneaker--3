@@ -21,4 +21,8 @@ public interface InvoiceService {
     
     // Xóa hóa đơn
     void deleteInvoice(Long id);
+    
+    Invoice findByOrderId(Long orderId);
+    
+    byte[] generateInvoicePdf(Long orderId) throws Exception;
 } 

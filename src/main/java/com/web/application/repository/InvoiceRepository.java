@@ -1,6 +1,7 @@
 package com.web.application.repository;
 
 import java.sql.Timestamp;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,7 @@ import com.web.application.entity.Invoice;
 @Repository
 public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     boolean existsByOrderId(Long orderId);
+    Optional<Invoice> findByOrderId(Long orderId);
 
     @Query(value = "SELECT * FROM invoices i " +
             "WHERE (:fromDate IS NULL OR i.created_at >= :fromDate) " +

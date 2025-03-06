@@ -4,6 +4,10 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -62,5 +66,22 @@ public class InvoiceController {
     public ResponseEntity<Object> deleteInvoice(@PathVariable long id) {
         invoiceService.deleteInvoice(id);
         return ResponseEntity.ok("Xóa hóa đơn thành công!");
+    }
+
+    @GetMapping("/api/admin/invoices/export/{orderId}")
+    public ResponseEntity<byte[]> exportInvoice(@PathVariable Long orderId) {
+        try {
+            byte[] pdfBytes = invoiceService.generateInvoicePdf(orderId);
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDisposition(ContentDisposition.builder("attachment")
+                    .filename("invoice-" + orderId + ".pdf")
+                    .build());
+            
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 } 
