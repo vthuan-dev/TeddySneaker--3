@@ -143,18 +143,45 @@ public class Order {
     @Column(name = "promotion", columnDefinition = "json")
     private UsedPromotion promotion;
 
-    @Getter
-    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UsedPromotion {
         private String couponCode;
-
         private int discountType;
-
         private long discountValue;
-
         private long maximumDiscountValue;
+
+        public String getCouponCode() {
+            return couponCode;
+        }
+
+        public void setCouponCode(String couponCode) {
+            this.couponCode = couponCode;
+        }
+
+        public int getDiscountType() {
+            return discountType;
+        }
+
+        public void setDiscountType(int discountType) {
+            this.discountType = discountType;
+        }
+
+        public long getDiscountValue() {
+            return discountValue;
+        }
+
+        public void setDiscountValue(long discountValue) {
+            this.discountValue = discountValue;
+        }
+
+        public long getMaximumDiscountValue() {
+            return maximumDiscountValue;
+        }
+
+        public void setMaximumDiscountValue(long maximumDiscountValue) {
+            this.maximumDiscountValue = maximumDiscountValue;
+        }
     }
 
 }
