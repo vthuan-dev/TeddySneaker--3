@@ -4795,11 +4795,6 @@ span.page-link, .page-link-btn {
     background-color: rgba(27, 27, 23, 0.6)
 }
 
-.overlay:hover figure .btn-quickview, .overlay:hover figure .btn-icon, .overlay:nth-child(even):hover figure .btn-quickview, .overlay:nth-child(even):hover figure .btn-icon {
-    opacity: .85;
-    visibility: visible
-}
-
 .overlay:hover figure .btn-quickview:hover, .overlay:hover figure .btn-icon:hover, .overlay:nth-child(even):hover figure .btn-quickview:hover, .overlay:nth-child(even):hover figure .btn-icon:hover {
     opacity: 1
 }
