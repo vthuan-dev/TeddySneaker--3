@@ -366,21 +366,18 @@ public class OrderController {
 
 		try {
 			// Add logging
-			System.out.println("Getting orders with params:");
+			System.out.println("API Called - Getting orders with params:");
 			System.out.println("Page: " + page);
-			System.out.println("ID: " + id);
-			System.out.println("Name: " + name);
-			System.out.println("Phone: " + phone);
-			System.out.println("Status: " + status);
+			
+			// Get all orders to debug
+			List<Order> allOrders = orderService.getAllOrders();
+			System.out.println("Total orders in DB: " + allOrders.size());
 			
 			Page<Order> orderPage = orderService.adminGetListOrders(
 				id, name, phone, status, product, createdAt, modifiedAt, page);
-
-			// Add logging
-			System.out.println("Found total: " + orderPage.getTotalElements());
-			System.out.println("Total pages: " + orderPage.getTotalPages());
-			System.out.println("Current page content size: " + orderPage.getContent().size());
-
+				
+			System.out.println("Found: " + orderPage.getTotalElements() + " orders");
+			
 			Map<String, Object> response = new HashMap<>();
 			response.put("content", orderPage.getContent());
 			response.put("totalPages", orderPage.getTotalPages());

@@ -176,7 +176,12 @@
                                 <span th:if="${order.status} == 5" class="badge badge-light">Đơn hàng bị hủy</span>
                                 <span th:if="${order.status} == 6" class="badge badge-success">Bán hàng tại quầy</span>
                             </td>
-                            <td th:text="${order.product.name}"></td>
+                            <td>
+                                <span th:if="${not #lists.isEmpty(order.items)}" 
+                                      th:text="${order.items[0].product.name + (order.items.size() > 1 ? ' và ' + (order.items.size()-1) + ' sản phẩm khác' : '')}">
+                                </span>
+                                <span th:if="${#lists.isEmpty(order.items)}">Không có sản phẩm</span>
+                            </td>
                             <td>
                                 <span th:text="${#dates.format(order.createdAt, 'dd-MM-yyyy HH:mm')}"></span>
                             </td>

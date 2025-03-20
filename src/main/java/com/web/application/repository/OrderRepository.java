@@ -56,13 +56,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     long countByStatus(@Param("status") int status);
 
     @Query(value = "SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.items i WHERE " +
-            "(:id IS NULL OR CAST(o.id AS string) LIKE %:id%) AND " +
-            "(:name IS NULL OR o.receiverName LIKE %:name%) AND " +
-            "(:phone IS NULL OR o.receiverPhone LIKE %:phone%) AND " +
-            "(:status IS NULL OR CAST(o.status AS string) = :status) AND " +
-            "(:product IS NULL OR i.product.id = :product) AND " +
-            "(:createdAt IS NULL OR DATE(o.createdAt) = DATE(:createdAt)) AND " +
-            "(:modifiedAt IS NULL OR DATE(o.modifiedAt) = DATE(:modifiedAt))")
+            "(:id = '' OR CAST(o.id AS string) LIKE %:id%) AND " +
+            "(:name = '' OR o.receiverName LIKE %:name%) AND " +
+            "(:phone = '' OR o.receiverPhone LIKE %:phone%) AND " +
+            "(:status = '' OR CAST(o.status AS string) = :status) AND " +
+            "(:product = '' OR (i IS NOT NULL AND i.product.id = :product)) AND " +
+            "(:createdAt = '' OR CAST(o.createdAt AS date) = CAST(:createdAt AS date)) AND " +
+            "(:modifiedAt = '' OR CAST(o.modifiedAt AS date) = CAST(:modifiedAt AS date))")
     Page<Order> findByConditions(
             @Param("id") String id,
             @Param("name") String name, 
