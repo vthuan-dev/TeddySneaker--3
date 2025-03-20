@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -457,27 +459,38 @@ public class OrderServiceImpl implements OrderService {
 				orders = orderRepository.findByBuyerIdAndStatusOrderByCreatedAtDesc(userId, status);
 			}
 
-			return orders.stream()
-				.map(order -> {
-					OrderInfoDTO dto = new OrderInfoDTO();
+			// Tạo một map để nhóm OrderInfoDTO theo ID đơn hàng
+			Map<Long, OrderInfoDTO> orderMap = new HashMap<>();
+
+			for (Order order : orders) {
+				// Tạo hoặc lấy OrderInfoDTO từ map
+				OrderInfoDTO dto = orderMap.getOrDefault(order.getId(), new OrderInfoDTO());
+				
+				if (!orderMap.containsKey(order.getId())) {
+					// Thông tin cơ bản của đơn hàng 
 					dto.setId(order.getId());
 					dto.setStatus(order.getStatus());
 					dto.setTotalPrice(BigDecimal.valueOf(order.getTotalPrice()));
 					dto.setCreatedAt(order.getCreatedAt().toString());
+					dto.setTotalItems(order.getItems().size());
 					
+					// Thông tin sản phẩm đầu tiên (giữ để tương thích ngược)
 					if (!order.getItems().isEmpty()) {
 						OrderItem firstItem = order.getItems().get(0);
 						Product product = firstItem.getProduct();
-						if (!product.getImages().isEmpty()) {
+						if (product != null && !product.getImages().isEmpty()) {
 							dto.setProductImg(product.getImages().get(0));
 						}
-						dto.setProductName(product.getName());
+						dto.setProductName(firstItem.getProduct().getName());
 						dto.setSizeVn(firstItem.getSize());
 					}
 					
-					return dto;
-				})
-				.collect(Collectors.toList());
+					// Thêm vào map
+					orderMap.put(order.getId(), dto);
+				}
+			}
+			
+			return new ArrayList<>(orderMap.values());
 		} catch (Exception e) {
 			throw new InternalServerExp("Lỗi khi lấy danh sách đơn hàng: " + e.getMessage());
 		}

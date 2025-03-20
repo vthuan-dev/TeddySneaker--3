@@ -232,9 +232,10 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="price-wrapper">
-                                        <div class="price bid-price"><span class="text-price" th:text="${item.totalPrice}"></span> &#x20AB;</div>
-                                    </div>
+                                    <!-- <div class="price-wrapper">
+                                        <div class="total-price-label">Tổng thanh toán:</div>
+                                        <div class="price bid-price total-price-value"><span class="text-price" th:text="${item.totalPrice}"></span> &#x20AB;</div>
+                                    </div> -->
                                 </div>
                             </div>
                             
@@ -268,7 +269,8 @@
                                         </div>
                                     </div>
                                     <div class="price-wrapper">
-                                        <div class="price bid-price"><span class="text-price" th:text="${item.totalPrice}"></span> &#x20AB;</div>
+                                        <div class="total-price-label">Tổng thanh toán:</div>
+                                        <div class="price bid-price total-price-value"><span class="text-price" th:text="${item.totalPrice}"></span> &#x20AB;</div>
                                     </div>
                                 </div>
                                 <div class="action-buttons">
@@ -321,6 +323,9 @@
                 
                 const createdAtDate = order.createdAt ? 'ngày ' + order.createdAt.substring(0, 10) : '';
                 
+                // Format tổng tiền với dấu phẩy ngăn cách hàng nghìn
+                const formattedPrice = new Intl.NumberFormat('vi-VN').format(order.totalPrice);
+                
                 html += `
                     <div class="item">
                         <div class="header-item">
@@ -348,7 +353,8 @@
                                 </div>
                             </div>
                             <div class="price-wrapper">
-                                <div class="price bid-price"><span class="text-price">${order.totalPrice}</span> &#x20AB;</div>
+                                <div class="total-price-label">Tổng thanh toán:</div>
+                                <div class="price bid-price total-price-value"><span class="text-price">${formattedPrice}</span> &#x20AB;</div>
                             </div>
                         </div>
                     </div>
@@ -374,9 +380,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="price-wrapper">
-                                <div class="price bid-price"><span class="text-price">${order.totalPrice}</span> &#x20AB;</div>
-                            </div>
+                          
                         </div>
                         <div class="action-buttons">
                             <a class="full-details-btn" href="/tai-khoan/lich-su-giao-dich/${order.id}">Xem chi tiết</a>
@@ -385,6 +389,9 @@
                 `;
             }
             $('#list-order').html(html);
+            
+            // Nếu bạn dùng thư viện formatMoney riêng
+            formatMoney();
         }
     </script>
 </th:block>

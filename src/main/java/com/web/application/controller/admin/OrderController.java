@@ -214,27 +214,20 @@ public class OrderController {
 			// Lấy danh sách đơn hàng
 			List<OrderInfoDTO> orders = orderService.getListOrderOfPersonByStatus(status, user.getId());
 			
-			// Nhóm và xử lý đơn hàng - đảm bảo mỗi ID đơn hàng chỉ xuất hiện một lần
-			Map<Long, OrderInfoDTO> orderMap = new HashMap<>();
-			
+			// Thêm thông tin chi tiết sản phẩm cho mỗi đơn hàng
 			for (OrderInfoDTO order : orders) {
-				// Kiểm tra nếu đơn hàng đã tồn tại trong map
-				if (!orderMap.containsKey(order.getId())) {
-					// Nếu chưa có, thêm vào map với thông tin cơ bản
-					orderMap.put(order.getId(), order);
-					// Thêm thông tin về số lượng sản phẩm
-					order.setTotalItems(1);
-				} else {
-					// Nếu đã có, tăng số lượng sản phẩm lên
-					OrderInfoDTO existingOrder = orderMap.get(order.getId());
-					existingOrder.setTotalItems(existingOrder.getTotalItems() + 1);
-				}
+				// Lấy thông tin chi tiết đơn hàng để có tất cả sản phẩm
+				OrderDetailDTO detailDTO = orderService.userGetDetailById(order.getId(), user.getId());
+				order.setItems(detailDTO.getItems());
+				
+				// Đảm bảo tổng tiền đúng
+				order.setTotalPrice(detailDTO.getTotalPrice());
+				
+				// Cập nhật số lượng sản phẩm
+				order.setTotalItems(detailDTO.getItems().size());
 			}
 			
-			// Chuyển map thành danh sách để trả về
-			List<OrderInfoDTO> result = new ArrayList<>(orderMap.values());
-
-			return ResponseEntity.ok(result);
+			return ResponseEntity.ok(orders);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -1,0 +1,243 @@
+/* MODERN ORDER STATUS TABS */
+.order-status-tabs {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 30px;
+    position: relative;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 2px;
+}
+
+.status-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px 10px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    border-radius: 8px 8px 0 0;
+    margin: 0 4px;
+    overflow: hidden;
+    background-color: #f8f9fa;
+}
+
+.status-tab:first-child {
+    margin-left: 0;
+}
+
+.status-tab:last-child {
+    margin-right: 0;
+}
+
+.status-tab::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: transparent;
+    transition: all 0.3s ease;
+}
+
+.status-tab.active {
+    background-color: #fff;
+    box-shadow: 0 -3px 10px rgba(0,0,0,0.05);
+}
+
+.status-tab.active::after {
+    background-color: #4a6cf7;
+}
+
+.status-tab:hover:not(.active) {
+    background-color: #f0f0f0;
+}
+
+.tab-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.status-tab.active .tab-icon {
+    background-color: rgba(74, 108, 247, 0.1);
+}
+
+.tab-icon i {
+    font-size: 22px;
+    color: #6c757d;
+    transition: all 0.3s ease;
+}
+
+.status-tab.active .tab-icon i {
+    color: #4a6cf7;
+}
+
+.tab-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.status-count {
+    font-size: 14px;
+    font-weight: 700;
+    color: #4a6cf7;
+    background-color: rgba(74, 108, 247, 0.1);
+    border-radius: 12px;
+    padding: 2px 8px;
+    margin-bottom: 5px;
+    min-width: 24px;
+    text-align: center;
+}
+
+.status-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #495057;
+    white-space: nowrap;
+}
+
+.status-tab.active .status-label {
+    color: #4a6cf7;
+    font-weight: 600;
+}
+
+/* Status-specific colors */
+.status-tab[data-status="1"] .tab-icon i {
+    color: #0091ff;
+}
+.status-tab[data-status="1"].active .tab-icon {
+    background-color: rgba(0, 145, 255, 0.1);
+}
+.status-tab[data-status="1"].active .tab-icon i,
+.status-tab[data-status="1"].active .status-label {
+    color: #0091ff;
+}
+.status-tab[data-status="1"].active::after {
+    background-color: #0091ff;
+}
+.status-tab[data-status="1"] .status-count {
+    background-color: rgba(0, 145, 255, 0.1);
+    color: #0091ff;
+}
+
+.status-tab[data-status="2"] .tab-icon i {
+    color: #ffb800;
+}
+.status-tab[data-status="2"].active .tab-icon {
+    background-color: rgba(255, 184, 0, 0.1);
+}
+.status-tab[data-status="2"].active .tab-icon i,
+.status-tab[data-status="2"].active .status-label {
+    color: #ffb800;
+}
+.status-tab[data-status="2"].active::after {
+    background-color: #ffb800;
+}
+.status-tab[data-status="2"] .status-count {
+    background-color: rgba(255, 184, 0, 0.1);
+    color: #ffb800;
+}
+
+.status-tab[data-status="3"] .tab-icon i {
+    color: #00c04b;
+}
+.status-tab[data-status="3"].active .tab-icon {
+    background-color: rgba(0, 192, 75, 0.1);
+}
+.status-tab[data-status="3"].active .tab-icon i,
+.status-tab[data-status="3"].active .status-label {
+    color: #00c04b;
+}
+.status-tab[data-status="3"].active::after {
+    background-color: #00c04b;
+}
+.status-tab[data-status="3"] .status-count {
+    background-color: rgba(0, 192, 75, 0.1);
+    color: #00c04b;
+}
+
+.status-tab[data-status="4"] .tab-icon i {
+    color: #8e00ff;
+}
+.status-tab[data-status="4"].active .tab-icon {
+    background-color: rgba(142, 0, 255, 0.1);
+}
+.status-tab[data-status="4"].active .tab-icon i,
+.status-tab[data-status="4"].active .status-label {
+    color: #8e00ff;
+}
+.status-tab[data-status="4"].active::after {
+    background-color: #8e00ff;
+}
+.status-tab[data-status="4"] .status-count {
+    background-color: rgba(142, 0, 255, 0.1);
+    color: #8e00ff;
+}
+
+.status-tab[data-status="5"] .tab-icon i {
+    color: #ff0000;
+}
+.status-tab[data-status="5"].active .tab-icon {
+    background-color: rgba(255, 0, 0, 0.1);
+}
+.status-tab[data-status="5"].active .tab-icon i,
+.status-tab[data-status="5"].active .status-label {
+    color: #ff0000;
+}
+.status-tab[data-status="5"].active::after {
+    background-color: #ff0000;
+}
+.status-tab[data-status="5"] .status-count {
+    background-color: rgba(255, 0, 0, 0.1);
+    color: #ff0000;
+}
+
+/* Responsive Styles */
+@media (max-width: 991px) {
+    .status-tab {
+        padding: 10px 5px;
+    }
+    
+    .tab-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .tab-icon i {
+        font-size: 18px;
+    }
+    
+    .status-label {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 767px) {
+    .order-status-tabs {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+    
+    .status-tab {
+        flex: 0 0 calc(33.333% - 8px);
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .status-tab {
+        flex: 0 0 calc(50% - 8px);
+    }
+} 

@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -20,6 +22,8 @@ public class OrderInfoDTO {
     
     private Integer totalItems = 1;
     
+    private List<OrderItemDTO> items = new ArrayList<>();
+    
     public OrderInfoDTO(Long id, BigDecimal totalPrice, Integer sizeVn, 
                         String productName, String productImg) {
         this.id = id;
@@ -28,5 +32,13 @@ public class OrderInfoDTO {
         this.productName = productName;
         this.productImg = productImg;
         this.totalItems = 1;
+    }
+
+    public List<OrderItemDTO> getItems() {
+        return items;
+    }
+
+    public void setItems(List<OrderItemDTO> items) {
+        this.items = items;
     }
 }
