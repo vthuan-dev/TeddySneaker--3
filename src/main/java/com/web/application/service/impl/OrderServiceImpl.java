@@ -76,29 +76,26 @@ public class OrderServiceImpl implements OrderService {
 	private UserRepository userRepository;
 
 	@Override
-	public Page<Order> adminGetListOrders(String id, String name, String phone, String status, 
-			String product, String createdAt, String modifiedAt, int page) {
+	public Page<Order> adminGetListOrders(String id, String name, String phone, String status, String product,
+			String createdAt, String modifiedAt, int page) {
 		try {
-			// Điều chỉnh page index (trang đầu tiên là 0)
 			page = (page <= 0) ? 0 : page - 1;
-			
-			// Tạo Pageable với size = 10, sắp xếp theo createdAt giảm dần
 			Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
 			
-			// Mặc định lấy tất cả đơn hàng nếu không có điều kiện lọc
-			if ((StringUtils.hasText(id) == false) && 
-				(StringUtils.hasText(name) == false) && 
-				(StringUtils.hasText(phone) == false) && 
-				(StringUtils.hasText(status) == false) && 
-				(StringUtils.hasText(product) == false) && 
-				(StringUtils.hasText(createdAt) == false) && 
-				(StringUtils.hasText(modifiedAt) == false)) {
-				return orderRepository.findAll(pageable);
-			}
+			Page<Order> orders = orderRepository.findByConditions(id, name, phone, status, product, createdAt, modifiedAt, pageable);
 			
-			// Nếu có điều kiện lọc, sử dụng Specification hoặc custom query
-			return orderRepository.findByConditions(
-				id, name, phone, status, product, createdAt, modifiedAt, pageable);
+			// Đảm bảo eager loading cho các order items và product
+			orders.getContent().forEach(order -> {
+				if (order.getItems() != null) {
+					order.getItems().forEach(item -> {
+						if (item.getProduct() != null) {
+							item.getProduct().getName();  // Access để trigger loading
+						}
+					});
+				}
+			});
+			
+			return orders;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException("Lỗi khi lấy danh sách đơn hàng: " + e.getMessage());

@@ -67,14 +67,16 @@ public class OrderController {
 		Page<Order> orderPage = orderService.adminGetListOrders(id, name, phone, status, product, createdAt, modifiedAt,
 				page);
 		
-		// Thêm logging
-		System.out.println("Total orders: " + orderPage.getTotalElements());
-		System.out.println("Current page content size: " + orderPage.getContent().size());
-		
-		// In ra một vài đơn hàng để kiểm tra
-		orderPage.getContent().forEach(order -> {
-			System.out.println("Order ID: " + order.getId() + ", Receiver: " + order.getReceiverName());
-		});
+		// Đảm bảo items và products được load
+		for (Order order : orderPage.getContent()) {
+			if (order.getItems() != null) {
+				for (OrderItem item : order.getItems()) {
+					if (item.getProduct() != null) {
+						String productName = item.getProduct().getName(); // Đổi tên biến
+					}
+				}
+			}
+		}
 		
 		model.addAttribute("orderPage", orderPage.getContent());
 		model.addAttribute("totalPages", orderPage.getTotalPages());
@@ -373,6 +375,7 @@ public class OrderController {
 			List<Order> allOrders = orderService.getAllOrders();
 			System.out.println("Total orders in DB: " + allOrders.size());
 			
+			// Truyền đầy đủ các tham số
 			Page<Order> orderPage = orderService.adminGetListOrders(
 				id, name, phone, status, product, createdAt, modifiedAt, page);
 				
