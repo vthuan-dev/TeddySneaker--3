@@ -38,6 +38,7 @@ import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.property.VerticalAlignment;
 import com.itextpdf.layout.borders.SolidBorder;
+import com.itextpdf.kernel.colors.ColorConstants;
 
 @Service
 public class InvoiceServiceImpl implements InvoiceService {
@@ -172,55 +173,96 @@ public class InvoiceServiceImpl implements InvoiceService {
         PdfDocument pdf = new PdfDocument(writer);
         Document document = new Document(pdf);
 
-        // Sử dụng phương thức mới để tạo font
-        PdfFont font = PdfFontFactory.createFont("Helvetica", PdfEncodings.IDENTITY_H);
-        document.setFont(font);
+        try {
+            // Thêm một trang mới vào tài liệu
+            pdf.addNewPage();
+            
+            // Sử dụng font mặc định thay vì font với encoding IDENTITY-H
+            PdfFont font = PdfFontFactory.createFont("Helvetica", PdfEncodings.CP1252);
+            document.setFont(font);
 
-        // Thêm logo
-        String logoPath = "static/images/logo.jpg";
-        ImageData imageData = ImageDataFactory.create(
-            getClass().getClassLoader().getResource(logoPath)
-        );
-        Image logo = new Image(imageData);
-        
-        // Thêm thông tin hóa đơn
-        document.add(new Paragraph("HÓA ĐƠN BÁN HÀNG"));
-        document.add(new Paragraph("Mã hóa đơn: " + invoice.getInvoiceNumber()));
-        document.add(new Paragraph("Ngày tạo: " + invoice.getCreatedAt()));
-        
-        // Thêm thông tin đơn hàng
-        Order order = invoice.getOrder();
-        document.add(new Paragraph("Thông tin đơn hàng:"));
-        document.add(new Paragraph("Người nhận: " + order.getReceiverName()));
-        document.add(new Paragraph("Số điện thoại: " + order.getReceiverPhone()));
-        document.add(new Paragraph("Địa chỉ: " + order.getReceiverAddress()));
-        
-        // Tạo bảng chi tiết sản phẩm
-        Table table = new Table(5);
-        table.addCell("Sản phẩm");
-        table.addCell("Size");
-        table.addCell("Số lượng");
-        table.addCell("Đơn giá");
-        table.addCell("Thành tiền");
-        
-        // Thêm từng sản phẩm vào bảng
-        for (OrderItem item : order.getItems()) {
-            table.addCell(item.getProduct().getName());
-            table.addCell(String.valueOf(item.getSize()));
-            table.addCell(String.valueOf(item.getQuantity()));
-            table.addCell(String.valueOf(item.getPrice()));
-            table.addCell(String.valueOf(item.getPrice() * item.getQuantity()));
+            // Thêm logo - bỏ qua nếu không tìm thấy
+            try {
+                // Đường dẫn tương đối đến logo
+                String logoPath = "static/images/logo.jpg";
+                
+                ImageData imageData = ImageDataFactory.create(
+                    getClass().getClassLoader().getResource(logoPath)
+                );
+                Image logo = new Image(imageData);
+                logo.setWidth(100);
+                document.add(logo);
+            } catch (Exception e) {
+                // Bỏ qua lỗi logo, chỉ ghi log
+                System.out.println("Không thể tải logo: " + e.getMessage());
+                // Vẫn thêm một đoạn văn bản thay cho logo để đảm bảo có nội dung
+                document.add(new Paragraph("TEDDY SNEAKER"));
+            }
+            
+            // Thêm thông tin hóa đơn
+            document.add(new Paragraph("HOA DON BAN HANG").setBold().setFontSize(16).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("Ma hoa don: " + invoice.getInvoiceNumber()));
+            
+            // Format ngày tạo
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+            document.add(new Paragraph("Ngay tao: " + sdf.format(invoice.getCreatedAt())));
+            
+            // Thêm thông tin đơn hàng
+            Order order = invoice.getOrder();
+            if (order != null) {
+                document.add(new Paragraph("Thong tin don hang:").setBold());
+                document.add(new Paragraph("Nguoi nhan: " + order.getReceiverName()));
+                document.add(new Paragraph("So dien thoai: " + order.getReceiverPhone()));
+                document.add(new Paragraph("Dia chi: " + order.getReceiverAddress()));
+                
+                // Tạo bảng chi tiết sản phẩm
+                if (order.getItems() != null && !order.getItems().isEmpty()) {
+                    float[] columnWidths = {3f, 1f, 1f, 2f, 2f};
+                    Table table = new Table(UnitValue.createPercentArray(columnWidths))
+                        .useAllAvailableWidth();
+                    
+                    // Tiêu đề bảng
+                    table.addHeaderCell(new Cell().add(new Paragraph("San pham").setBold()));
+                    table.addHeaderCell(new Cell().add(new Paragraph("Size").setBold()));
+                    table.addHeaderCell(new Cell().add(new Paragraph("So luong").setBold()));
+                    table.addHeaderCell(new Cell().add(new Paragraph("Don gia").setBold()));
+                    table.addHeaderCell(new Cell().add(new Paragraph("Thanh tien").setBold()));
+                    
+                    // Thêm từng sản phẩm vào bảng
+                    for (OrderItem item : order.getItems()) {
+                        if (item.getProduct() != null) {
+                            table.addCell(new Cell().add(new Paragraph(item.getProduct().getName())));
+                            table.addCell(new Cell().add(new Paragraph(String.valueOf(item.getSize()))));
+                            table.addCell(new Cell().add(new Paragraph(String.valueOf(item.getQuantity()))));
+                            table.addCell(new Cell().add(new Paragraph(String.format("%,.0f VND", item.getPrice()))));
+                            table.addCell(new Cell().add(new Paragraph(String.format("%,.0f VND", item.getPrice() * item.getQuantity()))));
+                        } else {
+                            // Thêm hàng trống nếu không có sản phẩm
+                            table.addCell(new Cell().add(new Paragraph("N/A")));
+                            table.addCell(new Cell().add(new Paragraph("N/A")));
+                            table.addCell(new Cell().add(new Paragraph("N/A")));
+                            table.addCell(new Cell().add(new Paragraph("N/A")));
+                            table.addCell(new Cell().add(new Paragraph("N/A")));
+                        }
+                    }
+                    
+                    document.add(table);
+                } else {
+                    document.add(new Paragraph("Khong co thong tin chi tiet san pham").setFontColor(ColorConstants.RED));
+                }
+            } else {
+                document.add(new Paragraph("Khong tim thay thong tin don hang").setFontColor(ColorConstants.RED));
+            }
+            
+            // Thêm thông tin tổng tiền
+            document.add(new Paragraph("Tong tien hang: " + String.format("%,.0f VND", invoice.getSubtotal())));
+            document.add(new Paragraph("Giam gia: " + String.format("%,.0f VND", invoice.getDiscount())));
+            document.add(new Paragraph("Thue VAT: " + String.format("%,.0f VND", invoice.getTax())));
+            document.add(new Paragraph("Tong thanh toan: " + String.format("%,.0f VND", invoice.getTotal())).setBold());
+        } finally {
+            document.close();
         }
         
-        document.add(table);
-        
-        // Thêm thông tin tổng tiền
-        document.add(new Paragraph("Tổng tiền hàng: " + invoice.getSubtotal()));
-        document.add(new Paragraph("Giảm giá: " + invoice.getDiscount()));
-        document.add(new Paragraph("Thuế VAT: " + invoice.getTax()));
-        document.add(new Paragraph("Tổng thanh toán: " + invoice.getTotal()));
-        
-        document.close();
         return baos.toByteArray();
     }
 } 

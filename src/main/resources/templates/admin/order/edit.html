@@ -181,7 +181,10 @@
 															<td><a href="javascript:void(0)" th:text="${item.product.name}"></a></td>
 															<td><span th:text="${item.size}"></span>
 																<th:block th:if="${order.status} == 1">
-																	<span th:if="${sizeIsAvailable} == false" class="badge badge-danger">Hết hàng</span>
+																	<span th:if="${sizeAvailabilityMap != null}" th:with="isAvailable=${sizeAvailabilityMap.get(item.id)}" 
+																		  th:class="${isAvailable != null and !isAvailable ? 'badge badge-danger' : ''}"
+																		  th:text="${isAvailable != null and !isAvailable ? 'Hết hàng' : ''}">
+																	</span>
 																</th:block>
 															</td>
 															<td><span class="text-price" th:text="${item.price}"></span> đ</td>
@@ -206,7 +209,6 @@
 									<div class="col-md-4">
 										<div class="edit-order-div">
 											<label>Trạng thái đơn hàng</label> <select name="status"
-												onchange="checkStatus(this)"
 												class="form-control thuy-search-select" id="status">
 												<option value="1" th:selected="${order.status} == 1">Chờ
 													lấy hàng</option>
@@ -282,7 +284,10 @@
 						<td><span th:text="${item.product.name}"></span></td>
 						<td><span th:text="${item.size}"></span>
 							<th:block th:if="${order.status} == 1">
-								<span th:if="${sizeIsAvailable} == false" class="badge badge-danger">Hết hàng</span>
+								<span th:if="${sizeAvailabilityMap != null}" th:with="isAvailable=${sizeAvailabilityMap.get(item.id)}" 
+									  th:class="${isAvailable != null and !isAvailable ? 'badge badge-danger' : ''}"
+									  th:text="${isAvailable != null and !isAvailable ? 'Hết hàng' : ''}">
+								</span>
 							</th:block>
 						</td>
 						<td><span class="text-price" th:text="${item.price}"></span> đ</td>
@@ -415,11 +420,13 @@
 		if(initialStatus === "3"){
 			$("#cancel").prop("disabled", true);
 		}
-		function checkStatus(selectElement) {
-	        if (selectElement.value === "5") {
-	             $("#returnProduct").modal("show");
-	        }
-	    }
+		function checkStatus(element) {
+			console.log("Status changed to: " + element.value);
+			
+			if (element.value == "5") {
+				console.log("Đơn hàng bị hủy");
+			}
+		}
 
 		 $('.btn-confirm-return-product').click(function() {
 	        	let isValid = true;

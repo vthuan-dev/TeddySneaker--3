@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết đơn hàng</title>
+</head>
+<body>
+    <h1>Chi tiết đơn hàng #<span th:text="${order.id}"></span></h1>
+    <div>
+        <p>Trạng thái: <span th:text="${order.status == 1 ? 'Chờ lấy hàng' : 
+                                       order.status == 2 ? 'Đang giao hàng' : 
+                                       order.status == 3 ? 'Đã giao hàng' : 
+                                       order.status == 4 ? 'Đã trả lại' : 
+                                       order.status == 5 ? 'Đã hủy' : 
+                                       order.status == 6 ? 'Bán hàng tại quầy' : ''}"></span></p>
+        <p>Tên người nhận: <span th:text="${order.receiverName}"></span></p>
+        <p>Số điện thoại: <span th:text="${order.receiverPhone}"></span></p>
+        <p>Địa chỉ: <span th:text="${order.receiverAddress}"></span></p>
+    </div>
+    
+    <h2>Sản phẩm</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th>Kích cỡ</th>
+                <th>Giá tiền</th>
+                <th>Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="item : ${order.items}" th:if="${item != null}">
+                <td th:text="${item.product != null ? item.product.name : 'N/A'}"></td>
+                <td th:text="${item.size}"></td>
+                <td th:text="${item.price}"></td>
+                <td th:text="${item.subtotal}"></td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div>
+        <a th:href="@{/admin/orders}">Quay lại danh sách</a>
+    </div>
+</body>
+</html> 

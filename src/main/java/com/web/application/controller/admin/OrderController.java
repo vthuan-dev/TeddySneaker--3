@@ -111,42 +111,55 @@ public class OrderController {
 	}
 
 	@GetMapping("/admin/orders/update/{id}")
-	public String updateOrderPage(Model model, @PathVariable long id) {
-		Order order = orderService.findOrderById(id);
-		model.addAttribute("order", order);
-
-		if (order.getStatus() == Contant.ORDER_STATUS) {
-			// Get list product to select
-			List<ShortProductInfoDTO> products = productService.getAvailableProducts();
-			model.addAttribute("products", products);
-
-			// Get list valid promotion
-			List<Promotion> promotions = promotionService.getAllValidPromotion();
-			model.addAttribute("promotions", promotions);
-			if (order.getPromotion() != null) {
-				boolean validPromotion = false;
-				for (Promotion promotion : promotions) {
-					if (promotion.getCouponCode().equals(order.getPromotion().getCouponCode())) {
-						validPromotion = true;
-						break;
+	public String updateOrderPage(@PathVariable("id") Long id, Model model) {
+		try {
+			// Lấy thông tin đơn hàng
+			Order order = orderService.findOrderById(id);
+			if (order == null) {
+				return "redirect:/admin/orders?error=order_not_found";
+			}
+			
+			// Đảm bảo tất cả các mối quan hệ được load
+			if (order.getItems() != null) {
+				// Khởi tạo map để lưu trạng thái size
+				Map<Long, Boolean> sizeAvailabilityMap = new HashMap<>();
+				
+				for(OrderItem item : order.getItems()) {
+					if (item.getProduct() != null) {
+						// Kiểm tra size có còn hàng không
+						boolean sizeAvailable = true; // Mặc định là có hàng
+						try {
+							// Phương thức chỉ nhận 2 tham số, điều chỉnh theo định nghĩa
+							sizeAvailable = productService.checkProductSizeAvailable(
+								item.getProduct().getId().toString(), // Chuyển đổi Long thành String nếu cần
+								item.getSize() // Không truyền item.getQuantity()
+							);
+						} catch (Exception e) {
+							// Nếu có lỗi, giả định là không có sẵn
+							sizeAvailable = false;
+						}
+						
+						// Lưu vào map
+						sizeAvailabilityMap.put(item.getId(), sizeAvailable);
 					}
 				}
-				if (!validPromotion) {
-					promotions.add(new Promotion(order.getPromotion()));
-				}
+				
+				// Thêm map vào model
+				model.addAttribute("sizeAvailabilityMap", sizeAvailabilityMap);
 			}
-
-			// Check size available for each order item
-			for (OrderItem item : order.getItems()) {
-				boolean sizeIsAvailable = productService.checkProductSizeAvailable(
-					item.getProduct().getId(),
-					item.getSize()
-				);
-				model.addAttribute("sizeIsAvailable_" + item.getId(), sizeIsAvailable);
-			}
+			
+			// Thêm danh sách sản phẩm
+			List<ShortProductInfoDTO> products = productService.getListProduct();
+			
+			// Thêm order trực tiếp
+			model.addAttribute("order", order);
+			model.addAttribute("products", products);
+			
+			return "admin/order/edit";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "redirect:/admin/orders?error=error";
 		}
-
-		return "admin/order/edit";
 	}
 
 	@PutMapping("/api/admin/orders/update-detail/{id}")
