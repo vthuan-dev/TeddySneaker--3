@@ -38,6 +38,8 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart addProductToCart(Long userId, Product product, int quantity, Integer size) {
+        System.out.println("Adding to cart - Product: " + product.getId() + ", Size: " + size); // Debug log
+        
         Cart cart = cartRepository.findByUserId(userId);
         if (cart == null) {
             cart = new Cart();
@@ -48,31 +50,35 @@ public class CartServiceImpl implements CartService {
             cart.setTotalPrice(0.0);
         }
         
+        // Kiểm tra sản phẩm và size đã tồn tại trong giỏ hàng chưa
         Optional<CartItem> existingItem = cart.getItems().stream()
-            .filter(item -> item.getProduct().getId().equals(product.getId()) 
-                       && Objects.equals(item.getSize(), size))
+            .filter(item -> {
+                boolean matches = item.getProduct().getId().equals(product.getId()) && 
+                                Objects.equals(item.getSize(), size);
+                System.out.println("Checking item: " + item.getProduct().getId() + 
+                                 ", Size: " + item.getSize() + ", Matches: " + matches); // Debug log
+                return matches;
+            })
             .findFirst();
 
         if (existingItem.isPresent()) {
+            // Nếu đã tồn tại, cập nhật số lượng
             CartItem item = existingItem.get();
             item.setQuantity(item.getQuantity() + quantity);
-            item.setPrice(Double.valueOf(product.getPrice()));
         } else {
+            // Nếu chưa tồn tại, tạo mới CartItem
             CartItem newItem = new CartItem();
             newItem.setProduct(product);
             newItem.setQuantity(quantity);
             newItem.setCart(cart);
             newItem.setPrice(Double.valueOf(product.getPrice()));
-            newItem.setSize(size);
+            newItem.setSize(size); // Đảm bảo set size
             cart.getItems().add(newItem);
         }
 
-        // Tính toán total_price sử dụng giá từ CartItem
+        // Tính lại tổng tiền
         double totalPrice = cart.getItems().stream()
-            .mapToDouble(item -> {
-                Double itemPrice = item.getPrice();
-                return (itemPrice != null ? itemPrice : 0.0) * item.getQuantity();
-            })
+            .mapToDouble(item -> item.getPrice() * item.getQuantity())
             .sum();
         cart.setTotalPrice(totalPrice);
 

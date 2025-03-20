@@ -230,6 +230,34 @@
                     font-size: 1.5rem;
                 }
             }
+
+            .size-box {
+                width: 50px;
+                height: 50px;
+                border: 1px solid #ddd;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                border-radius: 4px;
+                transition: all 0.3s;
+            }
+
+            .size-box:hover {
+                border-color: #000;
+            }
+
+            .size-box.active {
+                background-color: #000;
+                color: white;
+                border-color: #000;
+            }
+
+            .size-options {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
         </style>
     </th:block>
 </head>
@@ -294,16 +322,22 @@
                     <div class="product-actions">
                         <div class="size-selector mb-4">
                             <label class="size-label">Chọn kích thước:</label>
-                            <div class="size-options">
-                                <select class="form-select size-choose" data-id="">
-                                    <option value="">Chọn size</option>
-                                </select>
+                            <div class="size-options d-flex gap-2">
+                                <th:block th:each="size : ${availableSizes}">
+                                    <div class="size-box" 
+                                         th:data-size="${size}"
+                                         onclick="selectSize(this)"
+                                         th:classappend="${size == selectedSize ? 'active' : ''}">
+                                        <span th:text="${size}"></span>
+                                    </div>
+                                </th:block>
                             </div>
                         </div>
 
                         <div class="action-buttons">
-                            <button class="btn-add-cart" data-id="4ImFfx" onclick="addToCart(this)">
-                                <i class="fas fa-shopping-cart"></i>
+                            <button class="btn-add-cart" 
+                                    th:attr="data-product-id=${product.id}"
+                                    onclick="addToCart(this)">
                                 Thêm vào giỏ hàng
                             </button>
 
@@ -442,6 +476,7 @@
 
     <script th:inline="javascript">
         let sizeVn = [[${sizeVn}]];
+        let selectedSize = null;
 
         $(function () {
             formatMoney();
@@ -569,10 +604,44 @@
         //     alert($('input[name=rating]:checked').val());
         // });
 
+        function selectSize(element) {
+            // Xóa class active từ tất cả các size
+            document.querySelectorAll('.size-box').forEach(box => {
+                box.classList.remove('active');
+            });
+            
+            // Thêm class active cho size được chọn
+            element.classList.add('active');
+            selectedSize = parseInt(element.getAttribute('data-size'));
+            console.log('Selected size:', selectedSize); // Debug log
+        }
+
         function addToCart(button) {
-            const productId = button.getAttribute('data-id');
-            const quantity = 1;
-            const size = $('.size-choose').data('id');
+            if (!selectedSize) {
+                toastr.warning('Vui lòng chọn size trước khi thêm vào giỏ hàng');
+                return;
+            }
+
+            const productId = button.getAttribute('data-product-id');
+
+            // Cấu hình toastr
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "timeOut": "1500",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
 
             fetch('/api/cart/add', {
                 method: 'POST',
@@ -582,8 +651,8 @@
                 },
                 body: JSON.stringify({
                     productId: productId,
-                    quantity: quantity,
-                    size: size
+                    quantity: 1,
+                    size: selectedSize
                 })
             })
             .then(response => {
@@ -592,38 +661,24 @@
                         window.location.href = '/auth/dang-nhap';
                         return;
                     }
-                    throw new Error('Network response was not ok');
+                    throw new Error('Có lỗi xảy ra');
                 }
                 return response.json();
             })
             .then(data => {
+                // Hiển thị thông báo thành công bằng toastr
                 toastr.success('Đã thêm sản phẩm vào giỏ hàng');
-                document.dispatchEvent(new CustomEvent('cartUpdated'));
+                
+                // Đợi 1.5 giây rồi chuyển trang
+                setTimeout(() => {
+                    window.location.href = '/cart?t=' + Date.now();
+                }, 1500);
             })
             .catch(error => {
                 console.error('Error:', error);
-                toastr.error('Có lỗi xảy ra khi thêm vào giỏ hàng');
+                toastr.error(error.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng');
             });
         }
-
-        // Cấu hình toastr
-        toastr.options = {
-            "closeButton": true,
-            "debug": false,
-            "newestOnTop": false,
-            "progressBar": true,
-            "positionClass": "toast-top-right",
-            "preventDuplicates": false,
-            "onclick": null,
-            "showDuration": "300",
-            "hideDuration": "1000",
-            "timeOut": "5000",
-            "extendedTimeOut": "1000",
-            "showEasing": "swing",
-            "hideEasing": "linear",
-            "showMethod": "fadeIn",
-            "hideMethod": "fadeOut"
-        };
     </script>
 </th:block>
 </body>

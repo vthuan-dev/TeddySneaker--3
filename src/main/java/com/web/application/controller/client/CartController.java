@@ -22,6 +22,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.AllArgsConstructor;
 import com.web.application.model.request.CheckoutRequestDTO;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 @Controller
 public class CartController {
@@ -166,18 +169,37 @@ public class CartController {
     @ResponseBody
     public ResponseEntity<?> addToCart(@RequestBody AddToCartRequest request) {
         try {
+            System.out.println("Received add to cart request - Product: " + 
+                             request.getProductId() + ", Size: " + request.getSize()); // Debug log
+            
+            // Kiểm tra xác thực
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
             }
             
+            // Validate request
+            if (request.getSize() == null || request.getSize() < 35 || request.getSize() > 42) {
+                return ResponseEntity.badRequest().body("Invalid size");
+            }
+            
+            if (request.getQuantity() <= 0) {
+                return ResponseEntity.badRequest().body("Invalid quantity");
+            }
+
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             Long userId = userDetails.getUser().getId();
             
+            // Lấy thông tin sản phẩm
             Product product = productService.getProductById(request.getProductId());
+            if (product == null) {
+                return ResponseEntity.badRequest().body("Product not found");
+            }
+            
+            // Thêm vào giỏ hàng
             Cart cart = cartService.addProductToCart(userId, product, request.getQuantity(), request.getSize());
             
-            // Convert to DTO and return
+            // Trả về thông tin giỏ hàng mới
             CartSummaryDTO summary = cartService.getCartSummary(userId);
             return ResponseEntity.ok(summary);
         } catch (Exception e) {
@@ -235,36 +257,27 @@ public class CartController {
         }
     }
 
-    // Add this class inside CartController or as a separate file
+    @Getter
+    @Setter
     public static class AddToCartRequest {
+        @NotNull(message = "Product ID is required")
         private String productId;
+        
+        @Min(value = 1, message = "Quantity must be at least 1")
         private int quantity;
+        
+        @NotNull(message = "Size is required")
+        @Min(value = 35, message = "Size must be between 35 and 42")
+        @Max(value = 42, message = "Size must be between 35 and 42")
         private Integer size;
+    }
 
-        // Getters and setters
-        public String getProductId() {
-            return productId;
-        }
-
-        public void setProductId(String productId) {
-            this.productId = productId;
-        }
-
-        public int getQuantity() {
-            return quantity;
-        }
-
-        public void setQuantity(int quantity) {
-            this.quantity = quantity;
-        }
-
-        public Integer getSize() {
-            return size;
-        }
-
-        public void setSize(Integer size) {
-            this.size = size;
-        }
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public static class OrderCreatedResponse {
+        private Long orderId;
+        private Double totalAmount;
     }
 
     // Add this class inside CartController
@@ -280,13 +293,5 @@ public class CartController {
         public void setSize(Integer size) { this.size = size; }
         public int getQuantity() { return quantity; }
         public void setQuantity(int quantity) { this.quantity = quantity; }
-    }
-
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    public static class OrderCreatedResponse {
-        private Long orderId;
-        private Double totalAmount;
     }
 } 

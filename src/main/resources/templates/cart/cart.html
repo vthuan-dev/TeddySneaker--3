@@ -470,6 +470,259 @@
             .checkout-form {
                 animation: fadeInUp 0.5s ease-out;
             }
+
+            /* Quantity Controls */
+            .quantity-controls {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                background: #f8f9fa;
+                padding: 8px;
+                border-radius: 8px;
+                width: fit-content;
+            }
+
+            .quantity-controls button {
+                width: 32px;
+                height: 32px;
+                border: none;
+                background: white;
+                color: #2c3e50;
+                font-size: 16px;
+                font-weight: 600;
+                border-radius: 6px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }
+
+            .quantity-controls button:hover {
+                background: #e9ecef;
+                transform: translateY(-1px);
+            }
+
+            .quantity-controls button:active {
+                transform: translateY(0);
+            }
+
+            .quantity-controls input[type="number"] {
+                width: 50px;
+                height: 32px;
+                border: 1px solid #dee2e6;
+                border-radius: 6px;
+                text-align: center;
+                font-size: 14px;
+                font-weight: 500;
+                color: #2c3e50;
+                background: white;
+                -moz-appearance: textfield; /* Firefox */
+            }
+
+            /* Ẩn mũi tên tăng/giảm mặc định của input number */
+            .quantity-controls input[type="number"]::-webkit-outer-spin-button,
+            .quantity-controls input[type="number"]::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            /* Responsive styles */
+            @media (max-width: 768px) {
+                .quantity-controls {
+                    padding: 6px;
+                    gap: 6px;
+                }
+
+                .quantity-controls button {
+                    width: 28px;
+                    height: 28px;
+                    font-size: 14px;
+                }
+
+                .quantity-controls input[type="number"] {
+                    width: 40px;
+                    height: 28px;
+                    font-size: 13px;
+                }
+            }
+
+            /* Hover states */
+            .quantity-controls button:hover {
+                background: #007bff;
+                color: white;
+            }
+
+            /* Focus states */
+            .quantity-controls input[type="number"]:focus {
+                outline: none;
+                border-color: #007bff;
+                box-shadow: 0 0 0 2px rgba(0,123,255,0.1);
+            }
+
+            /* Button Remove Styling */
+            .btn-remove {
+                width: 40px;
+                height: 40px;
+                border: none;
+                border-radius: 50%;
+                background-color: #fff;
+                color: #dc3545;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 6px rgba(220, 53, 69, 0.1);
+                position: relative;
+                overflow: hidden;
+            }
+
+            /* Icon styling */
+            .btn-remove i {
+                font-size: 16px;
+                transition: all 0.3s ease;
+            }
+
+            /* Hover effect */
+            .btn-remove:hover {
+                background-color: #dc3545;
+                color: white;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+            }
+
+            /* Click effect */
+            .btn-remove:active {
+                transform: translateY(0);
+                box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+            }
+
+            /* Ripple effect */
+            .btn-remove::after {
+                content: '';
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                transform: scale(0);
+                transition: transform 0.3s ease;
+            }
+
+            .btn-remove:active::after {
+                transform: scale(2);
+                opacity: 0;
+            }
+
+            /* Hover animation for icon */
+            .btn-remove:hover i {
+                animation: shake 0.5s ease-in-out;
+            }
+
+            /* Shake animation */
+            @keyframes shake {
+                0%, 100% { transform: rotate(0deg); }
+                25% { transform: rotate(-10deg); }
+                75% { transform: rotate(10deg); }
+            }
+
+            /* Responsive styles */
+            @media (max-width: 768px) {
+                .btn-remove {
+                    width: 36px;
+                    height: 36px;
+                }
+
+                .btn-remove i {
+                    font-size: 14px;
+                }
+            }
+
+            /* Focus state */
+            .btn-remove:focus {
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.3);
+            }
+
+            /* Disabled state */
+            .btn-remove:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                background-color: #f8f9fa;
+            }
+
+            /* Custom SweetAlert2 Styles */
+            .large-swal-popup {
+                width: 400px !important;
+                padding: 2rem !important;
+            }
+
+            .large-swal-title {
+                font-size: 24px !important;
+                padding: 1rem 0 !important;
+                color: #2c3e50 !important;
+            }
+
+            .large-swal-content {
+                font-size: 16px !important;
+                padding: 1rem 0 !important;
+                color: #4a5568 !important;
+            }
+
+            .large-swal-actions {
+                margin-top: 1.5rem !important;
+                gap: 1rem !important;
+            }
+
+            .large-swal-confirm-button, 
+            .large-swal-cancel-button {
+                padding: 12px 24px !important;
+                font-size: 16px !important;
+                font-weight: 500 !important;
+                border-radius: 8px !important;
+            }
+
+            /* Animation cho dialog */
+            .swal2-popup {
+                animation: swal2-show 0.3s !important;
+            }
+
+            .swal2-icon {
+                width: 5em !important;
+                height: 5em !important;
+                margin: 1.5em auto !important;
+            }
+
+            .swal2-icon .swal2-icon-content {
+                font-size: 3.75em !important;
+            }
+
+            /* Responsive styles */
+            @media (max-width: 768px) {
+                .large-swal-popup {
+                    width: 90% !important;
+                    margin: 0.5rem !important;
+                }
+
+                .large-swal-title {
+                    font-size: 20px !important;
+                }
+
+                .large-swal-content {
+                    font-size: 14px !important;
+                }
+
+                .large-swal-confirm-button, 
+                .large-swal-cancel-button {
+                    padding: 10px 20px !important;
+                    font-size: 14px !important;
+                }
+            }
         </style>
     </th:block>
 </head>
@@ -660,7 +913,7 @@
                             </td>
                             <td data-label="Thành tiền">${formatPrice(item.price * item.quantity)} ₫</td>
                             <td>
-                                <button class="btn-remove" onclick="removeItem('${item.productId}', ${item.size})">
+                                <button class="btn-remove" onclick="removeItem('${item.productId}', ${item.size})" title="Xóa sản phẩm">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -687,22 +940,34 @@
 
             // Hàm xóa sản phẩm khỏi giỏ hàng với xác nhận
             function removeItem(productId, size) {
+                // Cấu hình toastr
+                toastr.options = {
+                    "closeButton": true,
+                    "debug": false,
+                    "newestOnTop": false,
+                    "progressBar": true,
+                    "positionClass": "toast-top-right",
+                    "preventDuplicates": false,
+                    "onclick": null,
+                    "showDuration": "300",
+                    "hideDuration": "1000",
+                    "timeOut": "1500",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                };
+
                 Swal.fire({
                     title: 'Xác nhận xóa',
                     text: 'Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?',
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#e74c3c',
-                    cancelButtonColor: '#3085d6',
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
                     confirmButtonText: 'Xóa',
-                    cancelButtonText: 'Hủy',
-                    customClass: {
-                        popup: 'large-swal-popup',
-                        title: 'large-swal-title',
-                        htmlContainer: 'large-swal-content',
-                        confirmButton: 'large-swal-button',
-                        cancelButton: 'large-swal-button'
-                    }
+                    cancelButtonText: 'Hủy'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         fetch(`/api/cart/remove/${productId}?size=${size}`, {
@@ -714,12 +979,22 @@
                             credentials: 'include'
                         })
                         .then(response => {
-                            if (response.ok) {
-                                toastr.success('Đã xóa sản phẩm khỏi giỏ hàng');
-                                loadCart(); // Tải lại giỏ hàng
-                            } else {
+                            if (!response.ok) {
                                 throw new Error('Lỗi khi xóa sản phẩm');
                             }
+                            return response.json();
+                        })
+                        .then(data => {
+                            // Đóng dialog SweetAlert2 nếu còn mở
+                            Swal.close();
+                            
+                            // Hiển thị thông báo thành công bằng toastr
+                            toastr.success('Sản phẩm đã được xóa khỏi giỏ hàng');
+                            
+                            // Load lại giỏ hàng sau khi thông báo hiển thị
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 300);
                         })
                         .catch(error => {
                             console.error('Error:', error);
