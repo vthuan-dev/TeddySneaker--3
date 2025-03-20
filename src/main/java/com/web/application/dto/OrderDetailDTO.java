@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -12,35 +13,24 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class OrderDetailDTO {
-    private long id;
-
-    private long totalPrice;
-
-    private long productPrice;
-
-    private String receiverName;
-
-    private String receiverPhone;
-
-    private String receiverAddress;
-
-    private int status;
-
+    private Long id;
+    private Integer status;
     private String statusText;
-
-    private int sizeVn;
-
+    private BigDecimal totalPrice;
+    private BigDecimal productPrice;
+    private String createdAt;
+    
+    private String receiverName;
+    private String receiverPhone;
+    private String receiverAddress;
+    
     private String productName;
-
     private String productImg;
+    private Integer sizeVn;
 
     public OrderDetailDTO (long id, long totalPrice, long productPrice, String receiverName, String receiverPhone, String receiverAddress, int status, int sizeVn, String productName, String productImg) {
         this.id = id;
-        this.totalPrice = totalPrice;
-        this.productPrice = productPrice;
-        this.receiverName = receiverName;
-        this.receiverPhone = receiverPhone;
-        this.receiverAddress = receiverAddress;
+        this.totalPrice = BigDecimal.valueOf(totalPrice);
         this.status = status;
         this.sizeVn = sizeVn;
         this.productName = productName;

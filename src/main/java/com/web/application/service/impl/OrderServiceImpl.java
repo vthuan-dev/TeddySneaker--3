@@ -455,24 +455,49 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public OrderDetailDTO userGetDetailById(long id, long userId) {
-		OrderDetailDTO order = orderRepository.userGetDetailById(id, userId);
-		if (order == null) {
-			return null;
-		}
+		try {
+			Order order = orderRepository.findByIdAndBuyerId(id, userId)
+				.orElseThrow(() -> new NotFoundExp("Không tìm thấy đơn hàng"));
 
-		if (order.getStatus() == Contant.ORDER_STATUS) {
-			order.setStatusText("Chờ lấy hàng");
-		} else if (order.getStatus() == Contant.DELIVERY_STATUS) {
-			order.setStatusText("Đang giao hàng");
-		} else if (order.getStatus() == Contant.COMPLETED_STATUS) {
-			order.setStatusText("Đã giao hàng");
-		} else if (order.getStatus() == Contant.CANCELED_STATUS) {
-			order.setStatusText("Đơn hàng đã trả lại");
-		} else if (order.getStatus() == Contant.RETURNED_STATUS) {
-			order.setStatusText("Đơn hàng đã hủy");
-		}
+			OrderDetailDTO dto = new OrderDetailDTO();
+			dto.setId(order.getId());
+			dto.setStatus(order.getStatus());
+			
+			// Set statusText dựa vào status
+			switch (order.getStatus()) {
+				case Contant.CANCELED_STATUS:
+					dto.setStatusText("Đã hủy");
+					break;
+				case Contant.COMPLETED_STATUS:
+					dto.setStatusText("Hoàn thành");
+					break;
+				default:
+					dto.setStatusText("Đang xử lý");
+			}
+			
+			// Set các thông tin khác
+			dto.setTotalPrice(BigDecimal.valueOf(order.getTotalPrice()));
+			
+			if (!order.getItems().isEmpty()) {
+				OrderItem firstItem = order.getItems().get(0);
+				dto.setProductPrice(BigDecimal.valueOf(firstItem.getPrice()));
+				Product product = firstItem.getProduct();
+				if (product != null && !product.getImages().isEmpty()) {
+					dto.setProductImg(product.getImages().get(0));
+				}
+				dto.setProductName(product.getName());
+				dto.setSizeVn(firstItem.getSize());
+			}
+			
+			dto.setCreatedAt(order.getCreatedAt().toString());
+			dto.setReceiverName(order.getReceiverName());
+			dto.setReceiverPhone(order.getReceiverPhone());
+			dto.setReceiverAddress(order.getReceiverAddress());
 
-		return order;
+			return dto;
+		} catch (Exception e) {
+			throw new InternalServerExp("Lỗi khi lấy chi tiết đơn hàng: " + e.getMessage());
+		}
 	}
 
 	@Override

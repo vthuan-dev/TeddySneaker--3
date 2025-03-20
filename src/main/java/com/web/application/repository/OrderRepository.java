@@ -1,6 +1,7 @@
 package com.web.application.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,8 +37,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT o FROM Order o WHERE o.buyer.id = :userId AND o.status = :status")
     List<Order> findByBuyerIdAndStatus(@Param("userId") long userId, @Param("status") int status);
 
-    List<Order> findByBuyerIdOrderByCreatedAtDesc(Long buyerId);
-    List<Order> findByBuyerIdAndStatusOrderByCreatedAtDesc(Long buyerId, Integer status);
+    List<Order> findByBuyerIdOrderByCreatedAtDesc(long buyerId);
+    List<Order> findByBuyerIdAndStatusOrderByCreatedAtDesc(long buyerId, int status);
+
+    Optional<Order> findByIdAndBuyerId(long id, long buyerId);
 }
 
 // LIST_ORDER_STATUSz

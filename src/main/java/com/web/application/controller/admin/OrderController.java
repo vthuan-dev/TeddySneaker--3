@@ -203,26 +203,38 @@ public class OrderController {
 	}
 
 	@GetMapping("/tai-khoan/lich-su-giao-dich/{id}")
-	public String getDetailOrderPage(Model model, @PathVariable int id) {
-		User user = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
-				.getUser();
-		OrderDetailDTO order = orderService.userGetDetailById(id, user.getId());
-		if (order == null) {
-			return "error/404";
-		}
-		model.addAttribute("order", order);
+	public String getDetailOrderPage(Model model, @PathVariable long id) {
+		try {
+			// Get user information
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
+				return "redirect:/login";
+			}
+			
+			CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+			User user = userDetails.getUser();
 
-		if (order.getStatus() == Contant.ORDER_STATUS) {
-			model.addAttribute("canCancel", true);
-		} else {
-			model.addAttribute("canCancel", false);
+			// Get order detail
+			OrderDetailDTO order = orderService.userGetDetailById(id, user.getId());
+			if (order == null) {
+				return "error/404";
+			}
+
+			// Add order to model
+			model.addAttribute("order", order);
+			
+			// Check if order can be cancelled
+			if (order.getStatus() == Contant.ORDER_STATUS) {
+				model.addAttribute("canCancel", true);
+			} else {
+				model.addAttribute("canCancel", false);
+			}
+
+			return "shop/order-detail";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "error/500";
 		}
-		if (order.getStatus() == Contant.COMPLETED_STATUS) {
-			model.addAttribute("canCompleted", true);
-		} else {
-			model.addAttribute("canCompleted", false);
-		}
-		return "shop/order-detail";
 	}
 
 	@PostMapping("/api/return-order/{id}")
