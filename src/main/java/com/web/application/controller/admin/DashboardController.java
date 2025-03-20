@@ -9,9 +9,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.http.HttpStatus;
 
 import com.web.application.dto.ChartDTO;
 import com.web.application.dto.StatisticDTO;
+import com.web.application.entity.Order;
 import com.web.application.model.request.FilterDayByDay;
 import com.web.application.repository.*;
 import com.web.application.service.*;
@@ -19,6 +21,8 @@ import com.web.application.service.*;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @Controller
 public class DashboardController {
@@ -128,5 +132,32 @@ public class DashboardController {
             now.getYear()
         );
         return ResponseEntity.ok(chartDTOS);
+    }
+
+    @GetMapping("/api/admin/orders")
+    public ResponseEntity<Object> getOrders() {
+        try {
+            List<Order> orders = orderService.getAllOrders();
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                               .body("Error fetching orders: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/api/admin/orders/stats")
+    public ResponseEntity<Object> getOrderStats() {
+        try {
+            Map<String, Long> stats = new HashMap<>();
+            stats.put("pending", orderService.countOrdersByStatus(0));
+            stats.put("confirmed", orderService.countOrdersByStatus(1));
+            stats.put("shipping", orderService.countOrdersByStatus(2));
+            stats.put("completed", orderService.countOrdersByStatus(3));
+            stats.put("cancelled", orderService.countOrdersByStatus(4));
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                               .body("Error fetching order stats: " + e.getMessage());
+        }
     }
 }

@@ -153,47 +153,55 @@
                 </tr>
                 </thead>
                 <tbody>
-                <th:block th:each="order : ${orderPage}">
-                    <tr>
-                        <td>
-                            <a th:href="@{/admin/orders/update/{id}(id=${order.id})}" th:text="${order.id}"></a>
-                        </td>
-                        <td th:text="${order.receiverName}"></td>
-                        <td th:text="${order.receiverPhone}"></td>
-                        <td>
-                            <span th:if="${order.status} == 1" class="badge badge-warning">Chờ lấy hàng</span>
-                            <span th:if="${order.status} == 2" class="badge badge-primary">Đang giao hàng</span>
-                            <span th:if="${order.status} == 3" class="badge badge-success">Đã giao hàng</span>
-                            <span th:if="${order.status} == 4" class="badge badge-danger">Đơn hàng bị trả lại</span>
-                            <span th:if="${order.status} == 5" class="badge badge-light">Đơn hàng bị hủy</span>
-                            <span th:if="${order.status} == 6" class="badge badge-success">Bán hàng tại quầy</span>
-                        </td>
-                        <td th:text="${order.product.name}"></td>
-                        <td>
-                            <span th:text="${#dates.format(order.createdAt, 'dd-MM-yyyy HH:mm')}"></span>
-                        </td>
-                        <td>
-                            <span th:text="${#dates.format(order.modifiedAt, 'dd-MM-yyyy HH:mm')}"></span>
-                        </td>
-                        <td>
-                            <span th:text="${order.totalPrice}"></span>
-                        </td>
-                        <td class="actions">
-                            <a th:href="@{/admin/orders/update/{id}(id=${order.id})}" 
-                               class="action-btn edit-btn" 
-                               title="Chỉnh sửa">
-                                <i class="fas fa-pencil-alt"></i>
-                            </a>
-                            <button class="action-btn export-btn" 
-                                    th:onclick="'window.exportInvoice(' + ${order.id} + ')'"
-                                    th:id="'export-invoice-' + ${order.id}"
-                                    title="Xuất hóa đơn">
-                                <i class="fas fa-file-invoice"></i>
-                                <span>Xuất HĐ</span>
-                            </button>
-                        </td>
+                    <!-- Thêm debug info -->
+                    <tr th:if="${orderPage.empty}">
+                        <td colspan="9">Không có đơn hàng nào</td>
                     </tr>
-                </th:block>
+                    <tr th:if="${not #lists.isEmpty(orderPage)}">
+                        <td colspan="9" th:text="'Số lượng đơn hàng: ' + ${#lists.size(orderPage)}"></td>
+                    </tr>
+                    <!-- Vòng lặp hiện tại -->
+                    <th:block th:each="order : ${orderPage}">
+                        <tr>
+                            <td>
+                                <a th:href="@{/admin/orders/update/{id}(id=${order.id})}" th:text="${order.id}"></a>
+                            </td>
+                            <td th:text="${order.receiverName}"></td>
+                            <td th:text="${order.receiverPhone}"></td>
+                            <td>
+                                <span th:if="${order.status} == 1" class="badge badge-warning">Chờ lấy hàng</span>
+                                <span th:if="${order.status} == 2" class="badge badge-primary">Đang giao hàng</span>
+                                <span th:if="${order.status} == 3" class="badge badge-success">Đã giao hàng</span>
+                                <span th:if="${order.status} == 4" class="badge badge-danger">Đơn hàng bị trả lại</span>
+                                <span th:if="${order.status} == 5" class="badge badge-light">Đơn hàng bị hủy</span>
+                                <span th:if="${order.status} == 6" class="badge badge-success">Bán hàng tại quầy</span>
+                            </td>
+                            <td th:text="${order.product.name}"></td>
+                            <td>
+                                <span th:text="${#dates.format(order.createdAt, 'dd-MM-yyyy HH:mm')}"></span>
+                            </td>
+                            <td>
+                                <span th:text="${#dates.format(order.modifiedAt, 'dd-MM-yyyy HH:mm')}"></span>
+                            </td>
+                            <td>
+                                <span th:text="${order.totalPrice}"></span>
+                            </td>
+                            <td class="actions">
+                                <a th:href="@{/admin/orders/update/{id}(id=${order.id})}" 
+                                   class="action-btn edit-btn" 
+                                   title="Chỉnh sửa">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </a>
+                                <button class="action-btn export-btn" 
+                                        th:onclick="'window.exportInvoice(' + ${order.id} + ')'"
+                                        th:id="'export-invoice-' + ${order.id}"
+                                        title="Xuất hóa đơn">
+                                    <i class="fas fa-file-invoice"></i>
+                                    <span>Xuất HĐ</span>
+                                </button>
+                            </td>
+                        </tr>
+                    </th:block>
                 </tbody>
             </table>
             <br>

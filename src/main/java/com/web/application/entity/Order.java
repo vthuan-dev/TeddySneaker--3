@@ -215,4 +215,10 @@ public class Order {
             this.maximumDiscountValue = maximumDiscountValue;
         }
     }
+
+    public static final int STATUS_PENDING = 0;
+    public static final int STATUS_CONFIRMED = 1;
+    public static final int STATUS_SHIPPING = 2;
+    public static final int STATUS_COMPLETED = 3;
+    public static final int STATUS_CANCELLED = 4;
 }

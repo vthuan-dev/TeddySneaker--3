@@ -81,8 +81,8 @@ public class OrderServiceImpl implements OrderService {
 		if (page < 0) {
 			page = 0;
 		}
-		int limit = 10;
-		Pageable pageable = PageRequest.of(page, limit, Sort.by("id").ascending());
+		int pageSize = 10;
+		Pageable pageable = PageRequest.of(page, pageSize);
 		return orderRepository.adminGetListOrder(id, name, phone, status, product, createdAt, modifiedAt, pageable);
 	}
 
@@ -655,5 +655,15 @@ public class OrderServiceImpl implements OrderService {
 		}
 		order.getItems().add(item);
 		item.setOrder(order); // Đảm bảo thiết lập mối quan hệ hai chiều
+	}
+
+	@Override
+	public List<Order> getAllOrders() {
+		return orderRepository.findAll();
+	}
+
+	@Override
+	public long countOrdersByStatus(int status) {
+		return orderRepository.countByStatus(status);
 	}
 }

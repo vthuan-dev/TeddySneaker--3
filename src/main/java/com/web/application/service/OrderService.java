@@ -40,4 +40,7 @@ public interface OrderService {
 
 	Order createOrderFromCart(Long userId, CheckoutRequestDTO checkoutRequest);
 
+	List<Order> getAllOrders();
+	long countOrdersByStatus(int status);
+
 }

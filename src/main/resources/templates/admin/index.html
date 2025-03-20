@@ -205,6 +205,24 @@
                     </section>
                 </div>
             </div>
+            <div class="row mb-3">
+                <div class="col-xl-2">
+                    <section class="card card-featured-left card-featured-primary">
+                        <div class="card-body">
+                            <div class="widget-summary">
+                                <div class="widget-summary-col">
+                                    <div class="summary">
+                                        <h4 class="title">Chờ xác nhận</h4>
+                                        <div class="info">
+                                            <strong class="amount" id="pending-orders">0</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
         </div>
     </div>
     <div class="row pt-4">
@@ -279,6 +297,18 @@
                 </header>
                 <div class="card-body">
                     <canvas id="myChartProduct"></canvas>
+                </div>
+            </section>
+        </div>
+    </div>
+    <div class="row pt-4">
+        <div class="col-lg-6">
+            <section class="card">
+                <header class="card-header">
+                    <h2 class="card-title">Thống kê đơn hàng theo trạng thái</h2>
+                </header>
+                <div class="card-body">
+                    <canvas id="orderStatusChart"></canvas>
                 </div>
             </section>
         </div>
@@ -574,6 +604,56 @@
         }
 
         init();
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load tổng số đơn hàng
+        fetch('/api/admin/count/orders')
+            .then(response => response.json())
+            .then(count => {
+                document.getElementById('order-count').textContent = count;
+            })
+            .catch(error => console.error('Error:', error));
+
+        // Load thống kê đơn hàng theo trạng thái
+        fetch('/api/admin/orders/stats')
+            .then(response => response.json())
+            .then(stats => {
+                document.getElementById('pending-orders').textContent = stats.pending || 0;
+                // Cập nhật các trạng thái khác
+            })
+            .catch(error => console.error('Error:', error));
+    });
+    </script>
+    <script>
+    function initOrderStatusChart(data) {
+        const ctx = document.getElementById('orderStatusChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Chờ xác nhận', 'Đã xác nhận', 'Đang giao', 'Đã giao', 'Đã hủy'],
+                datasets: [{
+                    data: [
+                        data.pending || 0,
+                        data.confirmed || 0,
+                        data.shipping || 0,
+                        data.completed || 0,
+                        data.cancelled || 0
+                    ],
+                    backgroundColor: [
+                        '#ffc107',
+                        '#17a2b8',
+                        '#007bff',
+                        '#28a745',
+                        '#dc3545'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+    }
     </script>
 </th:block>
 

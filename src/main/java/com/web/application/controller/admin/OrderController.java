@@ -62,6 +62,16 @@ public class OrderController {
 		// Lấy danh sách đơn hàng
 		Page<Order> orderPage = orderService.adminGetListOrders(id, name, phone, status, product, createdAt, modifiedAt,
 				page);
+		
+		// Thêm logging
+		System.out.println("Total orders: " + orderPage.getTotalElements());
+		System.out.println("Current page content size: " + orderPage.getContent().size());
+		
+		// In ra một vài đơn hàng để kiểm tra
+		orderPage.getContent().forEach(order -> {
+			System.out.println("Order ID: " + order.getId() + ", Receiver: " + order.getReceiverName());
+		});
+		
 		model.addAttribute("orderPage", orderPage.getContent());
 		model.addAttribute("totalPages", orderPage.getTotalPages());
 		model.addAttribute("currentPage", orderPage.getPageable().getPageNumber() + 1);
