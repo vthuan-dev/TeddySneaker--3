@@ -1,6 +1,8 @@
 package com.web.application.entity;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -8,6 +10,7 @@ import org.hibernate.type.SqlTypes;
 import com.web.application.dto.OrderDetailDTO;
 import com.web.application.dto.OrderInfoDTO;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ColumnResult;
 import jakarta.persistence.ConstructorResult;
@@ -18,6 +21,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedNativeQuery;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.SqlResultSetMapping;
 import jakarta.persistence.SqlResultSetMappings;
 import jakarta.persistence.Table;
@@ -76,51 +80,41 @@ import lombok.Setter;
 @NamedNativeQuery(
 	    name = "userGetDetailById",
 	    resultSetMapping = "orderDetailDto",
-	    query = "SELECT orders.id, orders.total_price, orders.size AS size_vn, product.name AS product_name, " +
-	            "orders.price AS product_price, orders.receiver_name, orders.receiver_phone, orders.receiver_address, " +
-	            "orders.status, " +
-	            "JSON_VALUE(product.images, '$[0]') AS product_img " +
-	            "FROM orders " +
-	            "INNER JOIN product " +
-	            "ON orders.product_id = product.id " +
-	            "WHERE orders.id = ?1 AND orders.buyer = ?2"
+	    query = "SELECT od.id, od.total_price, od.price as product_price, " +
+	            "od.receiver_name, od.receiver_phone, od.receiver_address, od.status, od.size AS size_vn, " +
+	            "p.name AS product_name, " +
+	            "JSON_VALUE(p.images, '$[0]') AS product_img " +
+	            "FROM orders od " +
+	            "INNER JOIN product p " +
+	            "ON od.product_id = p.id " +
+	            "WHERE od.id = ?1 " +
+	            "AND od.buyer = ?2"
 	)
 
-
-@AllArgsConstructor
-@NoArgsConstructor
-@Setter
-@Getter
 @Entity
 @Table(name = "orders")
+@Getter
+@Setter
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
+
     @Column(name = "receiver_name")
     private String receiverName;
+
     @Column(name = "receiver_phone")
     private String receiverPhone;
+
     @Column(name = "receiver_address")
     private String receiverAddress;
-    @Column(name = "note")
-    private String note;
-    @Column(name = "price")
-    private long price;
+
     @Column(name = "total_price")
-    private long totalPrice;
-    @Column(name = "size")
-    private int size;
-    @Column(name = "quantity")
-    private int quantity;
+    private Double totalPrice;
 
     @ManyToOne
     @JoinColumn(name = "buyer")
     private User buyer;
-
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
 
     @Column(name = "status")
     private int status;
@@ -142,6 +136,32 @@ public class Order {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "promotion", columnDefinition = "json")
     private UsedPromotion promotion;
+    
+    @Column(name = "note")
+    private String note;
+    
+    // Thêm mối quan hệ one-to-many với OrderItem
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> items = new ArrayList<>();
+    
+    // Phương thức để thêm item vào order
+    public void addItem(OrderItem item) {
+        items.add(item);
+        item.setOrder(this);
+    }
+    
+    // Phương thức để xóa item khỏi order
+    public void removeItem(OrderItem item) {
+        items.remove(item);
+        item.setOrder(null);
+    }
+    
+    // Phương thức tính tổng giá trị đơn hàng
+    public void calculateTotalPrice() {
+        this.totalPrice = items.stream()
+                .mapToDouble(item -> item.getPrice() * item.getQuantity())
+                .sum();
+    }
 
     @NoArgsConstructor
     @AllArgsConstructor
@@ -183,5 +203,4 @@ public class Order {
             this.maximumDiscountValue = maximumDiscountValue;
         }
     }
-
 }

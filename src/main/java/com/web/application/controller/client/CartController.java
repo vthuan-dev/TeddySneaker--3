@@ -16,6 +16,12 @@ import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import com.web.application.dto.CartSummaryDTO;
 import org.springframework.ui.Model;
+import com.web.application.service.OrderService;
+import com.web.application.entity.Order;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.AllArgsConstructor;
+import com.web.application.dto.CheckoutRequestDTO;
 
 @Controller
 public class CartController {
@@ -25,6 +31,9 @@ public class CartController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private OrderService orderService;
 
     @GetMapping("/cart")
     public String viewCart(Model model) {
@@ -202,6 +211,30 @@ public class CartController {
         }
     }
 
+    @PostMapping("/api/cart/checkout")
+    @ResponseBody
+    public ResponseEntity<?> checkout(@RequestBody CheckoutRequestDTO request) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+            }
+            
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            Long userId = userDetails.getUser().getId();
+            
+            // Tạo đơn hàng từ giỏ hàng
+            Order order = orderService.createOrderFromCart(userId, request);
+            
+            // Xóa giỏ hàng sau khi đặt hàng thành công
+            cartService.clearCart(userId);
+            
+            return ResponseEntity.ok(new OrderCreatedResponse(order.getId(), order.getTotalPrice()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     // Add this class inside CartController or as a separate file
     public static class AddToCartRequest {
         private String productId;
@@ -247,5 +280,13 @@ public class CartController {
         public void setSize(Integer size) { this.size = size; }
         public int getQuantity() { return quantity; }
         public void setQuantity(int quantity) { this.quantity = quantity; }
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public static class OrderCreatedResponse {
+        private Long orderId;
+        private Double totalAmount;
     }
 } 

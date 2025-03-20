@@ -16,6 +16,7 @@ import com.web.application.dto.DetailProductInfoDTO;
 import com.web.application.entity.Order;
 import com.web.application.entity.Promotion;
 import com.web.application.entity.User;
+import com.web.application.entity.OrderItem;
 import com.web.application.exception.BadRequestExp;
 import com.web.application.exception.NotFoundExp;
 import com.web.application.model.request.CreateOrderRequest;
@@ -91,14 +92,12 @@ public class OrderController {
 
 	@GetMapping("/admin/orders/update/{id}")
 	public String updateOrderPage(Model model, @PathVariable long id) {
-
 		Order order = orderService.findOrderById(id);
 		model.addAttribute("order", order);
 
 		if (order.getStatus() == Contant.ORDER_STATUS) {
 			// Get list product to select
 			List<ShortProductInfoDTO> products = productService.getAvailableProducts();
-			System.out.println(products.get(0));
 			model.addAttribute("products", products);
 
 			// Get list valid promotion
@@ -117,10 +116,14 @@ public class OrderController {
 				}
 			}
 
-			// Check size available
-			boolean sizeIsAvailable = productService.checkProductSizeAvailable(order.getProduct().getId(),
-					order.getSize());
-			model.addAttribute("sizeIsAvailable", sizeIsAvailable);
+			// Check size available for each order item
+			for (OrderItem item : order.getItems()) {
+				boolean sizeIsAvailable = productService.checkProductSizeAvailable(
+					item.getProduct().getId(),
+					item.getSize()
+				);
+				model.addAttribute("sizeIsAvailable_" + item.getId(), sizeIsAvailable);
+			}
 		}
 
 		return "admin/order/edit";
@@ -253,6 +256,37 @@ public class OrderController {
 		model.addAttribute("size", size);
 
 		return "shop/payment";
+	}
+
+	@GetMapping("/admin/orders/{id}/detail")
+	public String getOrderDetailPage(Model model, @PathVariable long id) {
+		Order order = orderService.findOrderById(id);
+		
+		// Lấy thông tin chi tiết đơn hàng
+		model.addAttribute("order", order);
+		
+		// Lấy danh sách sản phẩm trong đơn hàng
+		model.addAttribute("orderItems", order.getItems());
+		
+		// Lấy danh sách size
+		model.addAttribute("sizeVn", Contant.SIZE_VN);
+		
+		// Lấy danh sách khuyến mãi hợp lệ
+		List<Promotion> promotions = promotionService.getAllValidPromotion();
+		model.addAttribute("promotions", promotions);
+		
+		return "admin/order/detail";
+	}
+
+	@PostMapping("/api/admin/orders/{id}/update")
+	public ResponseEntity<?> updateDetailOrder(@PathVariable long id, @RequestBody UpdateDetailOrder updateDetailOrder) {
+		try {
+			User user = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+			orderService.updateDetailOrder(updateDetailOrder, id, user.getId());
+			return ResponseEntity.ok("Cập nhật thành công");
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
 	}
 
 }

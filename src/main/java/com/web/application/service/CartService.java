@@ -1,8 +1,11 @@
 package com.web.application.service;
 
+import java.util.List;
+
 import com.web.application.dto.CartResponseDTO;
 import com.web.application.dto.CartSummaryDTO;
 import com.web.application.entity.Cart;
+import com.web.application.entity.CartItem;
 import com.web.application.entity.Product;
 
 public interface CartService {
@@ -22,4 +25,6 @@ public interface CartService {
     CartSummaryDTO getCartSummary(Long userId);
 
     Cart updateCartItemQuantity(Long userId, String productId, Integer size, int quantity);
+
+    List<CartItem> findByUserId(Long userId);
 } 

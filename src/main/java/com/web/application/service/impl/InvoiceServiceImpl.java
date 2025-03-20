@@ -5,6 +5,7 @@ import com.web.application.repository.InvoiceRepository;
 import com.web.application.repository.OrderRepository;
 import com.web.application.entity.Invoice;
 import com.web.application.entity.Order;
+import com.web.application.entity.OrderItem;
 import com.web.application.dto.InvoiceDTO;
 import com.web.application.model.request.CreateInvoiceRequest;
 import com.web.application.exception.BadRequestExp;
@@ -122,6 +123,22 @@ public class InvoiceServiceImpl implements InvoiceService {
             .orElse(null);
     }
 
+    private InvoiceDTO convertToDTO(Invoice invoice) {
+        InvoiceDTO dto = new InvoiceDTO();
+        dto.setId(invoice.getId());
+        dto.setInvoiceNumber(invoice.getInvoiceNumber());
+        dto.setOrderId(invoice.getOrder().getId());
+        dto.setSubtotal(invoice.getSubtotal());
+        dto.setDiscount(invoice.getDiscount());
+        dto.setTax(invoice.getTax());
+        dto.setTotal(invoice.getTotal());
+        dto.setPaymentMethod(invoice.getPaymentMethod());
+        dto.setPaymentStatus(invoice.getPaymentStatus());
+        dto.setNote(invoice.getNote());
+        dto.setCreatedAt(invoice.getCreatedAt());
+        return dto;
+    }
+
     @Override
     public byte[] generateInvoicePdf(Long orderId) throws Exception {
         // Tìm hóa đơn theo orderId
@@ -134,12 +151,18 @@ public class InvoiceServiceImpl implements InvoiceService {
                 
             CreateInvoiceRequest request = new CreateInvoiceRequest();
             request.setOrderId(orderId);
-            request.setSubtotal(BigDecimal.valueOf(order.getTotalPrice()));
+            
+            // Tính tổng tiền từ tất cả các items
+            double subtotal = order.getItems().stream()
+                .mapToDouble(item -> item.getPrice() * item.getQuantity())
+                .sum();
+                
+            request.setSubtotal(BigDecimal.valueOf(subtotal));
             request.setDiscount(BigDecimal.ZERO);
             request.setTax(BigDecimal.ZERO);
             request.setTotal(BigDecimal.valueOf(order.getTotalPrice()));
             request.setPaymentMethod("Tiền mặt");
-            request.setPaymentStatus(1); // Chưa thanh toán
+            request.setPaymentStatus(1);
             
             invoice = createInvoice(request);
         }
@@ -149,157 +172,55 @@ public class InvoiceServiceImpl implements InvoiceService {
         PdfDocument pdf = new PdfDocument(writer);
         Document document = new Document(pdf);
 
-        // Thêm font Arial
-        PdfFont font = PdfFontFactory.createFont("fonts/arial.ttf", PdfEncodings.IDENTITY_H, true);
+        // Sử dụng phương thức mới để tạo font
+        PdfFont font = PdfFontFactory.createFont("Helvetica", PdfEncodings.IDENTITY_H);
         document.setFont(font);
 
         // Thêm logo
         String logoPath = "static/images/logo.jpg";
-        ImageData imageData = ImageDataFactory.create(getClass().getClassLoader().getResource(logoPath));
+        ImageData imageData = ImageDataFactory.create(
+            getClass().getClassLoader().getResource(logoPath)
+        );
         Image logo = new Image(imageData);
-        logo.setWidth(80);  // Giảm kích thước logo xuống một chút
-        logo.setHeight(80);
         
-        // Tạo bảng header 3 cột với tỷ lệ 1:2:1
-        Table headerTable = new Table(UnitValue.createPercentArray(new float[]{25, 50, 25}));
-        headerTable.setWidth(UnitValue.createPercentValue(100));
+        // Thêm thông tin hóa đơn
+        document.add(new Paragraph("HÓA ĐƠN BÁN HÀNG"));
+        document.add(new Paragraph("Mã hóa đơn: " + invoice.getInvoiceNumber()));
+        document.add(new Paragraph("Ngày tạo: " + invoice.getCreatedAt()));
         
-        // Cột 1: Logo (căn giữa theo chiều dọc)
-        Cell logoCell = new Cell()
-                .add(logo)
-                .setBorder(null)
-                .setPadding(10)
-                .setVerticalAlignment(VerticalAlignment.MIDDLE);
-        headerTable.addCell(logoCell);
-        
-        // Cột 2: Thông tin công ty (căn giữa)
-        Cell companyCell = new Cell().setBorder(null);
-        companyCell.add(new Paragraph("TEDDY SNEAKER")
-                .setFontSize(24)
-                .setTextAlignment(TextAlignment.CENTER)
-                .setBold());
-        companyCell.add(new Paragraph("Địa chỉ: 123 Đường ABC, Quận XYZ, TP.HCM")
-                .setFontSize(10)
-                .setTextAlignment(TextAlignment.CENTER));
-        companyCell.add(new Paragraph("Điện thoại: 0123.456.789")
-                .setFontSize(10)
-                .setTextAlignment(TextAlignment.CENTER));
-        companyCell.add(new Paragraph("Email: contact@teddysneaker.com")
-                .setFontSize(10)
-                .setTextAlignment(TextAlignment.CENTER));
-        headerTable.addCell(companyCell);
-        
-        // Cột 3: Để trống cho cân đối (hoặc có thể thêm QR code sau này)
-        Cell emptyCell = new Cell().setBorder(null);
-        headerTable.addCell(emptyCell);
-        
-        document.add(headerTable);
-        
-        // Thêm tiêu đề hóa đơn
-        document.add(new Paragraph("\n"));
-        document.add(new Paragraph("HÓA ĐƠN BÁN HÀNG")
-                .setFontSize(18)
-                .setTextAlignment(TextAlignment.CENTER)
-                .setBold());
-        
-        // Thông tin hóa đơn (bỏ phần lineTable)
-        document.add(new Paragraph("\n"));
-        document.add(new Paragraph(String.format("Số hóa đơn: %s", invoice.getInvoiceNumber())));
-        document.add(new Paragraph(String.format("Ngày tạo: %s", 
-                new SimpleDateFormat("dd/MM/yyyy HH:mm").format(invoice.getCreatedAt()))));
-        
-        // Thông tin khách hàng
+        // Thêm thông tin đơn hàng
         Order order = invoice.getOrder();
-        document.add(new Paragraph("\nTHÔNG TIN KHÁCH HÀNG")
-                .setBold());
-        document.add(new Paragraph(String.format("Họ tên: %s", order.getReceiverName())));
-        document.add(new Paragraph(String.format("Địa chỉ: %s", order.getReceiverAddress())));
-        document.add(new Paragraph(String.format("Điện thoại: %s", order.getReceiverPhone())));
-
-        // Thông tin sản phẩm
-        document.add(new Paragraph("\nCHI TIẾT ĐƠN HÀNG")
-                .setBold());
-        Table table = new Table(UnitValue.createPercentArray(new float[]{40, 20, 20, 20}));
-        table.setWidth(UnitValue.createPercentValue(100));
+        document.add(new Paragraph("Thông tin đơn hàng:"));
+        document.add(new Paragraph("Người nhận: " + order.getReceiverName()));
+        document.add(new Paragraph("Số điện thoại: " + order.getReceiverPhone()));
+        document.add(new Paragraph("Địa chỉ: " + order.getReceiverAddress()));
         
-        // Header của bảng
-        table.addHeaderCell(new Cell().add(new Paragraph("Sản phẩm").setBold()));
-        table.addHeaderCell(new Cell().add(new Paragraph("Đơn giá").setBold()));
-        table.addHeaderCell(new Cell().add(new Paragraph("Số lượng").setBold()));
-        table.addHeaderCell(new Cell().add(new Paragraph("Thành tiền").setBold()));
-
-        // Thêm sản phẩm vào bảng
-        table.addCell(new Cell().add(new Paragraph(order.getProduct().getName())));
-        table.addCell(new Cell().add(new Paragraph(String.format("%,.0f đ", (double)order.getPrice()))));
-        table.addCell(new Cell().add(new Paragraph("1")));
-        table.addCell(new Cell().add(new Paragraph(String.format("%,.0f đ", (double)order.getTotalPrice()))));
-
+        // Tạo bảng chi tiết sản phẩm
+        Table table = new Table(5);
+        table.addCell("Sản phẩm");
+        table.addCell("Size");
+        table.addCell("Số lượng");
+        table.addCell("Đơn giá");
+        table.addCell("Thành tiền");
+        
+        // Thêm từng sản phẩm vào bảng
+        for (OrderItem item : order.getItems()) {
+            table.addCell(item.getProduct().getName());
+            table.addCell(String.valueOf(item.getSize()));
+            table.addCell(String.valueOf(item.getQuantity()));
+            table.addCell(String.valueOf(item.getPrice()));
+            table.addCell(String.valueOf(item.getPrice() * item.getQuantity()));
+        }
+        
         document.add(table);
-
-        // Tổng tiền
-        document.add(new Paragraph("\nTHÔNG TIN THANH TOÁN")
-                .setBold());
-        Table summaryTable = new Table(UnitValue.createPercentArray(new float[]{70, 30}));
-        summaryTable.setWidth(UnitValue.createPercentValue(100));
-
-        summaryTable.addCell(new Cell().add(new Paragraph("Tổng tiền hàng:")).setBorder(null));
-        summaryTable.addCell(new Cell().add(new Paragraph(String.format("%,.0f đ", invoice.getSubtotal().doubleValue())))
-                .setTextAlignment(TextAlignment.RIGHT).setBorder(null));
-
-        summaryTable.addCell(new Cell().add(new Paragraph("Giảm giá:")).setBorder(null));
-        summaryTable.addCell(new Cell().add(new Paragraph(String.format("%,.0f đ", invoice.getDiscount().doubleValue())))
-                .setTextAlignment(TextAlignment.RIGHT).setBorder(null));
-
-        summaryTable.addCell(new Cell().add(new Paragraph("Thuế:")).setBorder(null));
-        summaryTable.addCell(new Cell().add(new Paragraph(String.format("%,.0f đ", invoice.getTax().doubleValue())))
-                .setTextAlignment(TextAlignment.RIGHT).setBorder(null));
-
-        summaryTable.addCell(new Cell().add(new Paragraph("Tổng cộng:").setBold()).setBorder(null));
-        summaryTable.addCell(new Cell().add(new Paragraph(String.format("%,.0f đ", invoice.getTotal().doubleValue())).setBold())
-                .setTextAlignment(TextAlignment.RIGHT).setBorder(null));
-
-        document.add(summaryTable);
-
-        // Chữ ký
-        document.add(new Paragraph("\n\n"));
-        Table signatureTable = new Table(2);
-        signatureTable.setWidth(UnitValue.createPercentValue(100));
         
-        signatureTable.addCell(new Cell()
-                .add(new Paragraph("Người mua hàng\n\n\n(Ký, ghi rõ họ tên)"))
-                .setTextAlignment(TextAlignment.CENTER)
-                .setBorder(null));
+        // Thêm thông tin tổng tiền
+        document.add(new Paragraph("Tổng tiền hàng: " + invoice.getSubtotal()));
+        document.add(new Paragraph("Giảm giá: " + invoice.getDiscount()));
+        document.add(new Paragraph("Thuế VAT: " + invoice.getTax()));
+        document.add(new Paragraph("Tổng thanh toán: " + invoice.getTotal()));
         
-        signatureTable.addCell(new Cell()
-                .add(new Paragraph("Người bán hàng\n\n\n(Ký, ghi rõ họ tên)"))
-                .setTextAlignment(TextAlignment.CENTER)
-                .setBorder(null));
-        
-        document.add(signatureTable);
-
-        // Footer
-        document.add(new Paragraph("\n\nCảm ơn quý khách đã mua hàng!")
-                .setTextAlignment(TextAlignment.CENTER)
-                .setItalic());
-
         document.close();
         return baos.toByteArray();
-    }
-
-    private InvoiceDTO convertToDTO(Invoice invoice) {
-        return new InvoiceDTO(
-            invoice.getId(),
-            invoice.getInvoiceNumber(),
-            invoice.getOrder().getId(),
-            invoice.getOrder().getReceiverName(),
-            invoice.getCreatedAt(),
-            invoice.getSubtotal(),
-            invoice.getDiscount(),
-            invoice.getTax(),
-            invoice.getTotal(),
-            invoice.getPaymentMethod(),
-            invoice.getPaymentStatus(),
-            invoice.getNote()
-        );
     }
 } 

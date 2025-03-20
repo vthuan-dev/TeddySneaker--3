@@ -24,20 +24,20 @@ public interface ProductSizeRepository extends JpaRepository<ProductSize, Long> 
 	public long getTotalQuantityByProductId(@Param("productId") String productId);
 
 	// Kiểm trả size sản phẩm
-	@Query(value = "SELECT * FROM product_size WHERE product_id = ?1 AND size = ?2 AND quantity >0", nativeQuery = true)
-	ProductSize checkProductAndSizeAvailable(String id, int size);
+	@Query("SELECT ps FROM ProductSize ps WHERE ps.productId = :productId AND ps.size = :size AND ps.quantity > 0")
+	ProductSize checkProductAndSizeAvailable(@Param("productId") String productId, @Param("size") Integer size);
 
 	// Trừ 1 sản phẩm theo size
 	@Transactional
 	@Modifying
 	@Query(nativeQuery = true, value = "Update product_size set quantity = quantity - 1 where product_id = ?1 and size = ?2")
-	public void minusOneProductBySize(String id, int size);
+	void minusOneProductBySize(String id, Integer size);
 
 	// Cộng 1 sản phẩm theo size
 	@Transactional
 	@Modifying
 	@Query(nativeQuery = true, value = "Update product_size set quantity = quantity + 1 where product_id = ?1 and size = ?2")
-	public void plusOneProductBySize(String id, int size);
+	public void plusOneProductBySize(String id, Integer size);
 
 //    @Query(value = "SELECT * FROM product_size ps WHERE ps.size = ?1 AND ps.product_id = ?2",nativeQuery = true)
 //    Optional<ProductSize> getProductSizeBySize(int size,String productId);

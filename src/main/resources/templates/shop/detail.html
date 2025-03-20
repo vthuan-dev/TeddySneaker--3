@@ -53,6 +53,183 @@
             .rating > input:not(:checked) ~ label:hover ~ label {
                 background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='126.729' height='126.73'%3e%3cpath fill='%23d8b11e' d='M121.215 44.212l-34.899-3.3c-2.2-.2-4.101-1.6-5-3.7l-12.5-30.3c-2-5-9.101-5-11.101 0l-12.4 30.3c-.8 2.1-2.8 3.5-5 3.7l-34.9 3.3c-5.2.5-7.3 7-3.4 10.5l26.3 23.1c1.7 1.5 2.4 3.7 1.9 5.9l-7.9 32.399c-1.2 5.101 4.3 9.3 8.9 6.601l29.1-17.101c1.9-1.1 4.2-1.1 6.1 0l29.101 17.101c4.6 2.699 10.1-1.4 8.899-6.601l-7.8-32.399c-.5-2.2.2-4.4 1.9-5.9l26.3-23.1c3.8-3.5 1.6-10-3.6-10.5z'/%3e%3c/svg%3e");
             }
+
+            .product-single-details {
+                padding: 2rem;
+                background: #fff;
+                border-radius: 12px;
+                box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            }
+
+            .product-title {
+                font-size: 2rem;
+                font-weight: 600;
+                color: #2c3e50;
+                margin-bottom: 1.5rem;
+            }
+
+            .product-info-box {
+                background: #f8f9fa;
+                padding: 1.5rem;
+                border-radius: 8px;
+            }
+
+            .price-section {
+                margin-bottom: 1.5rem;
+            }
+
+            .price-label {
+                font-size: 0.9rem;
+                color: #6c757d;
+                margin-bottom: 0.5rem;
+            }
+
+            .current-price {
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: #e74c3c;
+            }
+
+            .product-stats {
+                display: grid;
+                gap: 1rem;
+            }
+
+            .stat-item {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .stat-item i {
+                color: #3498db;
+            }
+
+            .stat-label {
+                color: #6c757d;
+                font-size: 0.9rem;
+            }
+
+            .stat-value {
+                font-weight: 500;
+                color: #2c3e50;
+            }
+
+            .status-badge {
+                padding: 0.25rem 0.75rem;
+                border-radius: 50px;
+                font-size: 0.85rem;
+                font-weight: 500;
+            }
+
+            .out-of-stock {
+                background: #fee2e2;
+                color: #ef4444;
+            }
+
+            .size-selector {
+                margin-top: 2rem;
+            }
+
+            .size-label {
+                font-size: 0.9rem;
+                color: #6c757d;
+                margin-bottom: 0.5rem;
+            }
+
+            .form-select {
+                width: 100%;
+                padding: 0.75rem;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                font-size: 1rem;
+                transition: all 0.3s ease;
+            }
+
+            .form-select:focus {
+                border-color: #3498db;
+                box-shadow: 0 0 0 2px rgba(52,152,219,0.2);
+            }
+
+            .action-buttons {
+                display: grid;
+                gap: 1rem;
+                margin-top: 2rem;
+            }
+
+            .btn-add-cart {
+                width: 100%;
+                padding: 1rem;
+                border: none;
+                border-radius: 8px;
+                background: #3498db;
+                color: white;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                transition: all 0.3s ease;
+            }
+
+            .btn-add-cart:hover {
+                background: #2980b9;
+                transform: translateY(-1px);
+            }
+
+            .btn-buy-now {
+                width: 100%;
+                padding: 1rem;
+                border: none;
+                border-radius: 8px;
+                background: #e74c3c;
+                color: white;
+                transition: all 0.3s ease;
+            }
+
+            .btn-buy-now.disabled {
+                background: #95a5a6;
+                cursor: not-allowed;
+            }
+
+            .buy-now-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .price-info {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .price-label {
+                font-size: 0.8rem;
+                opacity: 0.9;
+            }
+
+            .price-value {
+                font-weight: 600;
+            }
+
+            .buy-text {
+                font-weight: 600;
+                font-size: 1.1rem;
+            }
+
+            @media (max-width: 768px) {
+                .product-single-details {
+                    padding: 1rem;
+                }
+
+                .product-title {
+                    font-size: 1.5rem;
+                }
+
+                .current-price {
+                    font-size: 1.5rem;
+                }
+            }
         </style>
     </th:block>
 </head>
@@ -89,80 +266,60 @@
                 </div><!-- End .product-single-gallery -->
 
                 <div class="col-md-6 product-single-details">
-                    <h1 class="product-title" th:text="${product.name}"></h1>
+                    <h1 class="product-title text-primary mb-4">vòng ngọc trai</h1>
 
-                    <hr class="short-divider">
-
-                    <div>
-                        <span class="desc-sub-title">Giá sản phẩm: </span>
-                        <th:block th:if="${product.promotionPrice}">
-                            <span class="product-price price-box text-price" th:text="${product.promotionPrice}"> </span> &#x20AB;
-                            <del class="old-price text-price " th:text="${product.price}"></del> &#x20AB;
-                        </th:block>
-                        <th:block th:unless="${product.promotionPrice}">
-                            <span class="product-price price-box text-price" th:text="${product.price}"></span> &#x20AB;
-                        </th:block>
-                    </div><!-- End .price-box -->
-                    <hr class="divider">
-                    <div class="product-desc">
-                        <span class="desc-sub-title">Đã bán: </span>
-                        <span th:text="${product.totalSold} + ' đôi'"></span>
-                    </div>
-                    <hr class="divider">
-                    <div class="product-desc">
-                        <span class="desc-sub-title">Tình trạng: </span>
-                        <span th:if="${canBuy}">Còn hàng</span>
-                        <span th:unless="${canBuy}" style="color:#f04e40">Tạm hết hàng</span>
-                    </div>
-                    <hr class="divider">
-
-                    <div class="btns">
-                        <div class="size-btn" data-toggle="modal" data-target="#modal-size-Choose">
-                            <button class="btn btn-primary size trans-btn">
-                                <span class="size-text">Size</span>
-                                <span class="size-details"></span>
-                                <i class="fas dropdown-arrow"></i>
-                            </button>
+                    <div class="product-info-box mb-4">
+                        <div class="price-section">
+                            <div class="price-label">Giá sản phẩm</div>
+                            <div class="price-value">
+                                <span class="current-price">15,000₫</span>
+                            </div>
                         </div>
-                        <div class="buy-btn">
-                            <button class="btn btn-primary add-to-cart" 
-                                    th:if="${canBuy}"
-                                    th:data-id="${product.id}"
-                                    onclick="addToCart(this)">
-                                <i class="fas fa-shopping-cart"></i> Thêm vào giỏ
+
+                        <div class="product-stats">
+                            <div class="stat-item">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="stat-label">Đã bán:</span>
+                                <span class="stat-value">0 đôi</span>
+                            </div>
+                            
+                            <div class="stat-item">
+                                <i class="fas fa-box"></i>
+                                <span class="stat-label">Tình trạng:</span>
+                                <span class="status-badge out-of-stock">Tạm hết hàng</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="product-actions">
+                        <div class="size-selector mb-4">
+                            <label class="size-label">Chọn kích thước:</label>
+                            <div class="size-options">
+                                <select class="form-select size-choose" data-id="">
+                                    <option value="">Chọn size</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="btn-add-cart" data-id="4ImFfx" onclick="addToCart(this)">
+                                <i class="fas fa-shopping-cart"></i>
+                                Thêm vào giỏ hàng
                             </button>
-                            <button class="btn btn-primary buy red-btn" th:classappend="${canBuy} == true ? '' : 'not-buy'">
-                                <div class="ask-text left-content">
-                                    <th:block th:if="${product.promotionPrice}">
-                                        <div class="ask-desc sub-content old-price"><span class="text-price" th:text="${product.price}"></span> &#x20AB;</div>
-                                        <div class="ask-price"><span class="text-price" th:text="${product.promotionPrice}"></span> &#x20AB;</div>
-                                    </th:block>
-                                    <th:block th:unless="${product.promotionPrice}">
-                                        <div class="ask-desc sub-content">Giá bán ưu đãi</div>
-                                        <div class="ask-price"><span class="text-price" th:text="${product.price}"></span> &#x20AB;</div>
-                                    </th:block>
-                                </div>
-                                <div class="buy-text right-content">
-                                    <div class="buy-now">Mua ngay</div>
+
+                            <button class="btn-buy-now disabled">
+                                <div class="buy-now-content">
+                                    <div class="price-info">
+                                        <span class="price-label">Giá bán ưu đãi</span>
+                                        <span class="price-value">15,000₫</span>
+                                    </div>
+                                    <div class="buy-text">
+                                        <span>Mua ngay</span>
+                                    </div>
                                 </div>
                             </button>
                         </div>
                     </div>
-                    <hr class="divider mb-1">
-
-                    <div class="product-single-share">
-<!--                        <label class="sr-only">Share:</label>-->
-
-<!--                        <div class="social-icons mr-2">-->
-<!--                            <a href="#" class="social-icon social-facebook icon-facebook" target="_blank" title="Facebook"></a>-->
-<!--                            <a href="#" class="social-icon social-twitter icon-twitter" target="_blank" title="Twitter"></a>-->
-<!--                            <a href="#" class="social-icon social-linkedin fab fa-linkedin-in" target="_blank" title="Linkedin"></a>-->
-<!--                            <a href="#" class="social-icon social-gplus fab fa-google-plus-g" target="_blank" title="Google +"></a>-->
-<!--                            <a href="#" class="social-icon social-mail icon-mail-alt" target="_blank" title="Mail"></a>-->
-<!--                        </div>&lt;!&ndash; End .social-icons &ndash;&gt;-->
-
-<!--                        <a href="#" class="add-wishlist" title="Add to Wishlist">Add to Wishlist</a>-->
-                    </div><!-- End .product single-share -->
                 </div><!-- End .product-single-details -->
             </div><!-- End .row -->
         </div><!-- End .product-single-container -->

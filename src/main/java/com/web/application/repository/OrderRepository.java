@@ -1,5 +1,7 @@
 package com.web.application.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,8 +11,6 @@ import org.springframework.stereotype.Repository;
 import com.web.application.dto.OrderDetailDTO;
 import com.web.application.dto.OrderInfoDTO;
 import com.web.application.entity.Order;
-
-import java.util.List;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
@@ -29,5 +29,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query(nativeQuery = true, name = "userGetDetailById")
     OrderDetailDTO userGetDetailById(long id, long userId);
 
-    int countByProductId(String id);
+    @Query(value = "SELECT COUNT(*) FROM orders WHERE product_id = ?1", nativeQuery = true)
+    int countByProductId(String productId);
 }

@@ -26,6 +26,12 @@ public class CartServiceImpl implements CartService {
     private CartRepository cartRepository;
 
     @Override
+    public List<CartItem> findByUserId(Long userId) {
+        Cart cart = cartRepository.findByUserId(userId);
+        return cart != null ? cart.getItems() : new ArrayList<>();
+    }
+
+    @Override
     public Cart getCartByUserId(Long userId) {
         return cartRepository.findByUserId(userId);
     }
@@ -102,8 +108,8 @@ public class CartServiceImpl implements CartService {
     @Override
     public CartResponseDTO getCartDetails(Long userId) {
         Cart cart = cartRepository.findByUserId(userId);
-        if (cart == null) {
-            return new CartResponseDTO();
+        if (cart == null || cart.getItems() == null || cart.getItems().isEmpty()) {
+            return new CartResponseDTO(); // Return empty cart
         }
 
         CartResponseDTO cartResponse = new CartResponseDTO();
@@ -112,13 +118,19 @@ public class CartServiceImpl implements CartService {
         cartResponse.setTotalPrice(cart.getTotalPrice());
         
         List<CartResponseDTO.CartItemDTO> itemDTOs = cart.getItems().stream()
+            .filter(item -> item.getProduct() != null) // Filter out null products
             .map(item -> {
                 CartResponseDTO.CartItemDTO itemDTO = new CartResponseDTO.CartItemDTO();
                 itemDTO.setId(item.getId());
                 itemDTO.setProductId(item.getProduct().getId());
                 itemDTO.setProductName(item.getProduct().getName());
-                itemDTO.setPrice(Double.valueOf(item.getProduct().getPrice()));
-                itemDTO.setProductImage(item.getProduct().getImages().get(0));
+                itemDTO.setPrice(item.getPrice()); // Use price from CartItem
+                
+                // Safely get first image if available
+                if (item.getProduct().getImages() != null && !item.getProduct().getImages().isEmpty()) {
+                    itemDTO.setProductImage(item.getProduct().getImages().get(0));
+                }
+                
                 itemDTO.setQuantity(item.getQuantity());
                 itemDTO.setSize(item.getSize());
                 return itemDTO;
@@ -126,7 +138,6 @@ public class CartServiceImpl implements CartService {
             .collect(Collectors.toList());
         
         cartResponse.setItems(itemDTOs);
-        
         return cartResponse;
     }
 

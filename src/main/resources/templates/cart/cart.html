@@ -492,291 +492,488 @@
                     border-radius: 8px;
                 }
             }
+
+            .cart-summary {
+                background: #fff;
+                border-radius: 12px;
+                box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            }
+
+            .summary-box {
+                padding: 1.5rem;
+            }
+
+            .summary-title {
+                font-size: 1.25rem;
+                font-weight: 600;
+                margin-bottom: 1.5rem;
+                color: #2c3e50;
+            }
+
+            .summary-item {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 1rem;
+                font-size: 0.95rem;
+            }
+
+            .summary-item.total {
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: #e74c3c;
+            }
+
+            .btn-checkout {
+                width: 100%;
+                padding: 1rem;
+                background: #004bd5;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                font-weight: 600;
+                margin-top: 1rem;
+                transition: all 0.3s ease;
+            }
+
+            .btn-checkout:hover {
+                background: #c0392b;
+                transform: translateY(-1px);
+            }
+
+            .checkout-form .form-group {
+                margin-bottom: 1.25rem;
+            }
+
+            .checkout-form label {
+                font-weight: 500;
+                margin-bottom: 0.5rem;
+            }
+
+            /* CSS cho container chính */
+            .cart-items {
+                background: #fff;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            /* CSS cho bảng */
+            .table {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0;
+            }
+
+            /* CSS cho header của bảng */
+            .table thead th {
+                background-color: #f8f9fa;
+                color: #495057;
+                font-weight: 600;
+                padding: 15px;
+                border-bottom: 2px solid #dee2e6;
+                text-align: left;
+                font-size: 14px;
+            }
+
+            /* CSS cho các ô trong bảng */
+            .table td {
+                padding: 15px;
+                vertical-align: middle;
+                border-bottom: 1px solid #dee2e6;
+            }
+
+            /* CSS cho hình ảnh sản phẩm */
+            .table td img {
+                width: 80px;
+                height: 80px;
+                object-fit: cover;
+                border-radius: 4px;
+                border: 1px solid #dee2e6;
+            }
+
+            /* CSS cho tên sản phẩm */
+            .table td:nth-child(2) {
+                font-weight: 500;
+                color: #212529;
+            }
+
+            /* CSS cho giá */
+            .table td:nth-child(4),
+            .table td:nth-child(6) {
+                font-weight: 500;
+                color: #ee4d2d;
+            }
+
+            /* CSS cho phần điều khiển số lượng */
+            .quantity-controls {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                background: #f8f9fa;
+                padding: 5px;
+                border-radius: 4px;
+                width: fit-content;
+            }
+
+            .quantity-controls button {
+                width: 28px;
+                height: 28px;
+                border: 1px solid #dee2e6;
+                background: #fff;
+                border-radius: 4px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                color: #495057;
+                transition: all 0.2s;
+            }
+
+            .quantity-controls button:hover {
+                background: #e9ecef;
+                border-color: #ced4da;
+            }
+
+            .quantity-controls input {
+                width: 40px;
+                text-align: center;
+                border: 1px solid #dee2e6;
+                border-radius: 4px;
+                padding: 4px;
+                font-size: 14px;
+            }
+
+            /* CSS cho nút xóa */
+            .btn-remove {
+                background: none;
+                border: none;
+                color: #dc3545;
+                cursor: pointer;
+                padding: 8px;
+                border-radius: 4px;
+                transition: all 0.2s;
+            }
+
+            .btn-remove:hover {
+                background: #fee2e2;
+                color: #dc3545;
+            }
+
+            /* Responsive cho màn hình nhỏ */
+            @media (max-width: 768px) {
+                .cart-items {
+                    padding: 10px;
+                }
+                
+                .table thead {
+                    display: none;
+                }
+                
+                .table, .table tbody, .table tr, .table td {
+                    display: block;
+                    width: 100%;
+                }
+                
+                .table tr {
+                    margin-bottom: 15px;
+                    border: 1px solid #dee2e6;
+                    border-radius: 4px;
+                    padding: 10px;
+                }
+                
+                .table td {
+                    text-align: right;
+                    padding: 10px;
+                    position: relative;
+                    border: none;
+                }
+                
+                .table td::before {
+                    content: attr(data-label);
+                    position: absolute;
+                    left: 0;
+                    width: 50%;
+                    padding-left: 15px;
+                    font-weight: bold;
+                    text-align: left;
+                }
+            }
         </style>
     </th:block>
 </head>
 <body>
-<main id="main-content" class="cart-page">
-    <div class="container">
-        <h1 class="page-title">GIỎ HÀNG CỦA BẠN</h1>
-        
-        <div class="cart-container">
+    <div id="main-content">
+        <div class="container">
+            <h1 class="page-title">GIỎ HÀNG CỦA BẠN</h1>
+            
             <div class="row">
                 <!-- Bảng giỏ hàng -->
                 <div class="col-lg-9">
-                    <table class="table cart-table">
-                        <thead>
-                            <tr>
-                                <th class="image-col">Hình ảnh</th>
-                                <th class="product-col">Tên sản phẩm</th>
-                                <th class="size-col">Size</th>
-                                <th class="price-col">Đơn giá</th>
-                                <th class="qty-col">Số lượng</th>
-                                <th class="total-col">Thành tiền</th>
-                                <th class="action-col">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cartItems">
-                            <!-- Cart items will be loaded here -->
-                        </tbody>
-                    </table>
+                    <div class="cart-items">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Hình ảnh</th>
+                                    <th>Tên sản phẩm</th>
+                                    <th>Size</th>
+                                    <th>Đơn giá</th>
+                                    <th>Số lượng</th>
+                                    <th>Thành tiền</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cart-items">
+                                <!-- Cart items will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <!-- Tổng giỏ hàng bên phải -->
+                <!-- Tổng giỏ hàng -->
                 <div class="col-lg-3">
                     <div class="cart-summary">
                         <div class="summary-box">
-                            <h3 class="summary-title">Tổng giỏ hàng</h3>
-                            
+                            <h4>Tổng đơn hàng</h4>
                             <div class="summary-item">
-                                <span class="label">Tạm tính:</span>
-                                <span class="value" id="cartSubtotal">0 ₫</span>
+                                <span>Tạm tính:</span>
+                                <span class="total-price">0 ₫</span>
                             </div>
-
                             <div class="summary-item">
-                                <span class="label">Phí vận chuyển:</span>
-                                <span class="value shipping-fee">Miễn phí</span>
+                                <span>Phí vận chuyển:</span>
+                                <span class="shipping-fee text-success">Miễn phí</span>
                             </div>
-
-                            <!-- <div class="coupon-section">
-                                <input type="text" class="form-control" id="couponCode" placeholder="Nhập mã giảm giá">
-                                <button class="btn btn-apply-coupon">Áp dụng</button>
-                            </div> -->
-
-                            <div class="summary-total">
-                                <span class="label">Tổng cộng:</span>
-                                <span class="value" id="cartTotal">0 ₫</span>
+                            <hr>
+                            <div class="summary-item total">
+                                <span>Tổng cộng:</span>
+                                <span class="final-price">0 ₫</span>
                             </div>
-
-                            <div class="summary-actions">
-                                <a href="/" class="btn btn-continue-shopping">
-                                    <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
-                                </a>
-                            </div>
+                            <button id="checkout-all-btn" class="btn-checkout">Đặt hàng </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</main>
 
-<th:block id="js-resources">
-    <script th:inline="javascript">
-        function loadCart() {
-            fetch('/api/cart', {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include'
-            })
-            .then(response => response.json())
-            .then(data => {
-                const cartItemsContainer = document.getElementById('cartItems');
-                if (data && data.items && data.items.length > 0) {
-                    let html = '';
-                    data.items.forEach(item => {
-                        html += `
-                            <tr class="cart-item">
-                                <td class="image-col">
-                                    <img src="${item.productImage}" alt="${item.productName}" class="product-image">
-                                </td>
-                                <td class="product-col">
-                                    <div class="product-name">${item.productName}</div>
-                                </td>
-                                <td class="size-col">${item.size}</td>
-                                <td class="price-col">${formatPrice(item.price)} ₫</td>
-                                <td class="qty-col">
-                                    <input type="number" 
-                                        class="form-control quantity-input" 
-                                        value="${item.quantity}"
-                                        min="1" 
-                                        max="10" 
-                                        onchange="updateQuantity('${item.productId}', ${item.size}, this.value)">
-                                </td>
-                                <td class="total-col">${formatPrice(item.price * item.quantity)} ₫</td>
-                                <td class="action-col">
-                                    <div class="action-buttons">
-                                        <button class="btn-checkout checkout-item" 
-                                            data-product-id="${item.productId}"
-                                            data-size="${item.size}">
-                                            <span class="btn-icon"><i class="fas fa-shopping-cart"></i></span>
-                                            <span class="btn-text">Mua ngay</span>
-                                        </button>
-                                        <button class="btn-remove" 
-                                            onclick="removeItem('${item.productId}', ${item.size})">
-                                            <span class="btn-icon"><i class="fas fa-trash"></i></span>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                    cartItemsContainer.innerHTML = html;
-                    document.getElementById('cartSubtotal').textContent = formatPrice(data.totalPrice) + ' ₫';
-                    document.getElementById('cartTotal').textContent = formatPrice(data.totalPrice) + ' ₫';
-                } else {
-                    cartItemsContainer.innerHTML = `
+        <!-- Modal đặt hàng -->
+        <div class="modal fade" id="checkoutModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Thông tin đặt hàng</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="checkoutForm">
+                            <div class="form-group">
+                                <label>Họ tên người nhận</label>
+                                <input type="text" class="form-control" id="receiverName" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Số điện thoại</label>
+                                <input type="tel" class="form-control" id="receiverPhone" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Địa chỉ nhận hàng</label>
+                                <textarea class="form-control" id="receiverAddress" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Ghi chú</label>
+                                <textarea class="form-control" id="note"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                        <button type="button" class="btn btn-primary" id="confirmCheckout">Xác nhận đặt hàng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block id="js-resources">
+        <script th:inline="javascript">
+            function loadCart() {
+                fetch('/api/cart', {
+                    credentials: 'include'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Cart data:', data); // For debugging
+                    const cartItemsContainer = document.getElementById('cart-items');
+                    if (!data.items || data.items.length === 0) {
+                        cartItemsContainer.innerHTML = '<tr><td colspan="7" class="text-center">Giỏ hàng trống</td></tr>';
+                        updateCartSummary(0);
+                        return;
+                    }
+
+                    const itemsHtml = data.items.map(item => `
                         <tr>
-                            <td colspan="7" class="text-center py-5">
-                                <div class="empty-cart">
-                                    <i class="fas fa-shopping-cart fa-3x mb-3"></i>
-                                    <p class="mb-2">Giỏ hàng của bạn đang trống</p>
-                                    <a href="/" class="btn btn-primary">Tiếp tục mua sắm</a>
+                            <td>
+                                <img src="${item.productImage || '/images/default-product.jpg'}" 
+                                     alt="${item.productName}" 
+                                     style="width: 80px; height: auto;">
+                            </td>
+                            <td>${item.productName}</td>
+                            <td>${item.size || 'N/A'}</td>
+                            <td>${formatPrice(item.price)} ₫</td>
+                            <td>
+                                <div class="quantity-controls">
+                                    <button onclick="updateQuantity('${item.productId}', ${item.size}, ${Math.max(1, item.quantity - 1)})">-</button>
+                                    <input type="number" value="${item.quantity}" min="1" 
+                                           onchange="updateQuantity('${item.productId}', ${item.size}, this.value)">
+                                    <button onclick="updateQuantity('${item.productId}', ${item.size}, ${item.quantity + 1})">+</button>
                                 </div>
                             </td>
+                            <td>${formatPrice(item.price * item.quantity)} ₫</td>
+                            <td>
+                                <button class="btn-remove" onclick="removeItem('${item.productId}', ${item.size})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
                         </tr>
-                    `;
-                    document.getElementById('cartSubtotal').textContent = '0 ₫';
-                    document.getElementById('cartTotal').textContent = '0 ₫';
-                }
-                
-                // Thêm dòng này sau khi render xong cart items
-                attachCheckoutEvents();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                const cartItemsContainer = document.getElementById('cartItems');
-                cartItemsContainer.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="text-center py-5">
-                            <div class="error-message">
-                                <i class="fas fa-exclamation-circle fa-3x mb-3"></i>
-                                <p>Có lỗi xảy ra khi tải giỏ hàng</p>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
+                    `).join('');
 
-        // Hàm format giá tiền
-        function formatPrice(price) {
-            return new Intl.NumberFormat('vi-VN').format(price || 0);
-        }
-
-        // Hàm xóa sản phẩm khỏi giỏ hàng với xác nhận
-        function removeItem(productId, size) {
-            Swal.fire({
-                title: 'Xác nhận xóa',
-                text: 'Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#e74c3c',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Xóa',
-                cancelButtonText: 'Hủy',
-                customClass: {
-                    popup: 'large-swal-popup',
-                    title: 'large-swal-title',
-                    htmlContainer: 'large-swal-content',
-                    confirmButton: 'large-swal-button',
-                    cancelButton: 'large-swal-button'
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`/api/cart/remove/${productId}?size=${size}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        credentials: 'include'
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            toastr.success('Đã xóa sản phẩm khỏi giỏ hàng');
-                            loadCart(); // Tải lại giỏ hàng
-                        } else {
-                            throw new Error('Lỗi khi xóa sản phẩm');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        toastr.error('Có lỗi xảy ra khi xóa sản phẩm');
-                    });
-                }
-            });
-        }
-
-        // Hàm cập nhật số lượng
-        function updateQuantity(productId, size, quantity) {
-            fetch('/api/cart/update', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    productId: productId,
-                    size: size,
-                    quantity: quantity
-                }),
-                credentials: 'include'
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                toastr.success('Đã cập nhật số lượng');
-                loadCart(); // Tải lại giỏ hàng
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                toastr.error('Có lỗi xảy ra khi cập nhật số lượng');
-            });
-        }
-
-        // Hàm thanh toán
-        function checkout(productId, size) {
-            // Chuyển đến trang thanh toán với thông tin sản phẩm
-            window.location.href = `/dat-hang?id=${productId}&size=${size}`;
-        }
-
-        // Thêm hàm này để xử lý sự kiện click cho các nút mua ngay được tạo động
-        function attachCheckoutEvents() {
-            const checkoutButtons = document.querySelectorAll('.checkout-item');
-            checkoutButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const productId = this.getAttribute('data-product-id');
-                    const size = this.getAttribute('data-size');
-                    window.location.href = `/dat-hang?id=${productId}&size=${size}`;
+                    cartItemsContainer.innerHTML = itemsHtml;
+                    updateCartSummary(data.totalPrice);
+                })
+                .catch(error => {
+                    console.error('Error loading cart:', error);
+                    toastr.error('Có lỗi xảy ra khi tải giỏ hàng');
                 });
+            }
+
+            function updateCartSummary(totalPrice) {
+                document.querySelector('.total-price').textContent = `${formatPrice(totalPrice)} ₫`;
+                document.querySelector('.final-price').textContent = `${formatPrice(totalPrice)} ₫`;
+            }
+
+            function formatPrice(price) {
+                return new Intl.NumberFormat('vi-VN').format(price);
+            }
+
+            // Hàm xóa sản phẩm khỏi giỏ hàng với xác nhận
+            function removeItem(productId, size) {
+                Swal.fire({
+                    title: 'Xác nhận xóa',
+                    text: 'Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#e74c3c',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Xóa',
+                    cancelButtonText: 'Hủy',
+                    customClass: {
+                        popup: 'large-swal-popup',
+                        title: 'large-swal-title',
+                        htmlContainer: 'large-swal-content',
+                        confirmButton: 'large-swal-button',
+                        cancelButton: 'large-swal-button'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/api/cart/remove/${productId}?size=${size}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                            credentials: 'include'
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                toastr.success('Đã xóa sản phẩm khỏi giỏ hàng');
+                                loadCart(); // Tải lại giỏ hàng
+                            } else {
+                                throw new Error('Lỗi khi xóa sản phẩm');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            toastr.error('Có lỗi xảy ra khi xóa sản phẩm');
+                        });
+                    }
+                });
+            }
+
+            // Hàm cập nhật số lượng
+            function updateQuantity(productId, size, quantity) {
+                fetch('/api/cart/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        productId: productId,
+                        size: size,
+                        quantity: quantity
+                    }),
+                    credentials: 'include'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    toastr.success('Đã cập nhật số lượng');
+                    loadCart(); // Tải lại giỏ hàng
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    toastr.error('Có lỗi xảy ra khi cập nhật số lượng');
+                });
+            }
+
+            // Hàm thanh toán
+            function checkout(productId, size) {
+                // Chuyển đến trang thanh toán với thông tin sản phẩm
+                window.location.href = `/dat-hang?id=${productId}&size=${size}`;
+            }
+
+            // Thêm hàm này để xử lý sự kiện click cho các nút mua ngay được tạo động
+            function attachCheckoutEvents() {
+                const checkoutButtons = document.querySelectorAll('.checkout-item');
+                checkoutButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const productId = this.getAttribute('data-product-id');
+                        const size = this.getAttribute('data-size');
+                        window.location.href = `/dat-hang?id=${productId}&size=${size}`;
+                    });
+                });
+            }
+
+            // Load cart khi trang được tải
+            document.addEventListener('DOMContentLoaded', () => {
+                loadCart();
             });
-        }
 
-        // Load cart khi trang được tải
-        document.addEventListener('DOMContentLoaded', () => {
-            loadCart();
-        });
+            // Cập nhật giỏ hàng khi có thay đổi
+            document.addEventListener('cartUpdated', loadCart);
 
-        // Cập nhật giỏ hàng khi có thay đổi
-        document.addEventListener('cartUpdated', loadCart);
-
-        // Cấu hình toastr
-        toastr.options = {
-            "closeButton": true,
-            "debug": false,
-            "newestOnTop": false,
-            "progressBar": true,
-            "positionClass": "toast-top-right",
-            "preventDuplicates": false,
-            "onclick": null,
-            "showDuration": "300",
-            "hideDuration": "1000",
-            "timeOut": "5000",
-            "extendedTimeOut": "1000",
-            "showEasing": "swing",
-            "hideEasing": "linear",
-            "showMethod": "fadeIn",
-            "hideMethod": "fadeOut"
-        };
-    </script>
-</th:block>
+            // Cấu hình toastr
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "timeOut": "5000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        </script>
+    </th:block>
 </body>
 </html> 
