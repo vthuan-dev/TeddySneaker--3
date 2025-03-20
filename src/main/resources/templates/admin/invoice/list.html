@@ -13,6 +13,7 @@
     <title>Quản lý hóa đơn</title>
     <th:block id="css-resources">
         <link rel="stylesheet" th:href="@{/adminlte/pagination/simplePagination.css}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
         <style>
             .actions {
                 white-space: nowrap;
@@ -182,7 +183,7 @@
                                         th:data-viewed="false">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button class="action-btn print-btn" th:onclick="'printInvoice(' + ${invoice.id} + ')'">
+                                <button class="action-btn print-btn" th:onclick="'printInvoice(' + ${invoice.order.id} + ')'">
                                     <i class="fas fa-print"></i>
                                 </button>
                             </td>
@@ -218,6 +219,7 @@
     <script type="text/javascript" th:src="@{/adminlte/plugins/jquery/jquery.min.js}"></script>
     <script type="text/javascript" th:src="@{/adminlte/pagination/jquery.simplePagination.js}"></script>
     <script type="text/javascript" th:src="@{/adminlte/plugins/toastr/toastr.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js"></script>
     
     <script th:inline="javascript">
         function filterInvoices() {
@@ -321,24 +323,59 @@
         }
 
         function printInvoice(id) {
-            $.ajax({
-                url: '/api/admin/invoices/export/' + id,
-                type: 'GET',
-                xhrFields: {
-                    responseType: 'blob'
-                },
-                success: function(response) {
-                    const blob = new Blob([response], { type: 'application/pdf' });
-                    const url = window.URL.createObjectURL(blob);
-                    const printWindow = window.open(url);
-                    printWindow.onload = function() {
-                        printWindow.print();
-                    };
-                },
-                error: function() {
-                    toastr.error('Có lỗi xảy ra khi in hóa đơn');
+            if (!id) {
+                alert("Không có ID đơn hàng!");
+                return;
+            }
+            
+            // Hiển thị thông báo loading
+            Swal.fire({
+                title: 'Đang xử lý...',
+                text: 'Vui lòng đợi trong giây lát',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
                 }
             });
+            
+            // Gọi API để xuất hóa đơn PDF
+            fetch(`/api/admin/invoices/export/${id}`)
+                .then(response => {
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            throw new Error("Không tìm thấy đơn hàng");
+                        } else {
+                            return response.text().then(text => {
+                                throw new Error(text || "Lỗi khi tạo hóa đơn");
+                            });
+                        }
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    // Đóng thông báo loading
+                    Swal.close();
+                    
+                    // Tạo URL và tải xuống PDF
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `invoice-${id}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
+                })
+                .catch(error => {
+                    // Đóng thông báo loading và hiển thị lỗi
+                    Swal.close();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: error.message || "Không thể xuất hóa đơn"
+                    });
+                    console.error("Lỗi khi xuất hóa đơn:", error);
+                });
         }
 
         $(function() {

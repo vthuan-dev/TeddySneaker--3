@@ -142,127 +142,132 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public byte[] generateInvoicePdf(Long orderId) throws Exception {
-        // Tìm hóa đơn theo orderId
-        Invoice invoice = findByOrderId(orderId);
-        
-        // Nếu chưa có hóa đơn, tạo mới
-        if (invoice == null) {
-            Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new NotFoundExp("Không tìm thấy đơn hàng"));
-                
-            CreateInvoiceRequest request = new CreateInvoiceRequest();
-            request.setOrderId(orderId);
-            
-            // Tính tổng tiền từ tất cả các items
-            double subtotal = order.getItems().stream()
-                .mapToDouble(item -> item.getPrice() * item.getQuantity())
-                .sum();
-                
-            request.setSubtotal(BigDecimal.valueOf(subtotal));
-            request.setDiscount(BigDecimal.ZERO);
-            request.setTax(BigDecimal.ZERO);
-            request.setTotal(BigDecimal.valueOf(order.getTotalPrice()));
-            request.setPaymentMethod("Tiền mặt");
-            request.setPaymentStatus(1);
-            
-            invoice = createInvoice(request);
-        }
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PdfWriter writer = new PdfWriter(baos);
-        PdfDocument pdf = new PdfDocument(writer);
-        Document document = new Document(pdf);
-
         try {
-            // Thêm một trang mới vào tài liệu
-            pdf.addNewPage();
+            // Tìm đơn hàng trước
+            Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new NotFoundExp("Không tìm thấy đơn hàng với ID: " + orderId));
+                
+            // Tìm hóa đơn theo orderId
+            Invoice invoice = findByOrderId(orderId);
             
-            // Sử dụng font mặc định thay vì font với encoding IDENTITY-H
-            PdfFont font = PdfFontFactory.createFont("Helvetica", PdfEncodings.CP1252);
-            document.setFont(font);
+            // Nếu chưa có hóa đơn, tạo mới
+            if (invoice == null) {
+                CreateInvoiceRequest request = new CreateInvoiceRequest();
+                request.setOrderId(orderId);
+                
+                // Tính tổng tiền từ tất cả các items
+                double subtotal = order.getItems().stream()
+                    .mapToDouble(item -> item.getPrice() * item.getQuantity())
+                    .sum();
+                    
+                request.setSubtotal(BigDecimal.valueOf(subtotal));
+                request.setDiscount(BigDecimal.ZERO);
+                request.setTax(BigDecimal.ZERO);
+                request.setTotal(BigDecimal.valueOf(order.getTotalPrice()));
+                request.setPaymentMethod("Tiền mặt");
+                request.setPaymentStatus(1);
+                
+                invoice = createInvoice(request);
+            }
+            
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PdfWriter writer = new PdfWriter(baos);
+            PdfDocument pdf = new PdfDocument(writer);
+            Document document = new Document(pdf);
 
-            // Thêm logo - bỏ qua nếu không tìm thấy
             try {
-                // Đường dẫn tương đối đến logo
-                String logoPath = "static/images/logo.jpg";
+                // Thêm một trang mới vào tài liệu
+                pdf.addNewPage();
                 
-                ImageData imageData = ImageDataFactory.create(
-                    getClass().getClassLoader().getResource(logoPath)
-                );
-                Image logo = new Image(imageData);
-                logo.setWidth(100);
-                document.add(logo);
-            } catch (Exception e) {
-                // Bỏ qua lỗi logo, chỉ ghi log
-                System.out.println("Không thể tải logo: " + e.getMessage());
-                // Vẫn thêm một đoạn văn bản thay cho logo để đảm bảo có nội dung
-                document.add(new Paragraph("TEDDY SNEAKER"));
-            }
-            
-            // Thêm thông tin hóa đơn
-            document.add(new Paragraph("HOA DON BAN HANG").setBold().setFontSize(16).setTextAlignment(TextAlignment.CENTER));
-            document.add(new Paragraph("Ma hoa don: " + invoice.getInvoiceNumber()));
-            
-            // Format ngày tạo
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-            document.add(new Paragraph("Ngay tao: " + sdf.format(invoice.getCreatedAt())));
-            
-            // Thêm thông tin đơn hàng
-            Order order = invoice.getOrder();
-            if (order != null) {
-                document.add(new Paragraph("Thong tin don hang:").setBold());
-                document.add(new Paragraph("Nguoi nhan: " + order.getReceiverName()));
-                document.add(new Paragraph("So dien thoai: " + order.getReceiverPhone()));
-                document.add(new Paragraph("Dia chi: " + order.getReceiverAddress()));
-                
-                // Tạo bảng chi tiết sản phẩm
-                if (order.getItems() != null && !order.getItems().isEmpty()) {
-                    float[] columnWidths = {3f, 1f, 1f, 2f, 2f};
-                    Table table = new Table(UnitValue.createPercentArray(columnWidths))
-                        .useAllAvailableWidth();
+                // Sử dụng font mặc định thay vì font với encoding IDENTITY-H
+                PdfFont font = PdfFontFactory.createFont("Helvetica", PdfEncodings.CP1252);
+                document.setFont(font);
+
+                // Thêm logo - bỏ qua nếu không tìm thấy
+                try {
+                    // Đường dẫn tương đối đến logo
+                    String logoPath = "static/images/logo.jpg";
                     
-                    // Tiêu đề bảng
-                    table.addHeaderCell(new Cell().add(new Paragraph("San pham").setBold()));
-                    table.addHeaderCell(new Cell().add(new Paragraph("Size").setBold()));
-                    table.addHeaderCell(new Cell().add(new Paragraph("So luong").setBold()));
-                    table.addHeaderCell(new Cell().add(new Paragraph("Don gia").setBold()));
-                    table.addHeaderCell(new Cell().add(new Paragraph("Thanh tien").setBold()));
-                    
-                    // Thêm từng sản phẩm vào bảng
-                    for (OrderItem item : order.getItems()) {
-                        if (item.getProduct() != null) {
-                            table.addCell(new Cell().add(new Paragraph(item.getProduct().getName())));
-                            table.addCell(new Cell().add(new Paragraph(String.valueOf(item.getSize()))));
-                            table.addCell(new Cell().add(new Paragraph(String.valueOf(item.getQuantity()))));
-                            table.addCell(new Cell().add(new Paragraph(String.format("%,.0f VND", item.getPrice()))));
-                            table.addCell(new Cell().add(new Paragraph(String.format("%,.0f VND", item.getPrice() * item.getQuantity()))));
-                        } else {
-                            // Thêm hàng trống nếu không có sản phẩm
-                            table.addCell(new Cell().add(new Paragraph("N/A")));
-                            table.addCell(new Cell().add(new Paragraph("N/A")));
-                            table.addCell(new Cell().add(new Paragraph("N/A")));
-                            table.addCell(new Cell().add(new Paragraph("N/A")));
-                            table.addCell(new Cell().add(new Paragraph("N/A")));
-                        }
-                    }
-                    
-                    document.add(table);
-                } else {
-                    document.add(new Paragraph("Khong co thong tin chi tiet san pham").setFontColor(ColorConstants.RED));
+                    ImageData imageData = ImageDataFactory.create(
+                        getClass().getClassLoader().getResource(logoPath)
+                    );
+                    Image logo = new Image(imageData);
+                    logo.setWidth(100);
+                    document.add(logo);
+                } catch (Exception e) {
+                    // Bỏ qua lỗi logo, chỉ ghi log
+                    System.out.println("Không thể tải logo: " + e.getMessage());
+                    // Vẫn thêm một đoạn văn bản thay cho logo để đảm bảo có nội dung
+                    document.add(new Paragraph("TEDDY SNEAKER"));
                 }
-            } else {
-                document.add(new Paragraph("Khong tim thay thong tin don hang").setFontColor(ColorConstants.RED));
+                
+                // Thêm thông tin hóa đơn
+                document.add(new Paragraph("HOA DON BAN HANG").setBold().setFontSize(16).setTextAlignment(TextAlignment.CENTER));
+                document.add(new Paragraph("Ma hoa don: " + invoice.getInvoiceNumber()));
+                
+                // Format ngày tạo
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                document.add(new Paragraph("Ngay tao: " + sdf.format(invoice.getCreatedAt())));
+                
+                // Thêm thông tin đơn hàng
+                if (order != null) {
+                    document.add(new Paragraph("Thong tin don hang:").setBold());
+                    document.add(new Paragraph("Nguoi nhan: " + order.getReceiverName()));
+                    document.add(new Paragraph("So dien thoai: " + order.getReceiverPhone()));
+                    document.add(new Paragraph("Dia chi: " + order.getReceiverAddress()));
+                    
+                    // Tạo bảng chi tiết sản phẩm
+                    if (order.getItems() != null && !order.getItems().isEmpty()) {
+                        float[] columnWidths = {3f, 1f, 1f, 2f, 2f};
+                        Table table = new Table(UnitValue.createPercentArray(columnWidths))
+                            .useAllAvailableWidth();
+                        
+                        // Tiêu đề bảng
+                        table.addHeaderCell(new Cell().add(new Paragraph("San pham").setBold()));
+                        table.addHeaderCell(new Cell().add(new Paragraph("Size").setBold()));
+                        table.addHeaderCell(new Cell().add(new Paragraph("So luong").setBold()));
+                        table.addHeaderCell(new Cell().add(new Paragraph("Don gia").setBold()));
+                        table.addHeaderCell(new Cell().add(new Paragraph("Thanh tien").setBold()));
+                        
+                        // Thêm từng sản phẩm vào bảng
+                        for (OrderItem item : order.getItems()) {
+                            if (item.getProduct() != null) {
+                                table.addCell(new Cell().add(new Paragraph(item.getProduct().getName())));
+                                table.addCell(new Cell().add(new Paragraph(String.valueOf(item.getSize()))));
+                                table.addCell(new Cell().add(new Paragraph(String.valueOf(item.getQuantity()))));
+                                table.addCell(new Cell().add(new Paragraph(String.format("%,.0f VND", item.getPrice()))));
+                                table.addCell(new Cell().add(new Paragraph(String.format("%,.0f VND", item.getPrice() * item.getQuantity()))));
+                            } else {
+                                // Thêm hàng trống nếu không có sản phẩm
+                                table.addCell(new Cell().add(new Paragraph("N/A")));
+                                table.addCell(new Cell().add(new Paragraph("N/A")));
+                                table.addCell(new Cell().add(new Paragraph("N/A")));
+                                table.addCell(new Cell().add(new Paragraph("N/A")));
+                                table.addCell(new Cell().add(new Paragraph("N/A")));
+                            }
+                        }
+                        
+                        document.add(table);
+                    } else {
+                        document.add(new Paragraph("Khong co thong tin chi tiet san pham").setFontColor(ColorConstants.RED));
+                    }
+                } else {
+                    document.add(new Paragraph("Khong tim thay thong tin don hang").setFontColor(ColorConstants.RED));
+                }
+                
+                // Thêm thông tin tổng tiền
+                document.add(new Paragraph("Tong tien hang: " + String.format("%,.0f VND", invoice.getSubtotal())));
+                document.add(new Paragraph("Giam gia: " + String.format("%,.0f VND", invoice.getDiscount())));
+                document.add(new Paragraph("Thue VAT: " + String.format("%,.0f VND", invoice.getTax())));
+                document.add(new Paragraph("Tong thanh toan: " + String.format("%,.0f VND", invoice.getTotal())).setBold());
+            } finally {
+                document.close();
             }
             
-            // Thêm thông tin tổng tiền
-            document.add(new Paragraph("Tong tien hang: " + String.format("%,.0f VND", invoice.getSubtotal())));
-            document.add(new Paragraph("Giam gia: " + String.format("%,.0f VND", invoice.getDiscount())));
-            document.add(new Paragraph("Thue VAT: " + String.format("%,.0f VND", invoice.getTax())));
-            document.add(new Paragraph("Tong thanh toan: " + String.format("%,.0f VND", invoice.getTotal())).setBold());
-        } finally {
-            document.close();
+            return baos.toByteArray();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new InternalServerExp("Có lỗi xảy ra: " + e.getMessage());
         }
-        
-        return baos.toByteArray();
     }
 } 
