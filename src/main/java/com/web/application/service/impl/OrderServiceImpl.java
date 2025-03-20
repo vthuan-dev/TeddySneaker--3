@@ -404,11 +404,23 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public Order findOrderById(long id) {
-		Optional<Order> order = orderRepository.findById(id);
-		if (order.isEmpty()) {
+		Optional<Order> orderOpt = orderRepository.findById(id);
+		if (orderOpt.isEmpty()) {
 			throw new NotFoundExp("Đơn hàng không tồn tại");
 		}
-		return order.get();
+		Order order = orderOpt.get();
+		
+		// Đảm bảo danh sách items và products được tải đầy đủ
+		if (order.getItems() != null) {
+			order.getItems().forEach(item -> {
+				// Force load product data
+				if (item.getProduct() != null) {
+					item.getProduct().getName(); // Truy cập để load dữ liệu
+				}
+			});
+		}
+		
+		return order;
 	}
 
 	@Override

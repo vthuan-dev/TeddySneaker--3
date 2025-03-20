@@ -177,32 +177,26 @@
 														</tr>
 													</thead>
 													<tbody>
-														<tr>
-															<td><a target="_blank"
-																th:href="@{/admin/products/{slug}/{id}(id=${order.product.id}, slug=${order.product.slug})}"
-																th:text="${order.product.name}"></a></td>
-															<td><span th:text="${order.size}"></span> <th:block
-																	th:if="${order.status} == 1">
-																	<span th:if="${sizeIsAvailable} == false"
-																		class="badge badge-danger">Hết hàng</span>
-																</th:block></td>
-															<td><span class="text-price"
-																th:text="${order.price}"></span> đ</td>
-															<td><span th:if="${order.promotion} != null"
-																th:text="${order.promotion.couponCode}"></span></td>
+														<tr th:each="item, itemStat : ${order.items}">
+															<td><a href="javascript:void(0)" th:text="${item.product.name}"></a></td>
+															<td><span th:text="${item.size}"></span>
+																<th:block th:if="${order.status} == 1">
+																	<span th:if="${sizeIsAvailable} == false" class="badge badge-danger">Hết hàng</span>
+																</th:block>
+															</td>
+															<td><span class="text-price" th:text="${item.price}"></span> đ</td>
+															<td><span th:if="${order.promotion} != null" th:text="${order.promotion.couponCode}"></span></td>
 															<td>
 																<div th:if="${order.promotion} != null">
 																	<th:block th:if="${order.promotion.discountType} == 1">
 																		<span th:text="${order.promotion.discountValue}"></span> %
-                                                                </th:block>
+																	</th:block>
 																	<th:block th:if="${order.promotion.discountType} == 2">
-																		<span class="text-price"
-																			th:text="${order.promotion.discountValue}"></span> đ
-                                                                </th:block>
+																		<span class="text-price" th:text="${order.promotion.discountValue}"></span> đ
+																	</th:block>
 																</div>
 															</td>
-															<td><span class="text-price"
-																th:text="${order.totalPrice}"></span> đ</td>
+															<td><span class="text-price" th:text="${item.subtotal}"></span> đ</td>
 														</tr>
 													</tbody>
 												</table>
@@ -284,30 +278,26 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr>
-						<td><span th:text="${order.product.name}"></span></td>
-						<td><span th:text="${order.size}"></span> <th:block
-								th:if="${order.status} == 1">
-								<span th:if="${sizeIsAvailable} == false"
-									class="badge badge-danger">Hết hàng</span>
-							</th:block></td>
-						<td><span class="text-price" th:text="${order.price}"></span>
-							đ</td>
-						<td><span th:if="${order.promotion} != null"
-							th:text="${order.promotion.couponCode}"></span></td>
+					<tr th:each="item, itemStat : ${order.items}">
+						<td><span th:text="${item.product.name}"></span></td>
+						<td><span th:text="${item.size}"></span>
+							<th:block th:if="${order.status} == 1">
+								<span th:if="${sizeIsAvailable} == false" class="badge badge-danger">Hết hàng</span>
+							</th:block>
+						</td>
+						<td><span class="text-price" th:text="${item.price}"></span> đ</td>
+						<td><span th:if="${order.promotion} != null" th:text="${order.promotion.couponCode}"></span></td>
 						<td>
 							<div th:if="${order.promotion} != null">
 								<th:block th:if="${order.promotion.discountType} == 1">
 									<span th:text="${order.promotion.discountValue}"></span> %
-                        </th:block>
+								</th:block>
 								<th:block th:if="${order.promotion.discountType} == 2">
-									<span class="text-price"
-										th:text="${order.promotion.discountValue}"></span> đ
-                        </th:block>
+									<span class="text-price" th:text="${order.promotion.discountValue}"></span> đ
+								</th:block>
 							</div>
 						</td>
-						<td><span class="text-price" th:text="${order.totalPrice}"></span>
-							đ</td>
+						<td><span class="text-price" th:text="${item.subtotal}"></span> đ</td>
 					</tr>
 				</tbody>
 			</table>
@@ -525,13 +515,18 @@
 
             function openModalChangeDetailOrder() {
                 $('.invalid-feedback').hide();
-                $('#product').val([[${order.product.id}]]);
-                let promotion = [[${order.promotion}]]
+                if ([[${order.items}]] && [[${order.items.size()}]] > 0) {
+                    let firstItem = [[${order.items[0]}]];
+                    $('#product').val(firstItem.product.id);
+                    $('#size').val(firstItem.size);
+                }
+                
+                let promotion = [[${order.promotion}]];
                 if (promotion != null) {
                     $('#promotion').val(promotion.couponCode);
                 }
                 eventChangeProduct();
-                $('#size').val([[${order.size}]]);
+                
                 $('#modal-change-detail-order').modal('show');
             }
 
