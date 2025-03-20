@@ -1,34 +1,20 @@
 package com.web.application.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.math.BigDecimal;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderInfoDTO {
-    private long id;
-
-    private long totalPrice;
-
-    private int sizeVn;
-
-    private double sizeUs;
-
-    private double sizeCm;
-
+    private Long id;
+    private Integer status;
+    private BigDecimal totalPrice;
+    private String createdAt;
+    
     private String productName;
-
     private String productImg;
-
-    public OrderInfoDTO(long id, long totalPrice, int sizeVn, String productName, String productImg) {
-        this.id = id;
-        this.totalPrice = totalPrice;
-        this.sizeVn = sizeVn;
-        this.productName = productName;
-        this.productImg = productImg;
-    }
+    private Integer sizeVn;
 }

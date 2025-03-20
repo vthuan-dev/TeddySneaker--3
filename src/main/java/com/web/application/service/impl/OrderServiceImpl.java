@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -41,9 +43,11 @@ import com.web.application.entity.OrderItem;
 import com.web.application.service.CartService;
 import com.web.application.entity.Cart;
 import com.web.application.entity.CartItem;
-import com.web.application.dto.CheckoutRequestDTO;
+import com.web.application.model.request.CheckoutRequestDTO;
+import org.springframework.stereotype.Service;
+import com.web.application.repository.UserRepository;
 
-@Component
+@Service
 public class OrderServiceImpl implements OrderService {
 
 	@Autowired
@@ -66,6 +70,9 @@ public class OrderServiceImpl implements OrderService {
 
 	@Autowired
 	private CartService cartService;
+
+	@Autowired
+	private UserRepository userRepository;
 
 	@Override
 	public Page<Order> adminGetListOrders(String id, String name, String phone, String status, String product,
@@ -140,7 +147,7 @@ public class OrderServiceImpl implements OrderService {
 			orderItem.setQuantity(1);
 			orderItem.setPrice(Double.valueOf(createOrderRequest.getProductPrice()));
 			orderItem.calculateSubtotal();
-			order.addItem(orderItem);
+			order.addOrderItem(orderItem);
 
 			// Cập nhật thông tin đơn hàng
 			order.setCreatedAt(new Timestamp(System.currentTimeMillis()));
@@ -200,7 +207,7 @@ public class OrderServiceImpl implements OrderService {
 			orderItem.calculateSubtotal();
 			
 			// Thêm item vào order
-			order.addItem(orderItem);
+			order.addOrderItem(orderItem);
 			
 			// Cập nhật số lượng sản phẩm
 			productSizeRepository.minusOneProductBySize(orderItem.getProduct().getId(), orderItem.getSize());
@@ -333,7 +340,7 @@ public class OrderServiceImpl implements OrderService {
 			// Chuyển đổi giá từ int sang Double một cách an toàn
 			orderItem.setPrice(Double.valueOf(price));
 			orderItem.calculateSubtotal();
-			order.addItem(orderItem);
+			order.addOrderItem(orderItem);
 			
 			// Kiểm tra và cập nhật khuyến mãi
 			if (updateDetailOrder.getCouponCode() != "") {
@@ -412,8 +419,38 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public List<OrderInfoDTO> getListOrderOfPersonByStatus(int status, long userId) {
-		List<OrderInfoDTO> list = orderRepository.getListOrderOfPersonByStatus(status, userId);
-		return list;
+		List<Order> orders;
+		try {
+			if (status == 0) {
+				orders = orderRepository.findByBuyerIdOrderByCreatedAtDesc(userId);
+			} else {
+				orders = orderRepository.findByBuyerIdAndStatusOrderByCreatedAtDesc(userId, status);
+			}
+
+			return orders.stream()
+				.map(order -> {
+					OrderInfoDTO dto = new OrderInfoDTO();
+					dto.setId(order.getId());
+					dto.setStatus(order.getStatus());
+					dto.setTotalPrice(BigDecimal.valueOf(order.getTotalPrice()));
+					dto.setCreatedAt(order.getCreatedAt().toString());
+					
+					if (!order.getItems().isEmpty()) {
+						OrderItem firstItem = order.getItems().get(0);
+						Product product = firstItem.getProduct();
+						if (!product.getImages().isEmpty()) {
+							dto.setProductImg(product.getImages().get(0));
+						}
+						dto.setProductName(product.getName());
+						dto.setSizeVn(firstItem.getSize());
+					}
+					
+					return dto;
+				})
+				.collect(Collectors.toList());
+		} catch (Exception e) {
+			throw new InternalServerExp("Lỗi khi lấy danh sách đơn hàng: " + e.getMessage());
+		}
 	}
 
 	@Override
@@ -531,73 +568,39 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	@Transactional
 	public Order createOrderFromCart(Long userId, CheckoutRequestDTO request) {
-		try {
-			// Lấy giỏ hàng của người dùng
-			List<CartItem> cartItems = cartService.findByUserId(userId);
-			if (cartItems.isEmpty()) {
-				throw new BadRequestExp("Giỏ hàng trống, không thể tạo đơn hàng");
-			}
-			
-			// Tạo đơn hàng mới
-			Order order = new Order();
-			User user = new User();
-			user.setId(userId);
-			order.setCreatedBy(user);
-			order.setBuyer(user);
-			
-			// Thêm từng sản phẩm trong giỏ hàng vào đơn hàng
-			for (CartItem cartItem : cartItems) {
-				// Kiểm tra sản phẩm và size có sẵn
-				ProductSize productSize = productSizeRepository.checkProductAndSizeAvailable(
-					cartItem.getProduct().getId(), cartItem.getSize());
-				if (productSize == null || productSize.getQuantity() < cartItem.getQuantity()) {
-					throw new BadRequestExp("Sản phẩm " + cartItem.getProduct().getName() + 
-						" size " + cartItem.getSize() + " không đủ số lượng");
-				}
-				
-				// Tạo OrderItem từ CartItem
-				OrderItem orderItem = new OrderItem();
-				orderItem.setProduct(cartItem.getProduct());
-				orderItem.setSize(cartItem.getSize());
-				orderItem.setQuantity(cartItem.getQuantity());
-				orderItem.setPrice(Double.valueOf(cartItem.getProduct().getSalePrice()));
-				orderItem.calculateSubtotal();
-				
-				// Thêm vào đơn hàng
-				order.addItem(orderItem);
-			}
-			
-			// Kiểm tra và áp dụng mã giảm giá nếu có
-			if (request.getCouponCode() != null && !request.getCouponCode().isEmpty()) {
-				Promotion promotion = promotionService.checkPromotion(request.getCouponCode());
-				if (promotion == null) {
-					throw new NotFoundExp("Mã khuyến mãi không tồn tại hoặc chưa được kích hoạt");
-				}
-				
-				// Tính tổng giá trị đơn hàng trước khi áp dụng khuyến mãi
-				double subtotal = order.getItems().stream()
-					.mapToDouble(item -> item.getPrice() * item.getQuantity())
-					.sum();
-				
-				// Tính giá sau khuyến mãi
-				double discountAmount = 0;
-				if (promotion.getDiscountType() == 1) {
-					// Giảm theo phần trăm
-					discountAmount = subtotal * promotion.getDiscountValue() / 100;
-					// Kiểm tra giới hạn giảm giá tối đa
-					if (promotion.getMaximumDiscountValue() > 0 && 
-						discountAmount > promotion.getMaximumDiscountValue()) {
-						discountAmount = promotion.getMaximumDiscountValue();
-					}
-				} else {
-					// Giảm trực tiếp
-					discountAmount = promotion.getDiscountValue();
-				}
-				
-				// Tính tổng sau khuyến mãi
-				double totalAfterDiscount = subtotal - discountAmount;
-				
-				// Lưu thông tin khuyến mãi vào đơn hàng
+		User buyer = userRepository.findById(userId)
+			.orElseThrow(() -> new NotFoundExp("User not found"));
+
+		Order order = new Order();
+		order.setBuyer(buyer);
+		order.setReceiverName(request.getReceiverName());
+		order.setReceiverPhone(request.getReceiverPhone());
+		order.setReceiverAddress(request.getReceiverAddress());
+		order.setStatus(Contant.ORDER_STATUS);
+		order.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+		order.setCreatedBy(buyer);
+
+		// Convert cart items to order items
+		Cart cart = cartService.getCartByUserId(userId);
+		if (cart == null || cart.getItems().isEmpty()) {
+			throw new BadRequestExp("Giỏ hàng trống");
+		}
+
+		// Chuyển đổi từ cart items sang order items
+		for (CartItem cartItem : cart.getItems()) {
+			OrderItem orderItem = new OrderItem();
+			orderItem.setProduct(cartItem.getProduct());
+			orderItem.setSize(cartItem.getSize());
+			orderItem.setQuantity(cartItem.getQuantity());
+			orderItem.setPrice(cartItem.getPrice());
+			orderItem.calculateSubtotal();
+			order.addOrderItem(orderItem);
+		}
+
+		// Xử lý mã giảm giá nếu có
+		if (request.getCouponCode() != null && !request.getCouponCode().isEmpty()) {
+			Promotion promotion = promotionService.checkPromotion(request.getCouponCode());
+			if (promotion != null) {
 				Order.UsedPromotion usedPromotion = new Order.UsedPromotion(
 					request.getCouponCode(),
 					promotion.getDiscountType(),
@@ -605,73 +608,27 @@ public class OrderServiceImpl implements OrderService {
 					promotion.getMaximumDiscountValue()
 				);
 				order.setPromotion(usedPromotion);
-				
-				// Cập nhật tổng tiền
-				order.setTotalPrice(totalAfterDiscount);
-			} else {
-				// Nếu không có mã giảm giá, tổng tiền là tổng của các items
-				double total = order.getItems().stream()
-					.mapToDouble(item -> item.getPrice() * item.getQuantity())
-					.sum();
-				order.setTotalPrice(total);
 			}
-			
-			// Cập nhật thông tin giao hàng
-			order.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-			order.setReceiverAddress(request.getReceiverAddress());
-			order.setReceiverName(request.getReceiverName());
-			order.setReceiverPhone(request.getReceiverPhone());
-			order.setNote(request.getNote());
-			order.setStatus(Contant.ORDER_STATUS);
-			
-			// Lưu đơn hàng
-			Order savedOrder = orderRepository.save(order);
-			
-			// Cập nhật số lượng sản phẩm
-			for (OrderItem item : savedOrder.getItems()) {
-				productSizeRepository.minusOneProductBySize(item.getProduct().getId(), item.getSize());
-				productRepository.plusOneProductTotalSold(item.getProduct().getId());
-			}
-			
-			// Tạo hóa đơn
-			CreateInvoiceRequest invoiceRequest = new CreateInvoiceRequest();
-			invoiceRequest.setOrderId(savedOrder.getId());
-			
-			// Chuyển đổi tổng tiền sang BigDecimal
-			BigDecimal totalAmount = BigDecimal.valueOf(savedOrder.getTotalPrice());
-			invoiceRequest.setTotal(totalAmount);
-			
-			// Tính toán discount nếu có
-			BigDecimal discount = BigDecimal.ZERO;
-			if (savedOrder.getPromotion() != null) {
-				if (savedOrder.getPromotion().getDiscountType() == 1) {
-					// Giảm giá theo phần trăm
-					discount = totalAmount
-						.multiply(new BigDecimal(savedOrder.getPromotion().getDiscountValue()))
-						.divide(new BigDecimal(100));
-				} else {
-					// Giảm giá trực tiếp
-					discount = new BigDecimal(savedOrder.getPromotion().getDiscountValue());
-				}
-			}
-			invoiceRequest.setDiscount(discount);
-			
-			// Tính thuế (ví dụ: 10% của subtotal)
-			BigDecimal tax = totalAmount
-				.multiply(new BigDecimal("0.1"));
-			invoiceRequest.setTax(tax);
-			
-			// Mặc định là thanh toán khi nhận hàng
-			invoiceRequest.setPaymentMethod("CASH");
-			invoiceRequest.setPaymentStatus(0); // Chưa thanh toán
-			invoiceRequest.setNote("Đơn hàng mới tạo");
-			
-			// Tạo hóa đơn
-			invoiceService.createInvoice(invoiceRequest);
-			
-			return savedOrder;
-		} catch (Exception e) {
-			throw new InternalServerExp("Có lỗi khi tạo đơn hàng từ giỏ hàng: " + e.getMessage());
 		}
+
+		// Tính tổng tiền
+		order.calculateTotalPrice();
+
+		// Lưu đơn hàng
+		Order savedOrder = orderRepository.save(order);
+
+		// Xóa giỏ hàng sau khi đặt hàng thành công
+		cartService.clearCart(userId);
+
+		return savedOrder;
+	}
+
+	// Helper method - có thể giữ lại để sử dụng trong các phương thức khác
+	private void addOrderItem(Order order, OrderItem item) {
+		if (order.getItems() == null) {
+			order.setItems(new ArrayList<>());
+		}
+		order.getItems().add(item);
+		item.setOrder(order); // Đảm bảo thiết lập mối quan hệ hai chiều
 	}
 }

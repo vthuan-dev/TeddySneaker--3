@@ -1,3 +1,35 @@
 $('#checkout-btn').click(function() {
-    location.href = "/dat-hang?fromCart=true";
+    // Collect all cart items
+    let cartItems = [];
+    $('.cart-item').each(function() {
+        let item = {
+            productId: $(this).data('product-id'),
+            size: $(this).data('size'),
+            quantity: $(this).find('.quantity-input').val(),
+            price: $(this).data('price')
+        };
+        cartItems.push(item);
+    });
+
+    // Send checkout request
+    $.ajax({
+        url: '/api/orders/cart',
+        type: 'POST',
+        data: JSON.stringify({
+            cartItems: cartItems,
+            // Add other checkout info
+            receiverName: $('#receiver-name').val(),
+            receiverPhone: $('#receiver-phone').val(),
+            receiverAddress: $('#receiver-address').val()
+        }),
+        contentType: "application/json",
+        success: function(response) {
+            // Handle success
+            window.location.href = "/tai-khoan/lich-su-giao-dich/" + response.id;
+        },
+        error: function(error) {
+            // Handle error
+            toastr.error(error.responseJSON.message);
+        }
+    });
 });

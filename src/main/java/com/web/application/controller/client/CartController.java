@@ -21,7 +21,7 @@ import com.web.application.entity.Order;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.AllArgsConstructor;
-import com.web.application.dto.CheckoutRequestDTO;
+import com.web.application.model.request.CheckoutRequestDTO;
 
 @Controller
 public class CartController {

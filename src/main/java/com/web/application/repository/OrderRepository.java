@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.web.application.dto.OrderDetailDTO;
@@ -31,4 +32,12 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query(value = "SELECT COUNT(*) FROM orders WHERE product_id = ?1", nativeQuery = true)
     int countByProductId(String productId);
+
+    @Query("SELECT o FROM Order o WHERE o.buyer.id = :userId AND o.status = :status")
+    List<Order> findByBuyerIdAndStatus(@Param("userId") long userId, @Param("status") int status);
+
+    List<Order> findByBuyerIdOrderByCreatedAtDesc(Long buyerId);
+    List<Order> findByBuyerIdAndStatusOrderByCreatedAtDesc(Long buyerId, Integer status);
 }
+
+// LIST_ORDER_STATUSz

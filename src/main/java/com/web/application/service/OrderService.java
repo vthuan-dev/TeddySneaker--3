@@ -5,10 +5,10 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import com.web.application.dto.CheckoutRequestDTO;
 import com.web.application.dto.OrderDetailDTO;
 import com.web.application.dto.OrderInfoDTO;
 import com.web.application.entity.Order;
+import com.web.application.model.request.CheckoutRequestDTO;
 import com.web.application.model.request.CreateOrderRequest;
 import com.web.application.model.request.UpdateDetailOrder;
 import com.web.application.model.request.UpdateStatusOrderRequest;
@@ -38,6 +38,6 @@ public interface OrderService {
 	// Đếm số lượng đơn hàng
 	long getCountOrder();
 
-	Order createOrderFromCart(Long userId, CheckoutRequestDTO request);
+	Order createOrderFromCart(Long userId, CheckoutRequestDTO checkoutRequest);
 
 }

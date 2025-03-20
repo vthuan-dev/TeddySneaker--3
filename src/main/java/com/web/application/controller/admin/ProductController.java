@@ -239,9 +239,15 @@ public class ProductController {
 			XSSFCellStyle headerCellStyle = workbook.createCellStyle();
 			XSSFFont font = workbook.createFont();
 			font.setFontName(XSSFFont.DEFAULT_FONT_NAME);
-			font.setColor(new XSSFColor(java.awt.Color.WHITE));
+			
+			// Thay đổi cách set màu cho font
+			byte[] rgb = new byte[]{(byte)255, (byte)255, (byte)255};
+			font.setColor(new XSSFColor(rgb, null));
 			headerCellStyle.setFont(font);
-			headerCellStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(135, 206, 250)));
+			
+			// Thay đổi cách set màu nền
+			byte[] backgroundRgb = new byte[]{(byte)135, (byte)206, (byte)250};
+			headerCellStyle.setFillForegroundColor(new XSSFColor(backgroundRgb, null));
 			headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
 			XSSFCell productId = headerRow.createCell(0);
@@ -281,7 +287,10 @@ public class ProductController {
 					Product product = products.get(i);
 					XSSFRow bodyRow = worksheet.createRow(i + 1);
 					XSSFCellStyle bodyCellStyle = workbook.createCellStyle();
-					bodyCellStyle.setFillForegroundColor(new XSSFColor(java.awt.Color.WHITE));
+					
+					// Thay đổi cách set màu nền cho body cells
+					byte[] whiteBg = new byte[]{(byte)255, (byte)255, (byte)255};
+					bodyCellStyle.setFillForegroundColor(new XSSFColor(whiteBg, null));
 
 					XSSFCell productIDValue = bodyRow.createCell(0);
 					productIDValue.setCellValue(product.getId());

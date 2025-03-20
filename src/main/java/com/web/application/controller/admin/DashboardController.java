@@ -16,6 +16,7 @@ import com.web.application.model.request.FilterDayByDay;
 import com.web.application.repository.*;
 import com.web.application.service.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -120,8 +121,12 @@ public class DashboardController {
     @GetMapping("/api/admin/product-order")
     public ResponseEntity<Object> getProductOrder(){
         Pageable pageable = PageRequest.of(0,10);
-        Date date = new Date();
-        List<ChartDTO> chartDTOS = productRepository.getProductOrders(pageable, date.getMonth() +1, date.getYear() + 1900);
+        LocalDate now = LocalDate.now();
+        List<ChartDTO> chartDTOS = productRepository.getProductOrders(
+            pageable, 
+            now.getMonthValue(),
+            now.getYear()
+        );
         return ResponseEntity.ok(chartDTOS);
     }
 }

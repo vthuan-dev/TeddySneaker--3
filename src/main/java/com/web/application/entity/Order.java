@@ -66,30 +66,30 @@ import lombok.Setter;
         }
 )
 @NamedNativeQuery(
-	    name = "getListOrderOfPersonByStatus",
-	    resultSetMapping = "orderInfoDTO",
-	    query = "SELECT od.id, od.total_price, od.size AS size_vn, p.name AS product_name, " +
-	            "JSON_VALUE(p.images, '$[0]') AS product_img " +
-	            "FROM orders od " +
-	            "INNER JOIN product p " +
-	            "ON od.product_id = p.id " +
-	            "WHERE od.status = ?1 " +
-	            "AND od.buyer = ?2"
-	)
+        name = "getListOrderOfPersonByStatus",
+        resultSetMapping = "orderInfoDTO",
+        query = "SELECT o.id, o.total_price, oi.size AS size_vn, p.name AS product_name, " +
+                "JSON_VALUE(p.images, '$[0]') AS product_img " +
+                "FROM orders o " +
+                "INNER JOIN order_items oi ON o.id = oi.order_id " +
+                "INNER JOIN product p ON oi.product_id = p.id " +
+                "WHERE o.status = ?1 " +
+                "AND o.buyer = ?2"
+)
 
 @NamedNativeQuery(
-	    name = "userGetDetailById",
-	    resultSetMapping = "orderDetailDto",
-	    query = "SELECT od.id, od.total_price, od.price as product_price, " +
-	            "od.receiver_name, od.receiver_phone, od.receiver_address, od.status, od.size AS size_vn, " +
-	            "p.name AS product_name, " +
-	            "JSON_VALUE(p.images, '$[0]') AS product_img " +
-	            "FROM orders od " +
-	            "INNER JOIN product p " +
-	            "ON od.product_id = p.id " +
-	            "WHERE od.id = ?1 " +
-	            "AND od.buyer = ?2"
-	)
+        name = "userGetDetailById",
+        resultSetMapping = "orderDetailDto",
+        query = "SELECT o.id, o.total_price, oi.price as product_price, " +
+                "o.receiver_name, o.receiver_phone, o.receiver_address, o.status, oi.size AS size_vn, " +
+                "p.name AS product_name, " +
+                "JSON_VALUE(p.images, '$[0]') AS product_img " +
+                "FROM orders o " +
+                "INNER JOIN order_items oi ON o.id = oi.order_id " +
+                "INNER JOIN product p ON oi.product_id = p.id " +
+                "WHERE o.id = ?1 " +
+                "AND o.buyer = ?2"
+)
 
 @Entity
 @Table(name = "orders")
@@ -144,23 +144,35 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
     
-    // Phương thức để thêm item vào order
-    public void addItem(OrderItem item) {
+    // Add helper method
+    public void addOrderItem(OrderItem item) {
         items.add(item);
         item.setOrder(this);
     }
     
-    // Phương thức để xóa item khỏi order
-    public void removeItem(OrderItem item) {
-        items.remove(item);
-        item.setOrder(null);
-    }
-    
-    // Phương thức tính tổng giá trị đơn hàng
+    // Calculate total price
     public void calculateTotalPrice() {
-        this.totalPrice = items.stream()
-                .mapToDouble(item -> item.getPrice() * item.getQuantity())
-                .sum();
+        double total = 0;
+        for (OrderItem item : items) {
+            total += item.getPrice() * item.getQuantity();
+        }
+        
+        // Áp dụng giảm giá nếu có
+        if (this.promotion != null) {
+            if (promotion.getDiscountType() == 1) {
+                // Giảm giá theo phần trăm
+                double discount = (total * promotion.getDiscountValue()) / 100;
+                if (promotion.getMaximumDiscountValue() > 0) {
+                    discount = Math.min(discount, promotion.getMaximumDiscountValue());
+                }
+                total -= discount;
+            } else {
+                // Giảm giá trực tiếp
+                total -= promotion.getDiscountValue();
+            }
+        }
+        
+        this.totalPrice = total;
     }
 
     @NoArgsConstructor

@@ -2,7 +2,9 @@ package com.web.application.controller.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +28,7 @@ import com.web.application.security.CustomUserDetails;
 import com.web.application.service.OrderService;
 import com.web.application.service.ProductService;
 import com.web.application.service.PromotionService;
+import com.web.application.model.request.CheckoutRequestDTO;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -149,28 +152,54 @@ public class OrderController {
 
 	@GetMapping("/tai-khoan/lich-su-giao-dich")
 	public String getOrderHistoryPage(Model model) {
+		try {
+			// Get user information
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
+				return "redirect:/login";
+			}
+			
+			CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+			User user = userDetails.getUser();
 
-		// Get list order pending
-		User user = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
-				.getUser();
-		List<OrderInfoDTO> orderList = orderService.getListOrderOfPersonByStatus(Contant.ORDER_STATUS, user.getId());
-		model.addAttribute("orderList", orderList);
-
-		return "shop/order_history";
+			// Get all orders for initial display - pass Contant.ORDER_STATUS instead of null
+			List<OrderInfoDTO> orderList = orderService.getListOrderOfPersonByStatus(Contant.ORDER_STATUS, user.getId());
+			
+			// Add attributes to model
+			model.addAttribute("orderList", orderList);
+			model.addAttribute("user_fullname", user.getFullName());
+			
+			return "shop/order_history";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "error/500";
+		}
 	}
 
 	@GetMapping("/api/get-order-list")
-	public ResponseEntity<Object> getListOrderByStatus(@RequestParam int status) {
-		// Validate status
-		if (!Contant.LIST_ORDER_STATUS.contains(status)) {
-			throw new BadRequestExp("Trạng thái đơn hàng không hợp lệ");
+	@ResponseBody
+	public ResponseEntity<Object> getListOrderByStatus(@RequestParam Integer status) {
+		try {
+			// Validate status
+			if (!Contant.LIST_ORDER_STATUS.contains(status)) {
+				return ResponseEntity.badRequest().body("Trạng thái đơn hàng không hợp lệ");
+			}
+
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chưa đăng nhập");
+			}
+
+			CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+			User user = userDetails.getUser();
+			List<OrderInfoDTO> orders = orderService.getListOrderOfPersonByStatus(status, user.getId());
+
+			return ResponseEntity.ok(orders);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+							   .body("Lỗi: " + e.getMessage());
 		}
-
-		User user = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
-				.getUser();
-		List<OrderInfoDTO> orders = orderService.getListOrderOfPersonByStatus(status, user.getId());
-
-		return ResponseEntity.ok(orders);
 	}
 
 	@GetMapping("/tai-khoan/lich-su-giao-dich/{id}")
@@ -287,6 +316,14 @@ public class OrderController {
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
+	}
+
+	@PostMapping("/api/orders/cart")
+	public ResponseEntity<Object> createOrderFromCart(@RequestBody CheckoutRequestDTO request) {
+		User user = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+				.getUser();
+		Order order = orderService.createOrderFromCart(user.getId(), request);
+		return ResponseEntity.ok(order);
 	}
 
 }
