@@ -14,6 +14,20 @@ import com.web.application.dto.OrderDetailDTO;
 import com.web.application.dto.OrderInfoDTO;
 import com.web.application.entity.Order;
 
+import jakarta.persistence.NamedNativeQuery;
+
+@NamedNativeQuery(
+    name = "getListOrderOfPersonByStatus", 
+    query = "SELECT DISTINCT o.id, o.total_price, oi.size_vn, p.name as product_name, p.thumbnail as product_img, " +
+           "(SELECT COUNT(*) FROM order_items WHERE order_id = o.id) as total_items " +
+           "FROM orders o " +
+           "JOIN order_items oi ON o.id = oi.order_id " +
+           "JOIN products p ON p.id = oi.product_id " +
+           "WHERE (:status = 0 OR o.status = :status) AND o.buyer = :user_id " +
+           "ORDER BY o.created_at DESC",
+    resultSetMapping = "orderInfoDTO"
+)
+
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query(value = "SELECT DISTINCT o FROM Order o LEFT JOIN o.items i WHERE " +

@@ -13,14 +13,13 @@ $('#checkout-btn').click(function() {
 
     // Send checkout request
     $.ajax({
-        url: '/api/orders/cart',
+        url: '/api/cart/checkout',
         type: 'POST',
         data: JSON.stringify({
-            cartItems: cartItems,
-            // Add other checkout info
             receiverName: $('#receiver-name').val(),
             receiverPhone: $('#receiver-phone').val(),
-            receiverAddress: $('#receiver-address').val()
+            receiverAddress: $('#receiver-address').val(),
+            couponCode: $('#coupon-code').val() || ''
         }),
         contentType: "application/json",
         success: function(response) {

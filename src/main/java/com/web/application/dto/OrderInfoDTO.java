@@ -17,4 +17,16 @@ public class OrderInfoDTO {
     private String productName;
     private String productImg;
     private Integer sizeVn;
+    
+    private Integer totalItems = 1;
+    
+    public OrderInfoDTO(Long id, BigDecimal totalPrice, Integer sizeVn, 
+                        String productName, String productImg) {
+        this.id = id;
+        this.totalPrice = totalPrice;
+        this.sizeVn = sizeVn;
+        this.productName = productName;
+        this.productImg = productImg;
+        this.totalItems = 1;
+    }
 }

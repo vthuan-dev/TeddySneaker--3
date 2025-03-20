@@ -47,6 +47,8 @@ import com.web.application.entity.CartItem;
 import com.web.application.model.request.CheckoutRequestDTO;
 import org.springframework.stereotype.Service;
 import com.web.application.repository.UserRepository;
+import com.web.application.dto.OrderItemDTO;
+import org.springframework.security.access.AccessDeniedException;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -483,49 +485,83 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public OrderDetailDTO userGetDetailById(long id, long userId) {
-		try {
-			Order order = orderRepository.findByIdAndBuyerId(id, userId)
+		// Lấy thông tin đơn hàng
+		Order order = orderRepository.findById(id)
 				.orElseThrow(() -> new NotFoundExp("Không tìm thấy đơn hàng"));
-
-			OrderDetailDTO dto = new OrderDetailDTO();
-			dto.setId(order.getId());
-			dto.setStatus(order.getStatus());
-			
-			// Set statusText dựa vào status
-			switch (order.getStatus()) {
-				case Contant.CANCELED_STATUS:
-					dto.setStatusText("Đã hủy");
-					break;
-				case Contant.COMPLETED_STATUS:
-					dto.setStatusText("Hoàn thành");
-					break;
-				default:
-					dto.setStatusText("Đang xử lý");
-			}
-			
-			// Set các thông tin khác
-			dto.setTotalPrice(BigDecimal.valueOf(order.getTotalPrice()));
-			
-			if (!order.getItems().isEmpty()) {
-				OrderItem firstItem = order.getItems().get(0);
-				dto.setProductPrice(BigDecimal.valueOf(firstItem.getPrice()));
-				Product product = firstItem.getProduct();
-				if (product != null && !product.getImages().isEmpty()) {
-					dto.setProductImg(product.getImages().get(0));
-				}
-				dto.setProductName(product.getName());
-				dto.setSizeVn(firstItem.getSize());
-			}
-			
-			dto.setCreatedAt(order.getCreatedAt().toString());
-			dto.setReceiverName(order.getReceiverName());
-			dto.setReceiverPhone(order.getReceiverPhone());
-			dto.setReceiverAddress(order.getReceiverAddress());
-
-			return dto;
-		} catch (Exception e) {
-			throw new InternalServerExp("Lỗi khi lấy chi tiết đơn hàng: " + e.getMessage());
+		
+		// Kiểm tra người dùng có quyền xem đơn hàng không
+		if (order.getBuyer().getId() != userId) {
+			throw new AccessDeniedException("Bạn không có quyền xem đơn hàng này");
 		}
+		
+		// Tạo DTO chứa thông tin đơn hàng
+		OrderDetailDTO orderDetailDTO = new OrderDetailDTO();
+		orderDetailDTO.setId(order.getId());
+		orderDetailDTO.setStatus(order.getStatus());
+		orderDetailDTO.setTotalPrice(BigDecimal.valueOf(order.getTotalPrice()));
+		
+		// Tính tổng giá sản phẩm (không bao gồm khuyến mãi)
+		double productPrice = 0;
+		for (OrderItem item : order.getItems()) {
+			productPrice += item.getSubtotal();
+		}
+		orderDetailDTO.setProductPrice(BigDecimal.valueOf(productPrice));
+		
+		orderDetailDTO.setCreatedAt(order.getCreatedAt().toString());
+		orderDetailDTO.setReceiverName(order.getReceiverName());
+		orderDetailDTO.setReceiverPhone(order.getReceiverPhone());
+		orderDetailDTO.setReceiverAddress(order.getReceiverAddress());
+		
+		// Thiết lập trạng thái đơn hàng dưới dạng văn bản
+		switch (order.getStatus()) {
+			case 1:
+				orderDetailDTO.setStatusText("Chờ lấy hàng");
+				break;
+			case 2:
+				orderDetailDTO.setStatusText("Đang giao hàng");
+				break;
+			case 3:
+				orderDetailDTO.setStatusText("Đã giao hàng");
+				break;
+			case 4:
+				orderDetailDTO.setStatusText("Đã trả lại");
+				break;
+			case 5:
+				orderDetailDTO.setStatusText("Đã hủy");
+				break;
+			default:
+				orderDetailDTO.setStatusText("Không xác định");
+		}
+		
+		// Thêm thông tin về tất cả các mặt hàng trong đơn hàng
+		if (!order.getItems().isEmpty()) {
+			// Lưu sản phẩm đầu tiên vào các trường cũ (để tương thích ngược)
+			OrderItem firstItem = order.getItems().get(0);
+			orderDetailDTO.setProductName(firstItem.getProduct().getName());
+			orderDetailDTO.setSizeVn(firstItem.getSize());
+			if (!firstItem.getProduct().getImages().isEmpty()) {
+				orderDetailDTO.setProductImg(firstItem.getProduct().getImages().get(0));
+			}
+			
+			// Lưu tất cả các sản phẩm vào danh sách items
+			for (OrderItem item : order.getItems()) {
+				OrderItemDTO itemDTO = new OrderItemDTO();
+				itemDTO.setId(item.getId());
+				itemDTO.setProductId(item.getProduct().getId());
+				itemDTO.setProductName(item.getProduct().getName());
+				if (!item.getProduct().getImages().isEmpty()) {
+					itemDTO.setProductImg(item.getProduct().getImages().get(0));
+				}
+				itemDTO.setQuantity(item.getQuantity());
+				itemDTO.setSizeVn(item.getSize());
+				itemDTO.setPrice(BigDecimal.valueOf(item.getPrice()));
+				itemDTO.setSubtotal(BigDecimal.valueOf(item.getSubtotal()));
+				
+				orderDetailDTO.getItems().add(itemDTO);
+			}
+		}
+		
+		return orderDetailDTO;
 	}
 
 	@Override
@@ -633,13 +669,20 @@ public class OrderServiceImpl implements OrderService {
 		order.setCreatedAt(new Timestamp(System.currentTimeMillis()));
 		order.setCreatedBy(buyer);
 
-		// Convert cart items to order items
+		// Lấy giỏ hàng
 		Cart cart = cartService.getCartByUserId(userId);
 		if (cart == null || cart.getItems().isEmpty()) {
 			throw new BadRequestExp("Giỏ hàng trống");
 		}
 
-		// Chuyển đổi từ cart items sang order items
+		// Log để debug
+		System.out.println("Creating order from cart with " + cart.getItems().size() + " items");
+		
+		// Tạo order items từ cart items
+		if (order.getItems() == null) {
+			order.setItems(new ArrayList<>());
+		}
+		
 		for (CartItem cartItem : cart.getItems()) {
 			OrderItem orderItem = new OrderItem();
 			orderItem.setProduct(cartItem.getProduct());
@@ -647,7 +690,14 @@ public class OrderServiceImpl implements OrderService {
 			orderItem.setQuantity(cartItem.getQuantity());
 			orderItem.setPrice(cartItem.getPrice());
 			orderItem.calculateSubtotal();
-			order.addOrderItem(orderItem);
+			orderItem.setOrder(order); // Set mối quan hệ với order
+			order.getItems().add(orderItem);
+			
+			// Cập nhật số lượng sản phẩm trong kho
+			productSizeRepository.minusOneProductBySize(
+				cartItem.getProduct().getId(), 
+				cartItem.getSize()
+			);
 		}
 
 		// Xử lý mã giảm giá nếu có
@@ -664,12 +714,12 @@ public class OrderServiceImpl implements OrderService {
 			}
 		}
 
-		// Tính tổng tiền
+		// Tính tổng tiền đơn hàng
 		order.calculateTotalPrice();
 
 		// Lưu đơn hàng
 		Order savedOrder = orderRepository.save(order);
-
+		
 		// Xóa giỏ hàng sau khi đặt hàng thành công
 		cartService.clearCart(userId);
 

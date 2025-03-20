@@ -152,27 +152,33 @@ public class Order {
     
     // Calculate total price
     public void calculateTotalPrice() {
-        double total = 0;
-        for (OrderItem item : items) {
-            total += item.getPrice() * item.getQuantity();
+        if (this.items == null || this.items.isEmpty()) {
+            this.totalPrice = 0.0;
+            return;
         }
         
-        // Áp dụng giảm giá nếu có
+        double total = this.items.stream()
+            .mapToDouble(item -> item.getPrice() * item.getQuantity())
+            .sum();
+        
+        // Áp dụng mã giảm giá nếu có
         if (this.promotion != null) {
-            if (promotion.getDiscountType() == 1) {
+            if (this.promotion.getDiscountType() == 1) {
                 // Giảm giá theo phần trăm
-                double discount = (total * promotion.getDiscountValue()) / 100;
-                if (promotion.getMaximumDiscountValue() > 0) {
-                    discount = Math.min(discount, promotion.getMaximumDiscountValue());
+                double discountAmount = total * this.promotion.getDiscountValue() / 100.0;
+                // Giới hạn mức giảm tối đa
+                if (this.promotion.getMaximumDiscountValue() > 0 && 
+                    discountAmount > this.promotion.getMaximumDiscountValue()) {
+                    discountAmount = this.promotion.getMaximumDiscountValue();
                 }
-                total -= discount;
+                total -= discountAmount;
             } else {
                 // Giảm giá trực tiếp
-                total -= promotion.getDiscountValue();
+                total -= this.promotion.getDiscountValue();
             }
         }
         
-        this.totalPrice = total;
+        this.totalPrice = Math.max(0, total); // Đảm bảo giá không âm
     }
 
     @NoArgsConstructor

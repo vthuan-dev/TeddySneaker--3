@@ -27,6 +27,141 @@
                     white-space: nowrap;
                 }
             }
+
+            .order-summary {
+                display: flex;
+                align-items: center;
+                flex-grow: 1;
+            }
+            .total-items {
+                font-size: 14px;
+                color: #555;
+            }
+            .total-items span {
+                font-weight: bold;
+            }
+
+            .item, .item-small {
+                padding: 15px;
+                margin-bottom: 15px;
+                border: 1px solid #eee;
+                border-radius: 5px;
+            }
+            
+            .header-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+                border-bottom: 1px solid #f0f0f0;
+                padding-bottom: 10px;
+            }
+            
+            .order-date {
+                color: #888;
+                font-size: 12px;
+                margin-left: 10px;
+            }
+            
+            .order-status-badge span {
+                padding: 3px 8px;
+                border-radius: 3px;
+                font-size: 12px;
+                font-weight: bold;
+            }
+            
+            .status-1 { background-color: #e5f7ff; color: #0091ff; }
+            .status-2 { background-color: #fff8e5; color: #ffb800; }
+            .status-3 { background-color: #e5ffe7; color: #00c04b; }
+            .status-4 { background-color: #f0e5ff; color: #8e00ff; }
+            .status-5 { background-color: #ffe5e5; color: #ff0000; }
+            
+            .item-info-wrapper {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .product-info-wrapper {
+                display: flex;
+                align-items: center;
+                flex: 1;
+            }
+            
+            .thumbnails {
+                width: 60px;
+                height: 60px;
+                margin-right: 15px;
+                overflow: hidden;
+                border-radius: 5px;
+            }
+            
+            .thumbnails img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            
+            .product-details {
+                flex: 1;
+            }
+            
+            .product-name {
+                font-weight: 500;
+                margin-bottom: 5px;
+            }
+            
+            .product-meta {
+                display: flex;
+                flex-wrap: wrap;
+                font-size: 12px;
+                color: #666;
+            }
+            
+            .size-label {
+                margin-right: 15px;
+            }
+            
+            .total-items {
+                color: #0091ff;
+            }
+            
+            .price-wrapper {
+                text-align: right;
+                font-weight: bold;
+            }
+            
+            .action-buttons {
+                margin-top: 10px;
+                text-align: right;
+            }
+            
+            .full-details-btn {
+                display: inline-block;
+                padding: 5px 10px;
+                background: #f5f5f5;
+                border-radius: 3px;
+                color: #333;
+                text-decoration: none;
+                font-size: 12px;
+            }
+            
+            /* Mobile styles */
+            @media (min-width: 768px) {
+                .item-small {
+                    display: none;
+                }
+            }
+            
+            @media (max-width: 767px) {
+                .item {
+                    display: none;
+                }
+                
+                .item-small {
+                    display: block;
+                }
+            }
         </style>
         <link rel="stylesheet" th:href="@{/shop/css/custom.css}">
     </th:block>
@@ -65,39 +200,79 @@
                 <div class="tab-content" id="pills-tabContent">
                     <div class="tab-pane fade show active" id="list-order" role="tabpanel" aria-labelledby="pending-tab">
                         <th:block th:each="item : ${orderList}">
-                            <!-- Item -->
                             <div class="item">
                                 <div class="header-item">
                                     <div class="order-number-wrapper">
                                         Mã đơn <a class="order-number" th:href="@{/tai-khoan/lich-su-giao-dich/{id}(id=${item.id})}" th:text="'#'+${item.id}"></a>
+                                        <span class="order-date" th:if="${item.createdAt != null}" th:text="'ngày ' + ${#strings.substring(item.createdAt, 0, 10)}"></span>
+                                    </div>
+                                    <div class="order-status-badge" th:if="${item.status != null}">
+                                        <span th:class="'status-' + ${item.status}" 
+                                              th:text="${item.status == 1 ? 'Chờ lấy hàng' : 
+                                                       item.status == 2 ? 'Đang giao hàng' : 
+                                                       item.status == 3 ? 'Đã giao hàng' : 
+                                                       item.status == 4 ? 'Đã trả lại' : 
+                                                       item.status == 5 ? 'Đã hủy' : ''}">
+                                        </span>
                                     </div>
                                     <a class="full-details" th:href="@{/tai-khoan/lich-su-giao-dich/{id}(id=${item.id})}">Xem chi tiết</a>
                                 </div>
                                 <div class="item-info-wrapper">
                                     <div class="product-info-wrapper">
-                                        <div class="thumbnails"><img class="img-fluid" th:src="@{${item.productImg}}" th:alt="${item.productName}"/></div>
-                                        <div class="product-info"><span class="name" th:text="${item.productName}"></span>
-                                            <div class="size"><span th:text="${item.sizeVn}"></span></div>
+                                        <div class="thumbnails" th:if="${item.productImg != null}">
+                                            <img class="img-fluid" th:src="@{${item.productImg}}" th:alt="${item.productName}" />
                                         </div>
-                                    </div>
-                                    <div class="price bid-price"><span class="text-price" th:text="${item.totalPrice}"></span> &#x20AB;</div>
-                                </div>
-                            </div>
-                            <!-- Item Small-->
-                            <div class="item-small">
-                                <div class="order-number-wrapper">
-                                    Mã đơn <a class="order-number" th:href="@{/tai-khoan/lich-su-giao-dich/{id}(id=${item.id})}" th:text="'#'+${item.id}"></a>
-                                </div>
-                                <div class="item-info-wrapper">
-                                    <div class="product-info-wrapper">
-                                        <div class="product-info">
-                                            <a class="name" th:href="@{/tai-khoan/lich-su-giao-dich/{id}(id=${item.id})}" th:text="${item.productName}"></a>
-                                            <div class="size">
-                                                <span th:text="${item.sizeVn}"></span>
+                                        <div class="product-details">
+                                            <div class="product-name" th:if="${item.productName != null}" th:text="${item.productName}"></div>
+                                            <div class="product-meta">
+                                                <span class="size-label" th:if="${item.sizeVn != null}">Size: <span th:text="${item.sizeVn}"></span></span>
+                                                <span class="total-items" th:if="${item.totalItems != null && item.totalItems > 1}">
+                                                    Và <span th:text="${item.totalItems - 1}"></span> sản phẩm khác
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="price bid-price"><span class="text-price" th:text="${item.totalPrice}"></span> &#x20AB;</div>
+                                    <div class="price-wrapper">
+                                        <div class="price bid-price"><span class="text-price" th:text="${item.totalPrice}"></span> &#x20AB;</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Mobile version -->
+                            <div class="item-small">
+                                <div class="header-item">
+                                    <div class="order-number-wrapper">
+                                        Mã đơn <a class="order-number" th:href="@{/tai-khoan/lich-su-giao-dich/{id}(id=${item.id})}" th:text="'#'+${item.id}"></a>
+                                        <span class="order-date" th:if="${item.createdAt != null}" th:text="'ngày ' + ${#strings.substring(item.createdAt, 0, 10)}"></span>
+                                    </div>
+                                    <div class="order-status-badge" th:if="${item.status != null}">
+                                        <span th:class="'status-' + ${item.status}" 
+                                              th:text="${item.status == 1 ? 'Chờ lấy hàng' : 
+                                                       item.status == 2 ? 'Đang giao hàng' : 
+                                                       item.status == 3 ? 'Đã giao hàng' : 
+                                                       item.status == 4 ? 'Đã trả lại' : 
+                                                       item.status == 5 ? 'Đã hủy' : ''}">
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="item-info-wrapper">
+                                    <div class="product-info-wrapper">
+                                        <div class="product-details">
+                                            <div class="product-name" th:if="${item.productName != null}" th:text="${item.productName}"></div>
+                                            <div class="product-meta">
+                                                <span class="size-label" th:if="${item.sizeVn != null}">Size: <span th:text="${item.sizeVn}"></span></span>
+                                                <span class="total-items" th:if="${item.totalItems != null && item.totalItems > 1}">
+                                                    Và <span th:text="${item.totalItems - 1}"></span> sản phẩm khác
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="price-wrapper">
+                                        <div class="price bid-price"><span class="text-price" th:text="${item.totalPrice}"></span> &#x20AB;</div>
+                                    </div>
+                                </div>
+                                <div class="action-buttons">
+                                    <a class="full-details-btn" th:href="@{/tai-khoan/lich-su-giao-dich/{id}(id=${item.id})}">Xem chi tiết</a>
                                 </div>
                             </div>
                         </th:block>
@@ -132,41 +307,82 @@
         function showListOrder(orders) {
             let html = '';
             for (order of orders) {
+                let statusText = '';
+                let statusClass = '';
+                
+                switch(order.status) {
+                    case 1: statusText = 'Chờ lấy hàng'; statusClass = 'status-1'; break;
+                    case 2: statusText = 'Đang giao hàng'; statusClass = 'status-2'; break;
+                    case 3: statusText = 'Đã giao hàng'; statusClass = 'status-3'; break;
+                    case 4: statusText = 'Đã trả lại'; statusClass = 'status-4'; break;
+                    case 5: statusText = 'Đã hủy'; statusClass = 'status-5'; break;
+                    default: statusText = '';
+                }
+                
+                const createdAtDate = order.createdAt ? 'ngày ' + order.createdAt.substring(0, 10) : '';
+                
                 html += `
-                            <div class="item">
-                                <div class="header-item">
-                                    <div class="order-number-wrapper">
-                                        Mã đơn <a class="order-number" href="/tai-khoan/lich-su-giao-dich/${order.id}">#${order.id}</a>
-                                    </div>
-                                    <a class="full-details" href="/tai-khoan/lich-su-giao-dich/${order.id}">Xem chi tiết</a>
+                    <div class="item">
+                        <div class="header-item">
+                            <div class="order-number-wrapper">
+                                Mã đơn <a class="order-number" href="/tai-khoan/lich-su-giao-dich/${order.id}">#${order.id}</a>
+                                <span class="order-date">${createdAtDate}</span>
+                            </div>
+                            <div class="order-status-badge">
+                                <span class="${statusClass}">${statusText}</span>
+                            </div>
+                            <a class="full-details" href="/tai-khoan/lich-su-giao-dich/${order.id}">Xem chi tiết</a>
+                        </div>
+                        <div class="item-info-wrapper">
+                            <div class="product-info-wrapper">
+                                <div class="thumbnails">
+                                    <img class="img-fluid" src="${order.productImg}" alt="${order.productName}" />
                                 </div>
-                                <div class="item-info-wrapper">
-                                    <div class="product-info-wrapper">
-                                        <div class="thumbnails"><img class="img-fluid" src="${order.productImg}" alt="${order.productName}"/></div>
-                                        <div class="product-info"><span class="name">${order.productName}</span>
-                                            <div class="size"><span>${order.sizeVn}</span></div>
-                                        </div>
+                                <div class="product-details">
+                                    <div class="product-name">${order.productName}</div>
+                                    <div class="product-meta">
+                                        <span class="size-label">Size: <span>${order.sizeVn}</span></span>
+                                        ${order.totalItems > 1 ? 
+                                        '<span class="total-items">Và <span>' + (order.totalItems - 1) + '</span> sản phẩm khác</span>' : ''}
                                     </div>
-                                    <div class="price bid-price"><span class="text-price">${order.totalPrice}</span> &#x20AB;</div>
                                 </div>
                             </div>
-                            <div class="item-small">
-                                <div class="order-number-wrapper">
-                                    Mã đơn <a class="order-number" href="/tai-khoan/lich-su-giao-dich/${order.id}">#${order.id}</a>
-                                </div>
-                                <div class="item-info-wrapper">
-                                    <div class="product-info-wrapper">
-                                        <div class="product-info">
-                                            <a class="name" href="/tai-khoan/lich-su-giao-dich/${order.id}">${order.productName}</a>
-                                            <div class="size">
-                                                <span>${order.sizeVn}</span>
-                                            </div>
-                                        </div>
+                            <div class="price-wrapper">
+                                <div class="price bid-price"><span class="text-price">${order.totalPrice}</span> &#x20AB;</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="item-small">
+                        <div class="header-item">
+                            <div class="order-number-wrapper">
+                                Mã đơn <a class="order-number" href="/tai-khoan/lich-su-giao-dich/${order.id}">#${order.id}</a>
+                                <span class="order-date">${createdAtDate}</span>
+                            </div>
+                            <div class="order-status-badge">
+                                <span class="${statusClass}">${statusText}</span>
+                            </div>
+                        </div>
+                        <div class="item-info-wrapper">
+                            <div class="product-info-wrapper">
+                                <div class="product-details">
+                                    <div class="product-name">${order.productName}</div>
+                                    <div class="product-meta">
+                                        <span class="size-label">Size: <span>${order.sizeVn}</span></span>
+                                        ${order.totalItems > 1 ? 
+                                        '<span class="total-items">Và <span>' + (order.totalItems - 1) + '</span> sản phẩm khác</span>' : ''}
                                     </div>
-                                    <div class="price bid-price"><span class="text-price">${order.totalPrice}</span> &#x20AB;</div>
                                 </div>
                             </div>
-        `
+                            <div class="price-wrapper">
+                                <div class="price bid-price"><span class="text-price">${order.totalPrice}</span> &#x20AB;</div>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <a class="full-details-btn" href="/tai-khoan/lich-su-giao-dich/${order.id}">Xem chi tiết</a>
+                        </div>
+                    </div>
+                `;
             }
             $('#list-order').html(html);
         }

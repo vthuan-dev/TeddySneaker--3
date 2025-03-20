@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.util.Collections;
+import java.util.ArrayList;
 
 @Controller
 public class OrderController {
@@ -202,15 +203,38 @@ public class OrderController {
 			}
 
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
 			if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chưa đăng nhập");
 			}
 
 			CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 			User user = userDetails.getUser();
+			
+			// Lấy danh sách đơn hàng
 			List<OrderInfoDTO> orders = orderService.getListOrderOfPersonByStatus(status, user.getId());
+			
+			// Nhóm và xử lý đơn hàng - đảm bảo mỗi ID đơn hàng chỉ xuất hiện một lần
+			Map<Long, OrderInfoDTO> orderMap = new HashMap<>();
+			
+			for (OrderInfoDTO order : orders) {
+				// Kiểm tra nếu đơn hàng đã tồn tại trong map
+				if (!orderMap.containsKey(order.getId())) {
+					// Nếu chưa có, thêm vào map với thông tin cơ bản
+					orderMap.put(order.getId(), order);
+					// Thêm thông tin về số lượng sản phẩm
+					order.setTotalItems(1);
+				} else {
+					// Nếu đã có, tăng số lượng sản phẩm lên
+					OrderInfoDTO existingOrder = orderMap.get(order.getId());
+					existingOrder.setTotalItems(existingOrder.getTotalItems() + 1);
+				}
+			}
+			
+			// Chuyển map thành danh sách để trả về
+			List<OrderInfoDTO> result = new ArrayList<>(orderMap.values());
 
-			return ResponseEntity.ok(orders);
+			return ResponseEntity.ok(result);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -219,9 +243,9 @@ public class OrderController {
 	}
 
 	@GetMapping("/tai-khoan/lich-su-giao-dich/{id}")
-	public String getDetailOrderPage(Model model, @PathVariable long id) {
+	public String getDetailOrderPage(@PathVariable("id") Long id, Model model) {
 		try {
-			// Get user information
+			// Lấy thông tin người dùng hiện tại
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 			if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
 				return "redirect:/login";
@@ -229,27 +253,34 @@ public class OrderController {
 			
 			CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 			User user = userDetails.getUser();
-
-			// Get order detail
-			OrderDetailDTO order = orderService.userGetDetailById(id, user.getId());
-			if (order == null) {
-				return "error/404";
-			}
-
-			// Add order to model
-			model.addAttribute("order", order);
 			
-			// Check if order can be cancelled
-			if (order.getStatus() == Contant.ORDER_STATUS) {
-				model.addAttribute("canCancel", true);
-			} else {
-				model.addAttribute("canCancel", false);
+			// Lấy thông tin đơn hàng
+			OrderDetailDTO order = orderService.userGetDetailById(id, user.getId());
+			
+			// Xác định trạng thái của đơn hàng để hiển thị các nút hành động
+			boolean canCancel = false;
+			boolean canCompleted = false;
+			
+			// Đơn hàng có thể hủy nếu đang ở trạng thái chờ xác nhận (status = 1)
+			if (order.getStatus() == 1) {
+				canCancel = true;
 			}
-
+			
+			// Đơn hàng có thể xác nhận hoàn thành nếu đang ở trạng thái đã giao hàng (status = 3)
+			if (order.getStatus() == 3) {
+				canCompleted = true;
+			}
+			
+			// Thêm các biến vào model
+			model.addAttribute("order", order);
+			model.addAttribute("canCancel", canCancel);
+			model.addAttribute("canCompleted", canCompleted);
+			model.addAttribute("user_fullname", user.getFullName());
+			
 			return "shop/order-detail";
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "error/500";
+			return "redirect:/tai-khoan/lich-su-giao-dich?error=" + e.getMessage();
 		}
 	}
 

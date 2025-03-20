@@ -2,8 +2,11 @@ package com.web.application.model.request;
 
 import java.util.List;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class CheckoutRequestDTO {
     private String receiverName;
     private String receiverPhone;
