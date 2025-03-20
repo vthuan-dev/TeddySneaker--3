@@ -139,9 +139,10 @@ public class CartController {
         }
     }
 
-    @DeleteMapping("/api/cart/remove/{productId}")
-    @ResponseBody
-    public ResponseEntity<?> removeProductFromCart(@PathVariable String productId) {
+    @DeleteMapping("/remove/{productId}")
+    public ResponseEntity<?> removeProductFromCart(
+            @PathVariable String productId,
+            @RequestParam(required = false) Integer size) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
@@ -151,8 +152,8 @@ public class CartController {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             Long userId = userDetails.getUser().getId();
             
-            // Xóa sản phẩm khỏi giỏ hàng - passing productId as String directly
-            cartService.removeProductFromCart(userId, productId);
+            // Xóa sản phẩm khỏi giỏ hàng
+            cartService.removeProductFromCart(userId, productId, size);
             
             // Lấy thông tin giỏ hàng mới sau khi xóa
             CartSummaryDTO summary = cartService.getCartSummary(userId);

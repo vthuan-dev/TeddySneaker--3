@@ -11,7 +11,7 @@ import com.web.application.entity.Product;
 public interface CartService {
     Cart getCartByUserId(Long userId);
     Cart addProductToCart(Long userId, Product product, int quantity, Integer size);
-    Cart removeProductFromCart(Long userId, String productId);
+    Cart removeProductFromCart(Long userId, String productId, Integer size);
     void clearCart(Long userId);
     
     // Thêm phương thức mới
