@@ -54,6 +54,24 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT COUNT(o) FROM Order o WHERE o.status = :status")
     long countByStatus(@Param("status") int status);
+
+    @Query(value = "SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.items i WHERE " +
+            "(:id IS NULL OR CAST(o.id AS string) LIKE %:id%) AND " +
+            "(:name IS NULL OR o.receiverName LIKE %:name%) AND " +
+            "(:phone IS NULL OR o.receiverPhone LIKE %:phone%) AND " +
+            "(:status IS NULL OR CAST(o.status AS string) = :status) AND " +
+            "(:product IS NULL OR i.product.id = :product) AND " +
+            "(:createdAt IS NULL OR DATE(o.createdAt) = DATE(:createdAt)) AND " +
+            "(:modifiedAt IS NULL OR DATE(o.modifiedAt) = DATE(:modifiedAt))")
+    Page<Order> findByConditions(
+            @Param("id") String id,
+            @Param("name") String name, 
+            @Param("phone") String phone,
+            @Param("status") String status,
+            @Param("product") String product,
+            @Param("createdAt") String createdAt,
+            @Param("modifiedAt") String modifiedAt,
+            Pageable pageable);
 }
 
 // LIST_ORDER_STATUSz

@@ -299,6 +299,48 @@
                 }
             });
         };
+
+        function loadOrders(page = 1) {
+            $.ajax({
+                url: '/api/admin/orders/list',
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + getToken() // Thêm token nếu cần
+                },
+                data: {
+                    id: $('#id').val(),
+                    name: $('#name').val(),
+                    phone: $('#phone').val(),
+                    status: $('#status').val(),
+                    product: $('#product').val(),
+                    createdAt: $('#createdAt').val(),
+                    modifiedAt: $('#modifiedAt').val(),
+                    page: page
+                },
+                success: function(response) {
+                    console.log('API Response:', response);
+                    const tbody = $('#datatable-editable tbody');
+                    tbody.empty();
+                    
+                    if (!response.content || response.content.length === 0) {
+                        tbody.html('<tr><td colspan="9">Không có đơn hàng nào</td></tr>');
+                        return;
+                    }
+
+                    response.content.forEach(order => {
+                        // Render order row
+                        const tr = createOrderRow(order);
+                        tbody.append(tr);
+                    });
+
+                    updatePagination(response.totalPages, response.currentPage);
+                },
+                error: function(xhr, status, error) {
+                    console.error('API Error:', error);
+                    toastr.error('Có lỗi xảy ra khi tải dữ liệu');
+                }
+            });
+        }
     </script>
 </th:block>
 </body>

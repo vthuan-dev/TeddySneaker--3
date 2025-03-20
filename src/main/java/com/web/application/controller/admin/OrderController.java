@@ -32,6 +32,10 @@ import com.web.application.model.request.CheckoutRequestDTO;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.stream.Collectors;
+import java.util.Collections;
 
 @Controller
 public class OrderController {
@@ -346,6 +350,49 @@ public class OrderController {
 				.getUser();
 		Order order = orderService.createOrderFromCart(user.getId(), request);
 		return ResponseEntity.ok(order);
+	}
+
+	@GetMapping("/api/admin/orders/list")
+	@ResponseBody
+	public ResponseEntity<Map<String, Object>> getOrdersList(
+			@RequestParam(defaultValue = "") String id,
+			@RequestParam(defaultValue = "") String name,
+			@RequestParam(defaultValue = "") String phone,
+			@RequestParam(defaultValue = "") String status,
+			@RequestParam(defaultValue = "") String product,
+			@RequestParam(defaultValue = "") String createdAt,
+			@RequestParam(defaultValue = "") String modifiedAt,
+			@RequestParam(defaultValue = "1") Integer page) {
+
+		try {
+			// Add logging
+			System.out.println("Getting orders with params:");
+			System.out.println("Page: " + page);
+			System.out.println("ID: " + id);
+			System.out.println("Name: " + name);
+			System.out.println("Phone: " + phone);
+			System.out.println("Status: " + status);
+			
+			Page<Order> orderPage = orderService.adminGetListOrders(
+				id, name, phone, status, product, createdAt, modifiedAt, page);
+
+			// Add logging
+			System.out.println("Found total: " + orderPage.getTotalElements());
+			System.out.println("Total pages: " + orderPage.getTotalPages());
+			System.out.println("Current page content size: " + orderPage.getContent().size());
+
+			Map<String, Object> response = new HashMap<>();
+			response.put("content", orderPage.getContent());
+			response.put("totalPages", orderPage.getTotalPages());
+			response.put("currentPage", page);
+			response.put("totalElements", orderPage.getTotalElements());
+
+			return ResponseEntity.ok(response);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+				.body(Collections.singletonMap("error", e.getMessage()));
+		}
 	}
 
 }

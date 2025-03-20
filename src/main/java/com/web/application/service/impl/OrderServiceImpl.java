@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.web.application.config.Contant;
 import com.web.application.dto.OrderDetailDTO;
@@ -75,15 +76,33 @@ public class OrderServiceImpl implements OrderService {
 	private UserRepository userRepository;
 
 	@Override
-	public Page<Order> adminGetListOrders(String id, String name, String phone, String status, String product,
-			String createdAt, String modifiedAt, int page) {
-		page--;
-		if (page < 0) {
-			page = 0;
+	public Page<Order> adminGetListOrders(String id, String name, String phone, String status, 
+			String product, String createdAt, String modifiedAt, int page) {
+		try {
+			// Điều chỉnh page index (trang đầu tiên là 0)
+			page = (page <= 0) ? 0 : page - 1;
+			
+			// Tạo Pageable với size = 10, sắp xếp theo createdAt giảm dần
+			Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+			
+			// Mặc định lấy tất cả đơn hàng nếu không có điều kiện lọc
+			if ((StringUtils.hasText(id) == false) && 
+				(StringUtils.hasText(name) == false) && 
+				(StringUtils.hasText(phone) == false) && 
+				(StringUtils.hasText(status) == false) && 
+				(StringUtils.hasText(product) == false) && 
+				(StringUtils.hasText(createdAt) == false) && 
+				(StringUtils.hasText(modifiedAt) == false)) {
+				return orderRepository.findAll(pageable);
+			}
+			
+			// Nếu có điều kiện lọc, sử dụng Specification hoặc custom query
+			return orderRepository.findByConditions(
+				id, name, phone, status, product, createdAt, modifiedAt, pageable);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException("Lỗi khi lấy danh sách đơn hàng: " + e.getMessage());
 		}
-		int pageSize = 10;
-		Pageable pageable = PageRequest.of(page, pageSize);
-		return orderRepository.adminGetListOrder(id, name, phone, status, product, createdAt, modifiedAt, pageable);
 	}
 
 	@Override
