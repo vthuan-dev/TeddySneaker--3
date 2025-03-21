@@ -149,26 +149,21 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProductById(String id) {
-        // Check product exist
-        Optional<Product> rs = productRepository.findById(id);
-        if (rs.isEmpty()) {
-            throw new NotFoundExp("Sản phẩm không tồn tại");
+        // Kiểm tra sản phẩm có tồn tại hay không
+        Optional<Product> product = productRepository.findById(id);
+        if (product.isEmpty()) {
+            throw new NotFoundExp("Không tìm thấy sản phẩm!");
         }
-
-        // If have order, can't delete
-        int countOrder = orderRepository.countByProductId(id);
-        if (countOrder > 0) {
-            throw new BadRequestExp("Sản phẩm đã được đặt hàng không thể xóa");
-        }
-
+        
+        // Xóa các liên kết với bảng khác (sử dụng try-catch để xử lý lỗi nếu có)
         try {
-            // Delete product size
+            // Xóa size của sản phẩm
             productSizeRepository.deleteByProductId(id);
-
+            
+            // Xóa sản phẩm
             productRepository.deleteById(id);
-        } catch (Exception ex) {
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            throw new InternalServerExp("Lỗi khi xóa sản phẩm");
+        } catch (Exception e) {
+            throw new BadRequestExp("Không thể xóa sản phẩm này. Sản phẩm đã có đơn đặt hàng!");
         }
     }
 

@@ -144,39 +144,89 @@
                         </div><!-- End .collapse -->
                     </div><!-- End .widget -->
 
-                    <div class="widget">
-                        <h3 class="widget-title">
-                            <a data-toggle="collapse" href="#widget-body-3" role="button" aria-expanded="true"
-                               aria-controls="widget-body-3">Size</a>
-                        </h3>
-                        <!-- Size -->
-                        <div class="size content" id="widget-body-3">
-                            <div class="select-filter collapse show" id="size-collapse">
-                                <th:block th:each="size : ${sizeVn}">
-                                    <div class="item check-size" th:data-id="${size}" th:text="${size}"></div>
-                                </th:block>
+                    <div class="filter-section">
+                        <h3 class="filter-title">LOẠI SẢN PHẨM <i class="fas fa-minus float-right"></i></h3>
+                        <div class="filter-content">
+                            <div class="type-options">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input check-type" id="type1" value="1">
+                                    <label class="custom-control-label" for="type1">Quà lưu niệm</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input check-type" id="type2" value="2">
+                                    <label class="custom-control-label" for="type2">Đồ trang trí</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input check-type" id="type3" value="3">
+                                    <label class="custom-control-label" for="type3">Móc khóa</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input check-type" id="type4" value="4">
+                                    <label class="custom-control-label" for="type4">Tượng mini</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input check-type" id="type5" value="5">
+                                    <label class="custom-control-label" for="type5">Bưu thiếp</label>
+                                </div>
                             </div>
                         </div>
-                    </div><!-- End .widget -->
+                    </div>
 
-                    <div class="widget">
-                        <h3 class="widget-title">
-                            <a data-toggle="collapse" href="#widget-body-4" role="button" aria-expanded="true"
-                               aria-controls="widget-body-3">Price</a>
-                        </h3>
-
-                        <div class="collapse show" id="widget-body-4">
-                            <div class="widget-body">
-                                <!-- Price -->
-                                <div class="price-range content">
-                                    <input class="form-control price-input" id="from-price" type="text" placeholder="Từ">
-                                    <input class="form-control price-input" id="to-price" type="text" placeholder="Đến"pattern="[0-9]">
-                                    <button class="btn btn-primary apply-price red-btn" id="apply-price-web">Áp dụng
-                                    </button>
+                    <div class="filter-section">
+                        <h3 class="filter-title">CHẤT LIỆU <i class="fas fa-minus float-right"></i></h3>
+                        <div class="filter-content">
+                            <div class="material-options">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input check-material" id="material1" value="1">
+                                    <label class="custom-control-label" for="material1">Gỗ</label>
                                 </div>
-                            </div><!-- End .widget-body -->
-                        </div><!-- End .collapse -->
-                    </div><!-- End .widget -->
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input check-material" id="material2" value="2">
+                                    <label class="custom-control-label" for="material2">Kim loại</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input check-material" id="material3" value="3">
+                                    <label class="custom-control-label" for="material3">Nhựa</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input check-material" id="material4" value="4">
+                                    <label class="custom-control-label" for="material4">Giấy</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input check-material" id="material5" value="5">
+                                    <label class="custom-control-label" for="material5">Vải</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <h3 class="filter-title">GIÁ <i class="fas fa-minus float-right"></i></h3>
+                        <div class="filter-content">
+                            <div class="price-filter">
+                                <div class="price-input-container">
+                                    <input type="text" class="form-control price-input" id="from-price" placeholder="Từ">
+                                </div>
+                                <div class="price-input-container mt-2">
+                                    <input type="text" class="form-control price-input" id="to-price" placeholder="Đến">
+                                </div>
+                                <button id="apply-price-web" class="btn btn-primary mt-3 apply-price">ÁP DỤNG</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <h3 class="filter-title">TRỌNG LƯỢNG <i class="fas fa-minus float-right"></i></h3>
+                        <div class="filter-content">
+                            <div class="weight-options">
+                                <div class="weight-select check-size" data-id="100">100g</div>
+                                <div class="weight-select check-size" data-id="200">200g</div>
+                                <div class="weight-select check-size" data-id="300">300g</div>
+                                <div class="weight-select check-size" data-id="500">500g</div>
+                                <div class="weight-select check-size" data-id="1000">1kg</div>
+                            </div>
+                        </div>
+                    </div>
                 </div><!-- End .sidebar-wrapper -->
             </aside><!-- End .col-lg-3 -->
         </div><!-- End .row -->
