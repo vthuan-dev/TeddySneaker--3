@@ -1,6 +1,6 @@
 package com.web.application.entity;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
 import com.web.application.dto.StatisticDTO;
 
@@ -46,15 +46,20 @@ public class Statistic {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	@Column(name = "sales")
-	private long sales;
-	@Column(name = "profit")
-	private long profit;
+	
+	@Column(name = "created_at")
+	private Date createdAt;
+	
 	@Column(name = "quantity")
 	private int quantity;
+	
+	@Column(name = "sales")
+	private long sales;
+	
+	@Column(name = "profit")
+	private long profit;
+	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "order_id")
 	private Order order;
-	@Column(name = "created_at")
-	private Timestamp createdAt;
 }

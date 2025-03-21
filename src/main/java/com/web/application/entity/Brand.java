@@ -26,12 +26,12 @@ import lombok.Setter;
 @SqlResultSetMappings(
         value = {
                 @SqlResultSetMapping(
-                        name = "chartBrandDTO",
+                        name = "chartDTO",
                         classes = @ConstructorResult(
                                 targetClass = ChartDTO.class,
                                 columns = {
-                                        @ColumnResult(name = "label",type = String.class),
-                                        @ColumnResult(name = "value",type = Integer.class)
+                                        @ColumnResult(name = "label", type = String.class),
+                                        @ColumnResult(name = "value", type = Integer.class)
                                 }
                         )
                 )
@@ -39,12 +39,14 @@ import lombok.Setter;
 )
 @NamedNativeQuery(
         name = "getProductOrderBrands",
-        resultSetMapping = "chartBrandDTO",
-        query = "select b.name as label, count(o.quantity) as value  from brand b " +
-                "inner join product p on p.brand_id = b.id " +
-                "inner join orders o on p.id = o.product_id " +
-                "where o.status = 3 " +
-                "group by b.name"
+        resultSetMapping = "chartDTO",
+        query = "SELECT b.name AS label, COUNT(oi.quantity) AS value " +
+                "FROM brand b " +
+                "INNER JOIN product p ON p.brand_id = b.id " +
+                "INNER JOIN order_items oi ON oi.product_id = p.id " + 
+                "INNER JOIN orders o ON o.id = oi.order_id " +
+                "WHERE o.status = 3 " +
+                "GROUP BY b.name"
 )
 
 @AllArgsConstructor

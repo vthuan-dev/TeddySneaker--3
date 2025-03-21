@@ -100,38 +100,66 @@ public class DashboardController {
 
     @GetMapping("/api/admin/statistics")
     public ResponseEntity<Object> getStatistic30Day(){
-        List<StatisticDTO> statistics = statisticRepository.getStatistic30Day();
-        return ResponseEntity.ok(statistics);
+        try {
+            List<StatisticDTO> statistics = statisticRepository.getStatistic30Day();
+            return ResponseEntity.ok(statistics);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("Error fetching statistics: " + e.getMessage());
+        }
     }
 
     @PostMapping("/api/admin/statistics")
     public ResponseEntity<Object> getStatisticDayByDay(@RequestBody FilterDayByDay filterDayByDay){
-        List<StatisticDTO> statisticDTOS = statisticRepository.getStatisticDayByDay(filterDayByDay.getToDate(),filterDayByDay.getFromDate());
-        return ResponseEntity.ok(statisticDTOS);
+        try {
+            List<StatisticDTO> statisticDTOS = statisticRepository.getStatisticDayByDay(
+                filterDayByDay.getToDate(),
+                filterDayByDay.getFromDate()
+            );
+            return ResponseEntity.ok(statisticDTOS);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("Error fetching statistics: " + e.getMessage() + "\n" + e.getStackTrace()[0]);
+        }
     }
 
     @GetMapping("/api/admin/product-order-categories")
     public ResponseEntity<Object> getListProductOrderCategories(){
-        List<ChartDTO> chartDTOS = categoryRepository.getListProductOrderCategories();
-        return ResponseEntity.ok(chartDTOS);
+        try {
+            List<ChartDTO> chartDTOS = categoryRepository.getListProductOrderCategories();
+            return ResponseEntity.ok(chartDTOS);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("Error fetching category statistics: " + e.getMessage());
+        }
     }
 
     @GetMapping("/api/admin/product-order-brands")
     public ResponseEntity<Object> getProductOrderBrands(){
-        List<ChartDTO> chartDTOS = brandRepository.getProductOrderBrands();
-        return ResponseEntity.ok(chartDTOS);
+        try {
+            List<ChartDTO> chartDTOS = brandRepository.getProductOrderBrands();
+            return ResponseEntity.ok(chartDTOS);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("Error fetching brand statistics: " + e.getMessage());
+        }
     }
 
     @GetMapping("/api/admin/product-order")
     public ResponseEntity<Object> getProductOrder(){
-        Pageable pageable = PageRequest.of(0,10);
-        LocalDate now = LocalDate.now();
-        List<ChartDTO> chartDTOS = productRepository.getProductOrders(
-            pageable, 
-            now.getMonthValue(),
-            now.getYear()
-        );
-        return ResponseEntity.ok(chartDTOS);
+        try {
+            Pageable pageable = PageRequest.of(0,10);
+            LocalDate now = LocalDate.now();
+            List<ChartDTO> chartDTOS = productRepository.getProductOrders(
+                pageable, 
+                now.getMonthValue(),
+                now.getYear()
+            );
+            return ResponseEntity.ok(chartDTOS);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("Error fetching product orders: " + e.getMessage());
+        }
     }
 
     @GetMapping("/api/admin/orders")

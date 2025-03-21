@@ -37,12 +37,14 @@ import lombok.Setter;
 @NamedNativeQuery(
         name = "getProductOrderCategories",
         resultSetMapping = "chartCategoryDTO",
-        query = "select  c.name as label, count(o.quantity) as value from category c " +
-                "inner join product_category pc on pc.category_id = c.id " +
-                "inner join product p on p.id = pc.product_id " +
-                "inner join orders o on o.product_id = p.id " +
-                "where o.status = 3 " +
-                "group by c.name "
+        query = "SELECT c.name AS label, COUNT(oi.quantity) AS value " +
+                "FROM category c " +
+                "INNER JOIN product_category pc ON pc.category_id = c.id " +
+                "INNER JOIN product p ON p.id = pc.product_id " +
+                "INNER JOIN order_items oi ON oi.product_id = p.id " +
+                "INNER JOIN orders o ON o.id = oi.order_id " +
+                "WHERE o.status = 3 " +
+                "GROUP BY c.name"
 )
 @AllArgsConstructor
 @NoArgsConstructor

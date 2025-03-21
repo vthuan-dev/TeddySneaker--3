@@ -1,5 +1,7 @@
 package com.web.application.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,8 +15,6 @@ import com.web.application.dto.ChartDTO;
 import com.web.application.dto.ProductInfoDTO;
 import com.web.application.dto.ShortProductInfoDTO;
 import com.web.application.entity.Product;
-
-import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, String> {
@@ -131,6 +131,15 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             "WHERE product.status = 1 AND (product.name LIKE CONCAT('%',:keyword,'%') OR category.name LIKE CONCAT('%',:keyword,'%')) ")
     int countProductByKeyword(@Param("keyword") String keyword);
 
-    @Query(name = "getProductOrders",nativeQuery = true)
-    List<ChartDTO> getProductOrders(Pageable pageable, Integer moth, Integer year);
+    @Query(value = "SELECT p.name AS label, SUM(oi.quantity) AS value " +
+            "FROM product p " +
+            "INNER JOIN order_items oi ON p.id = oi.product_id " +
+            "INNER JOIN orders o ON oi.order_id = o.id " +
+            "WHERE o.status = 3 " +
+            "AND MONTH(o.created_at) = :month " +
+            "AND YEAR(o.created_at) = :year " +
+            "GROUP BY p.id, p.name " +
+            "ORDER BY SUM(oi.quantity) DESC", 
+            nativeQuery = true)
+    List<ChartDTO> getProductOrders(Pageable pageable, @Param("month") int month, @Param("year") int year);
 }

@@ -1,20 +1,10 @@
 package com.web.application.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Date;
 
-@Setter
-@Getter
-public class StatisticDTO {
-    private long sales;
-    private long profit;
-    private int quantity;
-    private String createdAt;
-
-    public StatisticDTO(long sales, long profit, int quantity,String createdAt){
-        this.sales = sales;
-        this.profit = profit;
-        this.quantity = quantity;
-        this.createdAt = createdAt;
-    }
+public interface StatisticDTO {
+    Date getCreatedAt();
+    Integer getQuantity();
+    Long getSales();
+    Long getProfit();
 }
