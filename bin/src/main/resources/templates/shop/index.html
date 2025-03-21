@@ -104,11 +104,21 @@
                         <div class="ratings-container">
                             <p class="card-text sold">&Dstrok;&atilde; b&aacute;n <span th:text="${newProduct.totalSold}"></span> &dstrok;&ocirc;i</p>
                         </div><!-- End .product-container -->
-<!--                        <div class="product-action">-->
-<!--                            <a href="#" class="btn-icon-wish"><i class="icon-heart"></i></a>-->
-<!--                            <button class="btn-icon btn-add-cart" data-toggle="modal" data-target="#addCartModal">Mua hàng</button>-->
-<!--                            <a href="ajax/product-quick-view.html" class="btn-quickview" title="Quick View"><i class="fas fa-external-link-alt"></i></a>-->
-<!--                        </div>-->
+                        <div class="product-overlay">
+                            <div class="size-options">
+                                <div class="size-option" th:each="size : ${#numbers.sequence(35, 42)}" 
+                                     th:data-size="${size}" 
+                                     th:text="${size}"
+                                     th:onclick="selectSize(this, [[${newProduct.id}]])">
+                                </div>
+                            </div>
+                            <button class="btn-add-cart" 
+                                    th:disabled="true"
+                                    th:data-product-id="${newProduct.id}"
+                                    onclick="addToCart(this)">
+                                Thêm vào giỏ hàng
+                            </button>
+                        </div>
                     </div><!-- End .product-details -->
                 </div>
                 </th:block>
@@ -155,11 +165,21 @@
                         <div class="ratings-container">
                             <p class="card-text sold">&Dstrok;&atilde; b&aacute;n <span th:text="${sell.totalSold}"></span> &dstrok;&ocirc;i</p>
                         </div><!-- End .product-container -->
-<!--                        <div class="product-action">-->
-<!--                            <a href="#" class="btn-icon-wish"><i class="icon-heart"></i></a>-->
-<!--                            <button class="btn-icon btn-add-cart" data-toggle="modal" data-target="#addCartModal">Mua hàng</button>-->
-<!--                            <a href="ajax/product-quick-view.html" class="btn-quickview" title="Quick View"><i class="fas fa-external-link-alt"></i></a>-->
-<!--                        </div>-->
+                        <div class="product-overlay">
+                            <div class="size-options">
+                                <div class="size-option" th:each="size : ${#numbers.sequence(35, 42)}" 
+                                     th:data-size="${size}" 
+                                     th:text="${size}"
+                                     th:onclick="selectSize(this, [[${sell.id}]])">
+                                </div>
+                            </div>
+                            <button class="btn-add-cart" 
+                                    th:disabled="true"
+                                    th:data-product-id="${sell.id}"
+                                    onclick="addToCart(this)">
+                                Thêm vào giỏ hàng
+                            </button>
+                        </div>
                     </div><!-- End .product-details -->
                 </div>
                 </th:block>
@@ -201,11 +221,21 @@
                         <div class="ratings-container">
                             <p class="card-text sold">Số lượt xem: <span th:text="${view.views}"></span></p>
                         </div><!-- End .product-container -->
-<!--                        <div class="product-action">-->
-<!--                            <a href="#" class="btn-icon-wish"><i class="icon-heart"></i></a>-->
-<!--                            <button class="btn-icon btn-add-cart" data-toggle="modal" data-target="#addCartModal">Mua hàng</button>-->
-<!--                            <a href="ajax/product-quick-view.html" class="btn-quickview" title="Quick View"><i class="fas fa-external-link-alt"></i></a>-->
-<!--                        </div>-->
+                        <div class="product-overlay">
+                            <div class="size-options">
+                                <div class="size-option" th:each="size : ${#numbers.sequence(35, 42)}" 
+                                     th:data-size="${size}" 
+                                     th:text="${size}"
+                                     th:onclick="selectSize(this, [[${view.id}]])">
+                                </div>
+                            </div>
+                            <button class="btn-add-cart" 
+                                    th:disabled="true"
+                                    th:data-product-id="${view.id}"
+                                    onclick="addToCart(this)">
+                                Thêm vào giỏ hàng
+                            </button>
+                        </div>
                     </div><!-- End .product-details -->
                 </div>
                 </th:block>
@@ -310,5 +340,261 @@
 <th:block id="js-resources">
 
 </th:block>
+
+<style>
+/* Product Card Container */
+.product-default {
+    position: relative;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+/* Product Image Container */
+.product-default figure {
+    position: relative;
+    margin: 0;
+    padding-top: 100%; /* 1:1 Aspect Ratio */
+    overflow: hidden;
+}
+
+.product-default figure img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+/* Product Details */
+.product-details {
+    padding: 15px;
+    position: relative;
+}
+
+/* Hover Effect & Overlay */
+.product-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -100%;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.product-default:hover .product-overlay {
+    bottom: 0;
+}
+
+.product-default:hover figure img {
+    transform: scale(1.05);
+}
+
+/* Size Options */
+.size-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.size-option {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    background: white;
+}
+
+.size-option:hover {
+    border-color: #ee4d2d;
+    color: #ee4d2d;
+}
+
+.size-option.selected {
+    background: #ee4d2d;
+    color: white;
+    border-color: #ee4d2d;
+}
+
+/* Add to Cart Button */
+.btn-add-cart {
+    width: 100%;
+    padding: 10px;
+    background: #ee4d2d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-add-cart:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.btn-add-cart:not(:disabled):hover {
+    background: #ff6b6b;
+}
+
+/* Product Info */
+.product-title {
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.product-title a {
+    color: #333;
+    text-decoration: none;
+}
+
+.price-box {
+    margin: 8px 0;
+}
+
+.product-price {
+    color: #ee4d2d;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.old-price {
+    color: #999;
+    text-decoration: line-through;
+    margin-left: 5px;
+    font-size: 14px;
+}
+
+/* Section Titles */
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 30px 0;
+    position: relative;
+    color: #333;
+}
+
+.section-title:after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: #ee4d2d;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .product-default figure img {
+        height: 200px;
+    }
+    
+    .product-title {
+        font-size: 0.9rem;
+    }
+    
+    .product-price {
+        font-size: 1rem;
+    }
+}
+
+/* Slider Navigation */
+.owl-nav button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50% !important;
+    background: white !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+    transition: all 0.3s ease;
+}
+
+.owl-nav button:hover {
+    background: #ee4d2d !important;
+    color: white !important;
+}
+</style>
+
+<script th:inline="javascript">
+let selectedSizes = {};
+
+function selectSize(element, productId) {
+    // Remove selected class from all sizes for this product
+    element.parentElement.querySelectorAll('.size-option').forEach(el => {
+        el.classList.remove('selected');
+    });
+    
+    // Add selected class to clicked size
+    element.classList.add('selected');
+    
+    // Store selected size
+    selectedSizes[productId] = parseInt(element.dataset.size);
+    
+    // Enable add to cart button
+    const addButton = element.closest('.product-overlay').querySelector('.btn-add-cart');
+    addButton.disabled = false;
+}
+
+function addToCart(button) {
+    const productId = button.dataset.productId;
+    const size = selectedSizes[productId];
+    
+    if (!size) {
+        toastr.error('Vui lòng chọn size');
+        return;
+    }
+    
+    // Show loading state
+    button.disabled = true;
+    button.innerHTML = 'Đang thêm...';
+    
+    fetch('/api/cart/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            productId: productId,
+            size: size,
+            quantity: 1
+        }),
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        toastr.success('Đã thêm vào giỏ hàng');
+        // Reset button state
+        button.disabled = false;
+        button.innerHTML = 'Thêm vào giỏ hàng';
+        // Reset size selection
+        button.closest('.product-overlay').querySelector('.size-option.selected').classList.remove('selected');
+        delete selectedSizes[productId];
+        button.disabled = true;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        toastr.error('Có lỗi xảy ra');
+        // Reset button state
+        button.disabled = false;
+        button.innerHTML = 'Thêm vào giỏ hàng';
+    });
+}
+</script>
 </body>
 </html>

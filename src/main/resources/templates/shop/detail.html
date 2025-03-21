@@ -803,12 +803,12 @@
 
                         <!-- Action Buttons -->
                         <div class="product-actions">
-                            <button class="btn-add-cart" onclick="addToCart(this)" data-product-id="4ImFfx">
+                            <button class="btn-add-cart" onclick="addToCart(this, false)" data-product-id="4ImFfx">
                                 <i class="fas fa-shopping-cart"></i>
                                 <span>Thêm vào giỏ hàng</span>
                             </button>
 
-                            <button class="btn-buy-now">
+                            <button class="btn-buy-now" onclick="addToCart(this, true)" data-product-id="4ImFfx">
                                 <span class="buy-now-price">15,000₫</span>
                                 <span class="buy-now-text">Mua ngay</span>
                             </button>
@@ -1143,16 +1143,156 @@
         }
 
         // Cập nhật hàm addToCart
-        function addToCart(button) {
+        function addToCart(button, redirectToCart = false) {
             if (!selectedSize) {
-                showToast('Vui lòng chọn loại sản phẩm trước khi thêm vào giỏ hàng');
+                showToast('Vui lòng chọn loại sản phẩm trước');
                 return;
             }
-            
-            // Tiếp tục với logic thêm vào giỏ hàng của bạn...
+
+            // Cấu hình toastr
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "timeOut": redirectToCart ? "500" : "1500",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+
             const productId = button.getAttribute('data-product-id');
-            // ... rest of your cart logic
+
+            fetch('/api/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    productId: productId,
+                    quantity: 1,
+                    size: selectedSize
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/auth/dang-nhap';
+                        return;
+                    }
+                    throw new Error('Có lỗi xảy ra');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Hiển thị thông báo thành công
+                toastr.success('Đã thêm sản phẩm vào giỏ hàng');
+                
+                if (redirectToCart) {
+                    // Nếu là nút "Mua ngay", chuyển đến trang giỏ hàng sau 0.5 giây
+                    setTimeout(() => {
+                        window.location.href = '/cart?t=' + Date.now();
+                    }, 500);
+                } else {
+                    // Nếu là nút "Thêm vào giỏ hàng", cập nhật số lượng trong giỏ hàng (nếu có)
+                    updateCartCount();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                toastr.error(error.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng');
+            });
         }
+
+        // Hàm cập nhật số lượng trong giỏ hàng (tùy theo cấu trúc của bạn)
+        function updateCartCount() {
+            // Fetch số lượng mới từ server và cập nhật UI
+            fetch('/api/cart/count')
+                .then(response => response.json())
+                .then(data => {
+                    // Giả sử bạn có một element hiển thị số lượng trong giỏ hàng
+                    const cartCountElement = document.querySelector('.cart-count');
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.count;
+                    }
+                })
+                .catch(error => console.error('Error updating cart count:', error));
+        }
+
+        // Thêm style cho buttons
+        const buttonStyles = `
+            .product-actions {
+                display: flex;
+                gap: 1rem;
+                margin-top: 2rem;
+            }
+
+            .btn-add-cart, .btn-buy-now {
+                flex: 1;
+                padding: 1rem;
+                border: none;
+                border-radius: 12px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+
+            .btn-add-cart {
+                background: #f8f9fa;
+                color: #2c3e50;
+                border: 2px solid #e0e0e0;
+            }
+
+            .btn-add-cart:hover {
+                background: #e0e0e0;
+                transform: translateY(-2px);
+            }
+
+            .btn-buy-now {
+                background: linear-gradient(145deg, #3498db, #2980b9);
+                color: white;
+                flex-direction: column;
+            }
+
+            .btn-buy-now:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            }
+
+            .btn-buy-now:disabled,
+            .btn-add-cart:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
+                transform: none;
+            }
+
+            .buy-now-price {
+                font-size: 1.2rem;
+                font-weight: 700;
+            }
+
+            .buy-now-text {
+                font-size: 0.9rem;
+                opacity: 0.9;
+            }
+        `;
+
+        // Thêm style vào head
+        const styleSheet = document.createElement("style");
+        styleSheet.innerText = buttonStyles;
+        document.head.appendChild(styleSheet);
 
         $(document).ready(function() {
             // Initialize the main carousel

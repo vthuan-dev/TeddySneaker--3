@@ -139,8 +139,9 @@ public class CartController {
         }
     }
 
-    @DeleteMapping("/remove/{productId}")
-    public ResponseEntity<?> removeProductFromCart(
+    @DeleteMapping("/api/cart/remove/{productId}")
+    @ResponseBody
+    public ResponseEntity<?> removeFromCart(
             @PathVariable String productId,
             @RequestParam(required = false) Integer size) {
         try {
@@ -152,12 +153,12 @@ public class CartController {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             Long userId = userDetails.getUser().getId();
             
-            // Xóa sản phẩm khỏi giỏ hàng
-            cartService.removeProductFromCart(userId, productId, size);
+            Cart updatedCart = cartService.removeProductFromCart(userId, productId, size);
+            if (updatedCart == null) {
+                return ResponseEntity.notFound().build();
+            }
             
-            // Lấy thông tin giỏ hàng mới sau khi xóa
             CartSummaryDTO summary = cartService.getCartSummary(userId);
-            
             return ResponseEntity.ok(summary);
         } catch (Exception e) {
             e.printStackTrace();

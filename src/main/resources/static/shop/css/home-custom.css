@@ -1,0 +1,203 @@
+/**
+ * SHOP HOME PAGE CUSTOM STYLES
+ * Includes styles for: slider, logo, and other home page elements
+ */
+
+/* ====== LOGO STYLES ====== */
+.header-logo {
+    position: relative;
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+.header-logo img {
+    max-height: 80px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    padding: 8px;
+    background: white;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.header-logo:hover img {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    border-color: #ee4d2d;
+}
+
+.header-logo:after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    border-radius: 16px;
+    background: radial-gradient(circle, rgba(238,77,45,0.2) 0%, rgba(238,77,45,0) 70%);
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.3s ease;
+}
+
+.header-logo:hover:after {
+    opacity: 1;
+}
+
+.header-logo .logo-badge {
+    position: absolute;
+    bottom: -8px;
+    right: -8px;
+    background: #ee4d2d;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transform: scale(0);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.header-logo:hover .logo-badge {
+    transform: scale(1);
+}
+
+/* ====== SLIDER STYLES ====== */
+/* Slider Container */
+.home-slider {
+    max-width: 1140px; /* Match Bootstrap container width */
+    width: 100%;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-bottom: 30px !important;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+/* Container Padding Fix */
+.home-slider-container {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Slide Image */
+.home-slide {
+    height: 350px;
+    position: relative;
+    overflow: hidden;
+}
+
+.home-slide .slide-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s ease;
+}
+
+.home-slide:hover .slide-bg {
+    transform: scale(1.05);
+}
+
+/* Overlay Gradient */
+.home-slide:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 30%;
+    background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+    z-index: 1;
+}
+
+/* Navigation Controls */
+.home-slider .owl-nav button {
+    width: 48px;
+    height: 48px;
+    background: rgba(255,255,255,0.9) !important;
+    border-radius: 50% !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.home-slider:hover .owl-nav button {
+    opacity: 1;
+}
+
+.home-slider .owl-nav button:hover {
+    background: #fff !important;
+    transform: scale(1.05);
+}
+
+.home-slider .owl-nav button span {
+    font-size: 22px;
+    color: #333;
+}
+
+/* Dots Navigation */
+.home-slider .owl-dots {
+    position: absolute;
+    bottom: 15px;
+    width: 100%;
+    text-align: center;
+    z-index: 2;
+}
+
+.home-slider .owl-dots .owl-dot span {
+    width: 10px;
+    height: 10px;
+    margin: 0 5px;
+    background: rgba(255,255,255,0.5);
+    transition: all 0.3s ease;
+}
+
+.home-slider .owl-dots .owl-dot.active span {
+    background: #ffffff;
+    width: 12px;
+    height: 12px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+    .home-slider {
+        max-width: 960px;
+    }
+}
+
+@media (max-width: 992px) {
+    .home-slider {
+        max-width: 720px;
+    }
+}
+
+@media (max-width: 768px) {
+    .home-slider {
+        max-width: 540px;
+    }
+    
+    .home-slide {
+        height: 250px;
+    }
+    
+    .home-slider .owl-nav button {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 576px) {
+    .home-slider {
+        max-width: 100%;
+    }
+    
+    .home-slide {
+        height: 200px;
+    }
+} 
