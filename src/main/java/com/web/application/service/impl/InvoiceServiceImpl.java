@@ -198,7 +198,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                     // Bỏ qua lỗi logo, chỉ ghi log
                     System.out.println("Không thể tải logo: " + e.getMessage());
                     // Vẫn thêm một đoạn văn bản thay cho logo để đảm bảo có nội dung
-                    document.add(new Paragraph("TEDDY SNEAKER"));
+                    document.add(new Paragraph("SOUVENIR SHOP"));
                 }
                 
                 // Thêm thông tin hóa đơn
@@ -224,7 +224,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                         
                         // Tiêu đề bảng
                         table.addHeaderCell(new Cell().add(new Paragraph("San pham").setBold()));
-                        table.addHeaderCell(new Cell().add(new Paragraph("Size").setBold()));
+                        table.addHeaderCell(new Cell().add(new Paragraph("Loai/Mau").setBold()));
                         table.addHeaderCell(new Cell().add(new Paragraph("So luong").setBold()));
                         table.addHeaderCell(new Cell().add(new Paragraph("Don gia").setBold()));
                         table.addHeaderCell(new Cell().add(new Paragraph("Thanh tien").setBold()));

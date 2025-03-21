@@ -258,6 +258,451 @@
                 flex-wrap: wrap;
                 gap: 10px;
             }
+
+            /* Product Gallery Styling */
+            .product-gallery-container {
+                position: relative;
+                margin-bottom: 2rem;
+                background-color: #fff;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            }
+
+            .product-single-carousel {
+                border-radius: 10px;
+                overflow: hidden;
+            }
+
+            .product-single-carousel .owl-stage-outer {
+                border-radius: 10px;
+            }
+
+            .product-item {
+                position: relative;
+                overflow: hidden;
+                border-radius: 10px;
+                background-color: #f8f9fa;
+            }
+
+            .product-single-image {
+                width: 100%;
+                height: auto;
+                object-fit: contain;
+                transition: transform 0.5s ease;
+                cursor: zoom-in;
+                aspect-ratio: 1 / 1;
+            }
+
+            .product-single-image:hover {
+                transform: scale(1.03);
+            }
+
+            /* Thumbnails styling */
+            .product-thumbnails {
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                gap: 10px;
+                margin-top: 15px;
+                padding: 10px 0;
+                scrollbar-width: thin;
+            }
+
+            .product-thumbnails::-webkit-scrollbar {
+                height: 5px;
+            }
+
+            .product-thumbnails::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 10px;
+            }
+
+            .product-thumbnails::-webkit-scrollbar-thumb {
+                background: #ddd;
+                border-radius: 10px;
+            }
+
+            .product-thumbnails::-webkit-scrollbar-thumb:hover {
+                background: #3498db;
+            }
+
+            .thumbnail-item {
+                flex: 0 0 auto;
+                width: 80px;
+                height: 80px;
+                border-radius: 8px;
+                overflow: hidden;
+                border: 2px solid transparent;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                position: relative;
+            }
+
+            .thumbnail-item:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            }
+
+            .thumbnail-item.active {
+                border-color: #3498db;
+            }
+
+            .thumbnail-item img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            /* Gallery actions */
+            .gallery-actions {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                z-index: 10;
+                display: flex;
+                gap: 10px;
+            }
+
+            .prod-full-screen {
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: rgba(255, 255, 255, 0.8);
+                border-radius: 50%;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .prod-full-screen:hover {
+                background-color: #fff;
+                transform: scale(1.1);
+            }
+
+            .prod-full-screen i {
+                color: #333;
+                font-size: 1rem;
+            }
+
+            /* Custom Owl Carousel Navigation */
+            .product-single-carousel .owl-nav {
+                position: absolute;
+                top: 50%;
+                width: 100%;
+                transform: translateY(-50%);
+                display: flex;
+                justify-content: space-between;
+                pointer-events: none;
+                padding: 0 10px;
+            }
+
+            .product-single-carousel .owl-nav button {
+                width: 40px;
+                height: 40px;
+                background-color: rgba(255, 255, 255, 0.8) !important;
+                border-radius: 50% !important;
+                pointer-events: auto;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .product-single-carousel .owl-nav button:hover {
+                background-color: #fff !important;
+                transform: scale(1.1);
+            }
+
+            .product-single-carousel .owl-nav button i {
+                color: #333;
+                font-size: 1.2rem;
+            }
+
+            /* Zoom container styling */
+            .zoomContainer {
+                z-index: 9;
+                overflow: hidden;
+                border-radius: 10px;
+            }
+
+            /* Responsive adjustments */
+            @media (max-width: 992px) {
+                .thumbnail-item {
+                    width: 70px;
+                    height: 70px;
+                }
+            }
+
+            @media (max-width: 767px) {
+                .thumbnail-item {
+                    width: 60px;
+                    height: 60px;
+                }
+                
+                .product-single-carousel .owl-nav {
+                    display: none;
+                }
+            }
+
+            /* Product Details Container */
+            .product-details-container {
+                padding: 2rem;
+                background: #fff;
+                border-radius: 20px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            }
+
+            /* Product Title */
+            .product-title {
+                font-size: 2.5rem;
+                font-weight: 600;
+                color: #2c3e50;
+                margin-bottom: 1.5rem;
+                line-height: 1.2;
+                letter-spacing: -0.5px;
+            }
+
+            /* Price Container */
+            .price-container {
+                margin-bottom: 2rem;
+                padding: 1.5rem;
+                background: linear-gradient(145deg, #f8f9fa, #ffffff);
+                border-radius: 15px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            }
+
+            .current-price-section {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .price-amount {
+                font-size: 2rem;
+                font-weight: 700;
+                color: #e74c3c;
+            }
+
+            .discount-badge {
+                background: #e74c3c;
+                color: white;
+                padding: 0.3rem 0.8rem;
+                border-radius: 20px;
+                font-size: 0.9rem;
+                font-weight: 600;
+            }
+
+            .original-price {
+                color: #95a5a6;
+                font-size: 0.9rem;
+            }
+
+            /* Product Stats */
+            .product-stats-container {
+                display: flex;
+                gap: 2rem;
+                margin-bottom: 2rem;
+                padding: 1.5rem;
+                background: #f8f9fa;
+                border-radius: 15px;
+            }
+
+            .stat-item {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .stat-icon {
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            }
+
+            .stat-icon i {
+                color: #3498db;
+                font-size: 1.2rem;
+            }
+
+            .stat-info {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .stat-label {
+                font-size: 0.9rem;
+                color: #7f8c8d;
+            }
+
+            .stat-value {
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: #2c3e50;
+            }
+
+            .status-badge {
+                padding: 0.3rem 0.8rem;
+                border-radius: 20px;
+                font-weight: 600;
+                font-size: 0.9rem;
+            }
+
+            .status-badge.in-stock {
+                background: #2ecc71;
+                color: white;
+            }
+
+            .status-badge.out-of-stock {
+                background: #e74c3c;
+                color: white;
+            }
+
+            /* Product Options */
+            .product-options {
+                margin-bottom: 2rem;
+            }
+
+            .option-title {
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: #2c3e50;
+                margin-bottom: 1rem;
+            }
+
+            .option-choices {
+                display: flex;
+                gap: 1rem;
+                flex-wrap: wrap;
+            }
+
+            .option-item {
+                width: 60px;
+                height: 60px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 2px solid #e0e0e0;
+                border-radius: 12px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                background: white;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .option-item:hover {
+                border-color: #3498db;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(52, 152, 219, 0.1);
+            }
+
+            .option-item.active {
+                border-color: #3498db;
+                background: #3498db;
+                color: white;
+            }
+
+            .option-item.active::after {
+                content: '✓';
+                position: absolute;
+                top: 2px;
+                right: 2px;
+                font-size: 12px;
+                color: white;
+            }
+
+            /* Action Buttons */
+            .product-actions {
+                display: flex;
+                gap: 1rem;
+            }
+
+            .btn-add-cart, .btn-buy-now {
+                flex: 1;
+                padding: 1rem;
+                border: none;
+                border-radius: 12px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+
+            .btn-add-cart {
+                background: #f8f9fa;
+                color: #2c3e50;
+                border: 2px solid #e0e0e0;
+            }
+
+            .btn-add-cart:hover {
+                background: #e0e0e0;
+                transform: translateY(-2px);
+            }
+
+            .btn-buy-now {
+                background: linear-gradient(145deg, #3498db, #2980b9);
+                color: white;
+                flex-direction: column;
+            }
+
+            .btn-buy-now:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            }
+
+            .buy-now-price {
+                font-size: 1.2rem;
+                font-weight: 700;
+            }
+
+            .buy-now-text {
+                font-size: 0.9rem;
+                opacity: 0.9;
+            }
+
+            /* Responsive Design */
+            @media (max-width: 768px) {
+                .product-title {
+                    font-size: 2rem;
+                }
+
+                .product-actions {
+                    flex-direction: column;
+                }
+
+                .product-stats-container {
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+            }
+
+            /* Animations */
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            .product-details-container {
+                animation: fadeIn 0.5s ease-out;
+            }
+
+            /* Hover Effects */
+            .product-details-container:hover {
+                box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+            }
         </style>
     </th:block>
 </head>
@@ -273,7 +718,8 @@
         <div class="product-single-container product-single-default">
             <div class="row">
                 <div class="col-md-6 product-single-gallery">
-                    <div class="product-slider-container">
+                    <div class="product-gallery-container">
+                        <!-- Main Image Slider -->
                         <div class="product-single-carousel owl-carousel owl-theme">
                             <th:block th:each="img :${product.productImages}">
                                 <div class="product-item">
@@ -281,76 +727,90 @@
                                 </div>
                             </th:block>
                         </div>
-                        <!-- End .product-single-carousel -->
-                        <span class="prod-full-screen"><i class="icon-plus"></i></span>
-                    </div>
-                    <div class="prod-thumbnail owl-dots" id='carousel-custom-dots'>
-                        <th:block th:each="img :${product.productImages}">
-                            <div class="owl-dot">
-                                <img style="height: 150px" th:src="@{${img}}"/>
-                            </div>
-                        </th:block>
+                        
+                        <!-- Fullscreen button -->
+                        <div class="gallery-actions">
+                            <span class="prod-full-screen" title="Xem toàn màn hình">
+                                <i class="fas fa-expand"></i>
+                            </span>
+                        </div>
+                        
+                        <!-- Thumbnails -->
+                        <div class="product-thumbnails" id="carousel-custom-dots">
+                            <th:block th:each="img, stat :${product.productImages}">
+                                <div class="thumbnail-item" th:classappend="${stat.first ? 'active' : ''}">
+                                    <img th:src="${img}" th:attr="data-index=${stat.index}"/>
+                                </div>
+                            </th:block>
+                        </div>
                     </div>
                 </div><!-- End .product-single-gallery -->
 
                 <div class="col-md-6 product-single-details">
-                    <h1 class="product-title text-primary mb-4">vòng ngọc trai</h1>
+                    <div class="product-details-container">
+                        <!-- Product Title -->
+                        <h1 class="product-title">vòng ngọc trai</h1>
 
-                    <div class="product-info-box mb-4">
-                        <div class="price-section">
-                            <div class="price-label">Giá sản phẩm</div>
-                            <div class="price-value">
-                                <span class="current-price">15,000₫</span>
+                        <!-- Price Section -->
+                        <div class="price-container">
+                            <div class="current-price-section">
+                                <span class="price-amount">15,000₫</span>
+                                <span class="discount-badge">-25%</span>
+                            </div>
+                            <div class="original-price">
+                                <span>Giá gốc: </span>
+                                <del>20,000₫</del>
                             </div>
                         </div>
 
-                        <div class="product-stats">
+                        <!-- Product Stats -->
+                        <div class="product-stats-container">
                             <div class="stat-item">
-                                <i class="fas fa-shopping-cart"></i>
-                                <span class="stat-label">Đã bán:</span>
-                                <span class="stat-value">0 đôi</span>
+                                <div class="stat-icon">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-label">Đã bán</span>
+                                    <span class="stat-value">4 món</span>
+                                </div>
                             </div>
                             
                             <div class="stat-item">
-                                <i class="fas fa-box"></i>
-                                <span class="stat-label">Tình trạng:</span>
-                                <span class="status-badge out-of-stock">Tạm hết hàng</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="product-actions">
-                        <div class="size-selector mb-4">
-                            <label class="size-label">Chọn kích thước:</label>
-                            <div class="size-options d-flex gap-2">
-                                <th:block th:each="size : ${availableSizes}">
-                                    <div class="size-box" 
-                                         th:data-size="${size}"
-                                         onclick="selectSize(this)"
-                                         th:classappend="${size == selectedSize ? 'active' : ''}">
-                                        <span th:text="${size}"></span>
-                                    </div>
-                                </th:block>
+                                <div class="stat-icon">
+                                    <i class="fas fa-box"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-label">Tình trạng</span>
+                                    <span class="status-badge in-stock">Còn hàng</span>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="action-buttons">
-                            <button class="btn-add-cart" 
-                                    th:attr="data-product-id=${product.id}"
-                                    onclick="addToCart(this)">
-                                Thêm vào giỏ hàng
-                            </button>
-
-                            <button class="btn-buy-now disabled">
-                                <div class="buy-now-content">
-                                    <div class="price-info">
-                                        <span class="price-label">Giá bán ưu đãi</span>
-                                        <span class="price-value">15,000₫</span>
+                        <!-- Product Options -->
+                        <div class="product-options">
+                            <div class="option-section">
+                                <h3 class="option-title">Chọn loại</h3>
+                                <div class="option-choices">
+                                    <div class="option-item" data-size="35" onclick="selectSize(this)">
+                                        <span>35</span>
                                     </div>
-                                    <div class="buy-text">
-                                        <span>Mua ngay</span>
+                                    <div class="option-item" data-size="37" onclick="selectSize(this)">
+                                        <span>37</span>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="product-actions">
+                            <button class="btn-add-cart" onclick="addToCart(this)" data-product-id="4ImFfx">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>Thêm vào giỏ hàng</span>
+                            </button>
+
+                            <button class="btn-buy-now">
+                                <span class="buy-now-price">15,000₫</span>
+                                <span class="buy-now-text">Mua ngay</span>
                             </button>
                         </div>
                     </div>
@@ -605,80 +1065,172 @@
         // });
 
         function selectSize(element) {
-            // Xóa class active từ tất cả các size
-            document.querySelectorAll('.size-box').forEach(box => {
-                box.classList.remove('active');
+            // Xóa class active từ tất cả các option
+            document.querySelectorAll('.option-item').forEach(item => {
+                item.classList.remove('active');
             });
             
-            // Thêm class active cho size được chọn
-            element.classList.add('active');
-            selectedSize = parseInt(element.getAttribute('data-size'));
-            console.log('Selected size:', selectedSize); // Debug log
-        }
-
-        function addToCart(button) {
-            if (!selectedSize) {
-                toastr.warning('Vui lòng chọn size trước khi thêm vào giỏ hàng');
+            // Nếu click vào option đang được chọn, bỏ chọn nó
+            if (selectedSize === element.getAttribute('data-size')) {
+                selectedSize = null;
+                // Disable nút mua ngay
+                document.querySelector('.btn-buy-now').classList.add('disabled');
                 return;
             }
-
-            const productId = button.getAttribute('data-product-id');
-
-            // Cấu hình toastr
-            toastr.options = {
-                "closeButton": true,
-                "debug": false,
-                "newestOnTop": false,
-                "progressBar": true,
-                "positionClass": "toast-top-right",
-                "preventDuplicates": false,
-                "onclick": null,
-                "showDuration": "300",
-                "hideDuration": "1000",
-                "timeOut": "1500",
-                "extendedTimeOut": "1000",
-                "showEasing": "swing",
-                "hideEasing": "linear",
-                "showMethod": "fadeIn",
-                "hideMethod": "fadeOut"
-            };
-
-            fetch('/api/cart/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    productId: productId,
-                    quantity: 1,
-                    size: selectedSize
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        window.location.href = '/auth/dang-nhap';
-                        return;
-                    }
-                    throw new Error('Có lỗi xảy ra');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Hiển thị thông báo thành công bằng toastr
-                toastr.success('Đã thêm sản phẩm vào giỏ hàng');
-                
-                // Đợi 1.5 giây rồi chuyển trang
-                setTimeout(() => {
-                    window.location.href = '/cart?t=' + Date.now();
-                }, 1500);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                toastr.error(error.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng');
-            });
+            
+            // Thêm class active cho option được chọn
+            element.classList.add('active');
+            selectedSize = element.getAttribute('data-size');
+            
+            // Enable nút mua ngay
+            document.querySelector('.btn-buy-now').classList.remove('disabled');
+            
+            // Hiển thị thông báo nhỏ
+            showToast(`Đã chọn loại: ${selectedSize}`);
         }
+
+        function showToast(message) {
+            // Tạo element cho toast
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.textContent = message;
+            
+            // Thêm toast vào body
+            document.body.appendChild(toast);
+            
+            // Thêm class show để hiển thị toast với animation
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Xóa toast sau 2 giây
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
+        // Thêm style cho toast
+        const style = document.createElement('style');
+        style.textContent = `
+            .toast-notification {
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%) translateY(100px);
+                background: rgba(52, 152, 219, 0.9);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 14px;
+                z-index: 1000;
+                opacity: 0;
+                transition: all 0.3s ease;
+            }
+
+            .toast-notification.show {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Thêm validation cho form submit
+        function validateForm() {
+            if (!selectedSize) {
+                showToast('Vui lòng chọn loại sản phẩm');
+                return false;
+            }
+            return true;
+        }
+
+        // Cập nhật hàm addToCart
+        function addToCart(button) {
+            if (!selectedSize) {
+                showToast('Vui lòng chọn loại sản phẩm trước khi thêm vào giỏ hàng');
+                return;
+            }
+            
+            // Tiếp tục với logic thêm vào giỏ hàng của bạn...
+            const productId = button.getAttribute('data-product-id');
+            // ... rest of your cart logic
+        }
+
+        $(document).ready(function() {
+            // Initialize the main carousel
+            $('.product-single-carousel').owlCarousel({
+                items: 1,
+                nav: true,
+                dots: false,
+                loop: true,
+                margin: 0,
+                navText: ['<i class="fas fa-chevron-left"></i>', '<i class="fas fa-chevron-right"></i>'],
+                responsive: {
+                    0: {
+                        nav: false
+                    },
+                    768: {
+                        nav: true
+                    }
+                }
+            });
+
+            // Image zoom effect
+            $('.product-single-image').each(function() {
+                $(this).ezPlus({
+                    zoomType: 'inner',
+                    cursor: 'crosshair',
+                    zoomWindowFadeIn: 500,
+                    zoomWindowFadeOut: 500,
+                    easing: true,
+                    responsive: true
+                });
+            });
+
+            // Thumbnail click handler
+            $('.thumbnail-item').on('click', function() {
+                var index = $(this).find('img').data('index');
+                $('.product-single-carousel').trigger('to.owl.carousel', [index, 300]);
+                $('.thumbnail-item').removeClass('active');
+                $(this).addClass('active');
+            });
+
+            // Update active thumbnail when carousel changes
+            $('.product-single-carousel').on('changed.owl.carousel', function(event) {
+                var index = event.item.index - event.relatedTarget._clones.length / 2;
+                index = (index + event.item.count) % event.item.count;
+                $('.thumbnail-item').removeClass('active');
+                $('.thumbnail-item').eq(index).addClass('active');
+            });
+
+            // Full screen functionality
+            $('.prod-full-screen').on('click', function() {
+                var currentImg = $('.product-single-carousel .owl-item.active .product-single-image').attr('src');
+                
+                // Create modal for fullscreen view
+                var fullscreenModal = $('<div class="modal fade" id="imageFullscreenModal" tabindex="-1" role="dialog" aria-hidden="true">' +
+                    '<div class="modal-dialog modal-dialog-centered modal-xl">' +
+                    '<div class="modal-content">' +
+                    '<div class="modal-header">' +
+                    '<button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+                    '<span aria-hidden="true">&times;</span>' +
+                    '</button>' +
+                    '</div>' +
+                    '<div class="modal-body d-flex justify-content-center align-items-center">' +
+                    '<img src="' + currentImg + '" class="img-fluid" style="max-height: 90vh;">' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>');
+                
+                // Append to body and show
+                $('body').append(fullscreenModal);
+                $('#imageFullscreenModal').modal('show');
+                
+                // Clean up on close
+                $('#imageFullscreenModal').on('hidden.bs.modal', function() {
+                    $(this).remove();
+                });
+            });
+        });
     </script>
 </th:block>
 </body>
