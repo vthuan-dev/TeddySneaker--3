@@ -803,12 +803,12 @@
 
                         <!-- Action Buttons -->
                         <div class="product-actions">
-                            <button class="btn-add-cart" onclick="addToCart(this, false)" data-product-id="4ImFfx">
+                            <button class="btn-add-cart" onclick="addToCart(this, false)" th:data-product-id="${product.id}">
                                 <i class="fas fa-shopping-cart"></i>
                                 <span>Thêm vào giỏ hàng</span>
                             </button>
 
-                            <button class="btn-buy-now" onclick="addToCart(this, true)" data-product-id="4ImFfx">
+                            <button class="btn-buy-now" onclick="addToCart(this, true)" th:data-product-id="${product.id}">
                                 <span class="buy-now-price">15,000₫</span>
                                 <span class="buy-now-text">Mua ngay</span>
                             </button>

@@ -220,7 +220,7 @@
                                 <div class="item-info-wrapper">
                                     <div class="product-info-wrapper">
                                         <div class="thumbnails" th:if="${item.productImg != null}">
-                                            <img class="img-fluid" th:src="@{${item.productImg}}" th:alt="${item.productName}" />
+                                            <img class="img-fluid" th:src="${item.productImg}" th:alt="${item.productName}" />
                                         </div>
                                         <div class="product-details">
                                             <div class="product-name" th:if="${item.productName != null}" th:text="${item.productName}"></div>

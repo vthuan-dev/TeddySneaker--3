@@ -83,70 +83,47 @@
                     </div>
                     <div class="section-body">
                         <div class="product-list">
-                            <div class="product-item">
+                            <div class="product-item" th:each="item : ${order.items}" th:if="${item != null}">
                                 <div class="product-image-container">
                                     <div class="product-image">
-                                        <img src="/media/static/84b2a160-5b16-4e57-bff1-cf84ae859a52.jpg" alt="vòng ngọc trai 2">
+                                        <img th:src="${item.productImg ?: '/shop/images/product-placeholder.jpg'}" 
+                                             th:alt="${item.productName ?: 'Sản phẩm'}"
+                                             onerror="this.onerror=null; this.src='/shop/images/product-placeholder.jpg';">
                                     </div>
                                 </div>
                                 <div class="product-content">
                                     <div class="product-info">
-                                        <h4 class="product-name">Vòng ngọc trai 2</h4>
+                                        <h4 class="product-name" th:text="${item.productName ?: 'Sản phẩm'}">Sản phẩm</h4>
                                         <div class="product-specs">
-                                            <div class="spec-item">
+                                            <div class="spec-item" th:if="${T(org.springframework.util.ReflectionUtils).findField(item.getClass(), 'sizeVn') != null || T(org.springframework.util.ReflectionUtils).findField(item.getClass(), 'sizeValue') != null}">
                                                 <span class="spec-label">Size:</span>
-                                                <span class="spec-value">38</span>
+                                                <span class="spec-value" th:text="${item.sizeVn ?: (item.sizeValue ?: '-')}">-</span>
+                                            </div>
+                                            <div class="spec-item" th:if="${T(org.springframework.util.ReflectionUtils).findField(item.getClass(), 'size') != null}">
+                                                <span class="spec-label">Size:</span>
+                                                <span class="spec-value" th:text="${item.size ?: '-'}">-</span>
                                             </div>
                                             <div class="spec-item">
                                                 <span class="spec-label">Số lượng:</span>
-                                                <span class="spec-value">2</span>
+                                                <span class="spec-value" th:text="${item.quantity ?: 0}">0</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="product-pricing">
-                                        <div class="price-row">
+                                        <div class="price-item">
                                             <span class="price-label">Đơn giá:</span>
-                                            <span class="price-value">20,999 ₫</span>
+                                            <span class="price-value" th:text="${#numbers.formatDecimal(item.price ?: 0, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span>
                                         </div>
-                                        <div class="price-row subtotal">
+                                        <div class="price-item total-price">
                                             <span class="price-label">Thành tiền:</span>
-                                            <span class="price-value">41,998 ₫</span>
+                                            <span class="price-value" th:text="${#numbers.formatDecimal(item.subtotal ?: 0, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="product-item">
-                                <div class="product-image-container">
-                                    <div class="product-image">
-                                        <img src="/media/static/aeefec3c-9c04-429e-9114-ff961ecb3e41.jpg" alt="vòng ngọc trai">
-                                    </div>
-                                </div>
-                                <div class="product-content">
-                                    <div class="product-info">
-                                        <h4 class="product-name">Vòng ngọc trai</h4>
-                                        <div class="product-specs">
-                                            <div class="spec-item">
-                                                <span class="spec-label">Size:</span>
-                                                <span class="spec-value">37</span>
-                                            </div>
-                                            <div class="spec-item">
-                                                <span class="spec-label">Số lượng:</span>
-                                                <span class="spec-value">1</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="product-pricing">
-                                        <div class="price-row">
-                                            <span class="price-label">Đơn giá:</span>
-                                            <span class="price-value">20,999 ₫</span>
-                                        </div>
-                                        <div class="price-row subtotal">
-                                            <span class="price-label">Thành tiền:</span>
-                                            <span class="price-value">20,999 ₫</span>
-                                        </div>
-                                    </div>
-                                </div>
+                            
+                            <div class="no-items" th:if="${order.items == null || order.items.isEmpty()}">
+                                <p>Không có sản phẩm nào trong đơn hàng này</p>
                             </div>
                         </div>
                     </div>
